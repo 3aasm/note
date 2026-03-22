@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تيك تاك تو | عالم المرح</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Tajawal:wght@500;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Game Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                        heading: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: '#3b82f6', // Bright Blue
+                        teamO: '#ef4444', // Bright Red
+                        bgLight: '#fef08a', // Sunny Yellow
+                        bgDark: '#0f172a', // Slate Dark
+                        panelBorder: '#0f172a', // Very dark blue/black for borders
+                        panelLight: '#ffffff',
+                        panelDark: '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            background-image: radial-gradient(#fbbf24 2px, transparent 2px);
+            background-size: 24px 24px;
+        }
+
+        .dark body {
+            background-image: radial-gradient(#1e293b 2px, transparent 2px);
+        }
+
+        /* أنيميشن دخول الصفحة */
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .page-section {
+            display: none !important;
+        }
+
+        .page-section.active {
+            display: block !important;
+            animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .stagger-item {
+            opacity: 0;
+            animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* * التصميم الكرتوني الاحترافي (Neobrutalism) */
+        .cartoon-panel {
+            background-color: var(--tw-bg-opacity, #ffffff);
+            border: 3px solid #0f172a;
+            border-radius: 1.25rem;
+            box-shadow: 4px 4px 0px #0f172a;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .dark .cartoon-panel {
+            background-color: #1e293b;
+            border-color: #020617;
+            box-shadow: 4px 4px 0px #020617;
+        }
+
+        .cartoon-btn {
+            border: 2px solid #0f172a;
+            box-shadow: 3px 3px 0px #0f172a;
+            transition: all 0.1s ease-in-out;
+            cursor: pointer;
+        }
+
+        .dark .cartoon-btn {
+            border-color: #020617;
+            box-shadow: 3px 3px 0px #020617;
+        }
+
+        .cartoon-btn:active,
+        .cartoon-btn.active-btn {
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #0f172a !important;
+        }
+
+        .dark .cartoon-btn:active,
+        .dark .cartoon-btn.active-btn {
+            box-shadow: 0px 0px 0px #020617 !important;
+        }
+
+        @media (min-width: 768px) {
+            .cartoon-panel {
+                border-width: 4px;
+                box-shadow: 6px 6px 0px #0f172a;
+                border-radius: 1.5rem;
+            }
+
+            .dark .cartoon-panel {
+                box-shadow: 6px 6px 0px #020617;
+            }
+
+            .cartoon-btn {
+                border-width: 3px;
+                box-shadow: 4px 4px 0px #0f172a;
+            }
+
+            .dark .cartoon-btn {
+                box-shadow: 4px 4px 0px #020617;
+            }
+
+            .cartoon-btn:active,
+            .cartoon-btn.active-btn {
+                transform: translate(4px, 4px);
+            }
+        }
+
+        /* خلايا اللعبة */
+        .cell {
+            background-color: #ffffff;
+            border: 3px solid #0f172a;
+            border-radius: 1rem;
+            box-shadow: 4px 4px 0px #0f172a;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .cell {
+                border-width: 4px;
+                border-radius: 1.25rem;
+                box-shadow: 6px 6px 0px #0f172a;
+            }
+        }
+
+        .dark .cell {
+            background-color: #334155;
+            border-color: #020617;
+            box-shadow: 4px 4px 0px #020617;
+        }
+
+        @media (min-width: 768px) {
+            .dark .cell {
+                box-shadow: 6px 6px 0px #020617;
+            }
+        }
+
+        .cell:empty:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #0f172a;
+            background-color: #f8fafc;
+        }
+
+        .dark .cell:empty:hover {
+            box-shadow: 2px 2px 0px #020617;
+            background-color: #475569;
+        }
+
+        .cell:not(:empty) {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #0f172a;
+        }
+
+        .dark .cell:not(:empty) {
+            box-shadow: 2px 2px 0px #020617;
+        }
+
+        @media (min-width: 768px) {
+
+            .cell:empty:hover,
+            .cell:not(:empty) {
+                transform: translate(4px, 4px);
+                box-shadow: 2px 2px 0px #0f172a;
+            }
+
+            .dark .cell:empty:hover,
+            .dark .cell:not(:empty) {
+                box-shadow: 2px 2px 0px #020617;
+            }
+        }
+
+        .marker-x {
+            color: #3b82f6;
+            animation: popInBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 2px 2px 0px #0f172a;
+        }
+
+        .marker-o {
+            color: #ef4444;
+            animation: popInBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 2px 2px 0px #0f172a;
+        }
+
+        .dark .marker-x,
+        .dark .marker-o {
+            text-shadow: 2px 2px 0px #020617;
+        }
+
+        @media (min-width: 768px) {
+
+            .marker-x,
+            .marker-o {
+                text-shadow: 3px 3px 0px #0f172a;
+            }
+
+            .dark .marker-x,
+            .dark .marker-o {
+                text-shadow: 3px 3px 0px #020617;
+            }
+        }
+
+        @keyframes popInBounce {
+            0% {
+                transform: scale(0) rotate(-15deg);
+                opacity: 0;
+            }
+
+            60% {
+                transform: scale(1.1) rotate(5deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .win-glow {
+            animation: winningDance 0.8s infinite alternate;
+            background-color: #fef08a !important;
+            border-color: #eab308 !important;
+            z-index: 10;
+        }
+
+        .dark .win-glow {
+            background-color: #ca8a04 !important;
+        }
+
+        @keyframes winningDance {
+            0% {
+                transform: translate(2px, 2px) scale(1);
+            }
+
+            100% {
+                transform: translate(0px, 0px) scale(1.03);
+            }
+        }
+
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e2e8f0;
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* مؤشر الدور في لوحة النتائج */
+        .active-turn-card-x {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4), 4px 4px 0px #0f172a !important;
+            transform: translateY(-3px) scale(1.02);
+            background-color: #eff6ff !important;
+        }
+        .dark .active-turn-card-x {
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4), 4px 4px 0px #020617 !important;
+            background-color: #1e293b !important;
+        }
+
+        .active-turn-card-o {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4), 4px 4px 0px #0f172a !important;
+            transform: translateY(-3px) scale(1.02);
+            background-color: #fef2f2 !important;
+        }
+        .dark .active-turn-card-o {
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4), 4px 4px 0px #020617 !important;
+            background-color: #1e293b !important;
+        }
+
+        #score-x-card, #score-o-card {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 3px solid transparent;
+            border-radius: 1rem;
+        }
+        @media (min-width: 768px) {
+            #score-x-card, #score-o-card { border-width: 4px; }
+        }
+
+        /* أنيميشن الأيقونات الكرتونية */
+        @keyframes cartoonBounce {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-5px) rotate(5deg); }
+        }
+        .animate-cartoon-bounce {
+            animation: cartoonBounce 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-bgLight dark:bg-bgDark text-gray-900 dark:text-gray-100 transition-colors duration-300 h-screen flex overflow-hidden selection:bg-brand selection:text-white">
+
+    <!-- شريط جانبي (للشاشات الكبيرة) -->
+    <aside id="desktop-sidebar" class="hidden md:flex flex-col w-72 p-5 z-20 relative transition-all duration-500">
+        <div class="cartoon-panel bg-white dark:bg-panelDark h-full flex flex-col overflow-hidden">
+            <div
+                class="p-6 border-b-[3px] md:border-b-4 border-panelBorder dark:border-slate-900 bg-blue-50 dark:bg-slate-800">
+                <div class="flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer"
+                    onclick="switchTab('home')">
+                    <div
+                        class="w-12 h-12 bg-yellow-400 border-2 md:border-3 border-panelBorder rounded-xl flex items-center justify-center text-2xl cartoon-btn shadow-none cursor-pointer active:translate-x-0 active:translate-y-0">
+                        <i class="fa-solid fa-gamepad text-panelBorder"></i>
+                    </div>
+                    <h1 class="text-3xl font-black font-heading tracking-tight text-panelBorder dark:text-white">
+                        إكس <span class="text-teamO">أو</span>
+                    </h1>
+                </div>
+            </div>
+
+            <nav class="flex-1 p-5 space-y-3">
+                <div class="px-2 text-xs font-black text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">
+                    القائمة الرئيسية</div>
+
+                <button onclick="switchTab('home')"
+                    class="nav-item cartoon-btn w-full flex items-center gap-4 px-4 py-3 bg-white dark:bg-slate-700 rounded-xl font-bold font-heading text-lg transition-all"
+                    data-tab="home">
+                    <div
+                        class="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/50 flex items-center justify-center border-2 border-panelBorder dark:border-slate-900">
+                        <i class="fa-solid fa-house text-yellow-600 text-sm"></i>
+                    </div>
+                    <span>الرئيسية</span>
+                </button>
+
+                <div
+                    class="px-2 text-xs font-black text-slate-500 dark:text-slate-400 mt-4 mb-2 uppercase tracking-wide">
+                    أطوار اللعب</div>
+
+                <button onclick="switchTab('local')"
+                    class="nav-item cartoon-btn w-full flex items-center gap-4 px-4 py-3 bg-white dark:bg-slate-700 rounded-xl font-bold font-heading text-lg transition-all"
+                    data-tab="local">
+                    <div
+                        class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center border-2 border-panelBorder dark:border-slate-900">
+                        <i class="fa-solid fa-user-friends text-brand text-sm"></i>
+                    </div>
+                    <span>لعب محلي</span>
+                </button>
+
+                <button onclick="switchTab('bot')"
+                    class="nav-item cartoon-btn w-full flex items-center gap-4 px-4 py-3 bg-white dark:bg-slate-700 rounded-xl font-bold font-heading text-lg transition-all"
+                    data-tab="bot">
+                    <div
+                        class="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center border-2 border-panelBorder dark:border-slate-900">
+                        <i class="fa-solid fa-robot text-purple-600 text-sm"></i>
+                    </div>
+                    <span>تحدي الذكاء</span>
+                </button>
+
+                <button onclick="switchTab('online')"
+                    class="nav-item cartoon-btn w-full flex items-center gap-4 px-4 py-3 bg-white dark:bg-slate-700 rounded-xl font-bold font-heading text-lg transition-all"
+                    data-tab="online">
+                    <div
+                        class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center border-2 border-panelBorder dark:border-slate-900">
+                        <i class="fa-solid fa-earth-americas text-green-600 text-sm"></i>
+                    </div>
+                    <span>أونلاين</span>
+                </button>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+
+        <!-- شريط علوي -->
+        <header class="h-16 z-10 flex items-center justify-between px-4 md:px-8 mt-3 md:mt-5">
+            <div class="flex items-center gap-2 flex-1">
+                <!-- زر الرجوع -->
+                <button id="header-back-btn" onclick="returnToHome()"
+                    class="hidden w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center text-panelBorder dark:text-white font-bold text-lg md:text-xl shrink-0">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <!-- شعار إكس أو -->
+                <div class="md:hidden flex items-center gap-2 cartoon-panel bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border-2 cursor-pointer shrink-0"
+                    onclick="switchTab('home')">
+                    <i class="fa-solid fa-gamepad text-brand text-sm hidden sm:block"></i>
+                    <h2 class="font-black font-heading text-lg">إكس أو</h2>
+                </div>
+
+                <!-- حالة الأونلاين (تظهر فقط في طور الأونلاين) -->
+                <div id="header-online-status"
+                    class="hidden items-center gap-1.5 cartoon-panel bg-green-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border-2 border-green-500 shadow-[2px_2px_0px_#22c55e] mr-1">
+                    <div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse border border-green-700"></div>
+                    <span class="text-[11px] md:text-xs font-black text-green-700 dark:text-green-400">سيرفر: <span
+                            id="header-code-val"
+                            class="text-panelBorder dark:text-white font-mono tracking-widest bg-white/50 dark:bg-black/20 px-1 rounded">---</span></span>
+                </div>
+            </div>
+
+            <button onclick="toggleTheme()"
+                class="w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-yellow-300 dark:bg-indigo-500 rounded-xl flex items-center justify-center text-panelBorder dark:text-white transition-all shrink-0"
+                id="theme-toggle">
+                <i class="fa-solid fa-sun text-xl md:text-2xl"></i>
+            </button>
+        </header>
+
+        <!-- منطقة الألعاب واللوحات -->
+        <div id="main-scroll-area"
+            class="flex-1 overflow-y-auto p-4 md:p-6 pb-6 scroll-smooth relative z-0 flex flex-col items-center justify-start md:justify-center">
+
+            <!-- تحديد العرض الأقصى -->
+            <div class="w-full max-w-[28rem] md:max-w-xl mx-auto">
+
+                <!-- ====== الشاشة الرئيسية (Home) تصميم جديد ممتد ====== -->
+                <div id="home-view" class="page-section w-full active">
+                    <div class="text-center mb-6 md:mb-8">
+                        <h2
+                            class="text-4xl md:text-5xl font-black font-heading mb-2 text-panelBorder dark:text-white drop-shadow-[2px_2px_0px_rgba(15,23,42,0.2)] dark:drop-shadow-none">
+                            عالم <span class="text-brand">إكس</span> <span class="text-teamO">أو</span></h2>
+                        <p
+                            class="text-sm md:text-base text-slate-600 dark:text-slate-400 font-bold bg-white/50 dark:bg-slate-800/50 inline-block px-4 py-1.5 rounded-xl border-2 border-panelBorder/10 dark:border-white/10">
+                            اختر الطور الذي يناسبك لتبدأ التحدي 🎮</p>
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                        <!-- بطاقة اللعب المحلي -->
+                        <div onclick="switchTab('local')"
+                            class="cartoon-panel bg-white dark:bg-slate-800 p-4 flex items-center justify-between hover:-translate-y-1 transition-transform cursor-pointer group w-full">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-14 h-14 shrink-0 rounded-xl bg-blue-100 dark:bg-slate-700 flex items-center justify-center text-2xl text-brand border-2 border-panelBorder dark:border-slate-900 shadow-[2px_2px_0px_#0f172a] group-hover:rotate-6 transition-transform">
+                                    <i class="fa-solid fa-user-friends"></i>
+                                </div>
+                                <div class="text-right flex-1">
+                                    <h3
+                                        class="text-xl font-black font-heading text-panelBorder dark:text-white leading-tight">
+                                        لعب محلي</h3>
+                                    <p class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">
+                                        العب مع صديقك على نفس الجهاز</p>
+                                </div>
+                            </div>
+                            <button
+                                class="cartoon-btn bg-brand text-white font-black text-sm px-4 py-2.5 rounded-lg shrink-0 flex items-center gap-2 group-hover:bg-blue-600">
+                                العب <i class="fa-solid fa-play text-xs"></i>
+                            </button>
+                        </div>
+
+                        <!-- بطاقة تحدي الذكاء -->
+                        <div onclick="switchTab('bot')"
+                            class="cartoon-panel bg-white dark:bg-slate-800 p-4 flex items-center justify-between hover:-translate-y-1 transition-transform cursor-pointer group w-full">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-14 h-14 shrink-0 rounded-xl bg-purple-100 dark:bg-slate-700 flex items-center justify-center text-2xl text-purple-600 border-2 border-panelBorder dark:border-slate-900 shadow-[2px_2px_0px_#0f172a] group-hover:-rotate-6 transition-transform">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <div class="text-right flex-1">
+                                    <h3
+                                        class="text-xl font-black font-heading text-panelBorder dark:text-white leading-tight">
+                                        تحدي الذكاء</h3>
+                                    <p class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">
+                                        واجه الروبوت في مستويات متعددة</p>
+                                </div>
+                            </div>
+                            <button
+                                class="cartoon-btn bg-purple-500 text-white font-black text-sm px-4 py-2.5 rounded-lg shrink-0 flex items-center gap-2 group-hover:bg-purple-600">
+                                العب <i class="fa-solid fa-play text-xs"></i>
+                            </button>
+                        </div>
+
+                        <!-- بطاقة الأونلاين -->
+                        <div onclick="switchTab('online')"
+                            class="cartoon-panel bg-white dark:bg-slate-800 p-4 flex items-center justify-between hover:-translate-y-1 transition-transform cursor-pointer group w-full">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-14 h-14 shrink-0 rounded-xl bg-green-100 dark:bg-slate-700 flex items-center justify-center text-2xl text-green-600 border-2 border-panelBorder dark:border-slate-900 shadow-[2px_2px_0px_#0f172a] group-hover:rotate-6 transition-transform">
+                                    <i class="fa-solid fa-earth-americas"></i>
+                                </div>
+                                <div class="text-right flex-1">
+                                    <h3
+                                        class="text-xl font-black font-heading text-panelBorder dark:text-white leading-tight">
+                                        أونلاين سيرفر</h3>
+                                    <p class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">
+                                        أنشئ غرفة والعب مع صديق عن بعد</p>
+                                </div>
+                            </div>
+                            <button
+                                class="cartoon-btn bg-green-500 text-white font-black text-sm px-4 py-2.5 rounded-lg shrink-0 flex items-center gap-2 group-hover:bg-green-600">
+                                العب <i class="fa-solid fa-play text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== شاشة اختيار تحدي الذكاء ====== -->
+                <div id="bot-config" class="page-section w-full max-w-sm mx-auto">
+                    <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center">
+                        <div
+                            class="w-20 h-20 md:w-24 md:h-24 mx-auto rounded-full bg-purple-100 dark:bg-slate-800 flex items-center justify-center text-4xl md:text-5xl text-purple-600 mb-5 border-2 md:border-4 border-panelBorder dark:border-slate-900 shadow-[3px_3px_0px_#0f172a] transform -rotate-6">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-black font-heading mb-3 text-panelBorder dark:text-white">
+                            العب ضد الروبوت</h2>
+                        <p class="text-sm md:text-base text-slate-500 dark:text-slate-400 mb-6 font-bold">اختر مستوى
+                            الذكاء الذي تريده وابدأ التحدي!</p>
+
+                        <div class="flex flex-col gap-3">
+                            <button onclick="startMode('bot', 'easy')"
+                                class="cartoon-btn w-full bg-green-200 dark:bg-green-700 py-3 rounded-xl font-black text-lg text-panelBorder dark:text-white flex items-center justify-center gap-3">
+                                <i class="fa-regular fa-face-smile text-xl"></i> مستوى سهل
+                            </button>
+                            <button onclick="startMode('bot', 'medium')"
+                                class="cartoon-btn w-full bg-yellow-200 dark:bg-yellow-600 py-3 rounded-xl font-black text-lg text-panelBorder dark:text-white flex items-center justify-center gap-3">
+                                <i class="fa-regular fa-face-meh text-xl"></i> مستوى متوسط
+                            </button>
+                            <button onclick="startMode('bot', 'legendary')"
+                                class="cartoon-btn w-full bg-red-300 dark:bg-red-700 py-3 rounded-xl font-black text-lg text-panelBorder dark:text-white flex items-center justify-center gap-3">
+                                <i class="fa-solid fa-fire text-xl"></i> مستوى أسطوري
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== شاشة اختيار الأونلاين ====== -->
+                <div id="online-config" class="page-section w-full max-w-sm mx-auto">
+                    <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center">
+                        <div
+                            class="w-20 h-20 md:w-24 md:h-24 mx-auto rounded-full bg-green-100 dark:bg-slate-800 flex items-center justify-center text-4xl md:text-5xl text-green-600 mb-5 border-2 md:border-4 border-panelBorder dark:border-slate-900 shadow-[3px_3px_0px_#0f172a] transform rotate-6">
+                            <i class="fa-solid fa-earth-americas"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-black font-heading mb-3 text-panelBorder dark:text-white">
+                            تحدي الأصدقاء</h2>
+                        <p class="text-sm md:text-base text-slate-500 dark:text-slate-400 mb-6 font-bold">أنشئ غرفة
+                            جديدة أو انضم لغرفة صديقك عبر الكود.</p>
+
+                        <div class="space-y-4">
+                            <button onclick="createRoom()"
+                                class="cartoon-btn w-full py-3 md:py-4 rounded-xl bg-brand text-white font-black text-lg flex items-center justify-center gap-3">
+                                <i class="fa-solid fa-plus-circle text-xl"></i> إنشاء غرفة جديدة
+                            </button>
+
+                            <div class="relative flex items-center my-2">
+                                <div
+                                    class="flex-grow border-t-2 md:border-t-4 border-panelBorder dark:border-slate-700 rounded">
+                                </div>
+                                <span
+                                    class="flex-shrink-0 mx-3 text-panelBorder dark:text-slate-400 font-black text-sm bg-bgLight dark:bg-bgDark px-3 py-1 rounded-lg border-2 border-panelBorder dark:border-slate-700">أو</span>
+                                <div
+                                    class="flex-grow border-t-2 md:border-t-4 border-panelBorder dark:border-slate-700 rounded">
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-3">
+                                <input type="text" id="room-input" placeholder="أدخل كود الغرفة"
+                                    class="cartoon-btn w-full bg-white dark:bg-slate-700 rounded-xl text-center px-4 py-3 outline-none font-black text-lg text-panelBorder dark:text-white placeholder-slate-400">
+                                <button onclick="joinRoom()"
+                                    class="cartoon-btn w-full bg-green-400 dark:bg-green-600 text-panelBorder dark:text-white font-black text-lg px-6 py-3 rounded-xl">
+                                    انضمام للغرفة
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== شاشة لوحة اللعب ====== -->
+                <div id="xo-board-view" class="page-section w-full max-w-[26rem] md:max-w-md mx-auto mt-0">
+                    <div class="w-full flex flex-col items-center">
+
+                        <!-- لوحة النتائج العلوية -->
+                        <div
+                            class="w-full cartoon-panel bg-white dark:bg-panelDark p-2 md:p-3 flex items-center justify-between mb-4 md:mb-5 stagger-item rounded-xl md:rounded-2xl relative min-h-[5rem]">
+
+                            <!-- فريق X -->
+                            <div id="score-x-card" class="flex flex-col items-center justify-center w-1/3">
+                                <div
+                                    class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl border-2 md:border-3 border-panelBorder dark:border-slate-900 bg-blue-100 dark:bg-slate-700 flex items-center justify-center mb-1 shadow-[2px_2px_0px_#0f172a]">
+                                    <i class="fa-solid fa-xmark text-xl md:text-2xl text-brand"></i>
+                                </div>
+                                <p id="label-x" class="text-[10px] md:text-xs text-slate-500 font-black mt-1">لاعب X</p>
+                                <span id="score-x"
+                                    class="text-xl md:text-2xl font-black font-heading text-panelBorder dark:text-white leading-none">0</span>
+                            </div>
+
+                            <!-- المنتصف (يحتوي على الطور وزر الإعادة، أو حالة الانتظار) -->
+                            <div
+                                class="flex flex-col items-center justify-center w-1/3 px-1 border-x-2 md:border-x-4 border-slate-200 dark:border-slate-700 h-full relative">
+
+                                <!-- العناصر الافتراضية (إعادة اللعب والطور) -->
+                                <div id="center-default-elements"
+                                    class="flex flex-col items-center justify-center w-full h-full">
+                                    <p id="mode-label"
+                                        class="text-[9px] md:text-[10px] font-black text-center text-slate-400 mb-2 uppercase tracking-wide truncate w-full">
+                                        ---
+                                    </p>
+                                    <button id="reset-btn" onclick="resetGame()"
+                                        class="cartoon-btn bg-yellow-300 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-panelBorder active:rotate-180 duration-300"
+                                        title="إعادة اللعب">
+                                        <i class="fa-solid fa-rotate-right text-base md:text-lg"></i>
+                                    </button>
+                                </div>
+
+                                <!-- رسالة وأنيميشن الانتظار (تظهر في الأونلاين فقط) -->
+                                <div id="center-status-elements"
+                                    class="hidden flex-col items-center justify-center w-full h-full absolute inset-0 bg-white dark:bg-panelDark z-10 rounded-lg">
+                                    <div class="text-brand text-2xl mb-1 animate-cartoon-bounce">
+                                        <i class="fa-solid fa-hourglass-half"></i>
+                                    </div>
+                                    <span id="center-status-msg"
+                                        class="text-[10px] md:text-xs font-black text-brand text-center leading-tight">بانتظار
+                                        صديقك...</span>
+                                </div>
+
+                            </div>
+
+                            <!-- فريق O -->
+                            <div id="score-o-card" class="flex flex-col items-center justify-center w-1/3">
+                                <div
+                                    class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl border-2 md:border-3 border-panelBorder dark:border-slate-900 bg-red-100 dark:bg-slate-700 flex items-center justify-center mb-1 shadow-[2px_2px_0px_#0f172a]">
+                                    <i class="fa-solid fa-o text-lg md:text-xl text-teamO"></i>
+                                </div>
+                                <p id="label-o" class="text-[10px] md:text-xs text-slate-500 font-black mt-1">لاعب O</p>
+                                <span id="score-o"
+                                    class="text-xl md:text-2xl font-black font-heading text-panelBorder dark:text-white leading-none">0</span>
+                            </div>
+                        </div>
+
+                        <!-- مؤشر الدور (مخفي حالياً بطلب المستخدم ليحل محله الأنميشين) -->
+                        <div id="turn-indicator" class="hidden h-10 w-full flex justify-center mb-3 md:mb-4 stagger-item">
+                            <div
+                                class="cartoon-panel bg-white dark:bg-slate-800 px-5 md:px-6 py-2 flex items-center gap-2.5 border-2 md:border-3 rounded-full shadow-[2px_2px_0px_#0f172a] transition-transform duration-300">
+                                <div id="turn-icon" class="text-brand text-lg md:text-xl"><i
+                                        class="fa-solid fa-xmark"></i></div>
+                                <span id="turn-text"
+                                    class="text-[11px] md:text-sm font-black text-panelBorder dark:text-white">دورك
+                                    الآن</span>
+                            </div>
+                        </div>
+
+                        <!-- شبكة اللعب -->
+                        <div
+                            class="cartoon-panel bg-slate-100 dark:bg-slate-800 p-2.5 md:p-4 w-full stagger-item mx-auto relative overflow-hidden">
+                            
+                            <div class="grid grid-cols-3 gap-2.5 md:gap-3.5 w-full aspect-square relative z-10"
+                                id="board">
+                                <div class="cell text-[2.5rem] sm:text-5xl md:text-6xl font-black leading-none"
+                                    data-index="0"></div>
+                                <div class="cell text-[2.5rem] sm:text-5xl md:text-6xl font-black leading-none"
+                                    data-index="1"></div>
+                                <div class="cell text-[2.5rem] sm:text-5xl md:text-6xl font-black leading-none"
+                                    data-index="2"></div>
+                                <div class="cell text-[2.5rem] sm:text-5xl md:text-6xl font-black leading-none"
+                                    data-index="3"></div>
+                                <div class="cell text-[2.5rem] sm:text-5xl md:text-6xl font-black leading-none"
+                                    data-index="4"></div>
+                                <div class="cell text-[2.5rem] sm:text-5xl md:text-6xl font-black leading-none"
+                                    data-index="5"></div>
+                                <div class="cell text-[2.5rem] sm:text-5xl md:text-6xl font-black leading-none"
+                                    data-index="6"></div>
+                                <div class="cell text-[2.5rem] sm:text-5xl md:text-6xl font-black leading-none"
+                                    data-index="7"></div>
+                                <div class="cell text-[2.5rem] sm:text-5xl md:text-6xl font-black leading-none"
+                                    data-index="8"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Role Selection Overlay (أونلاين) -->
+        <div id="role-selection-overlay"
+            class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4 hidden">
+            <div
+                class="w-full max-w-sm cartoon-panel bg-white dark:bg-slate-800 p-6 md:p-8 text-center shadow-[6px_6px_0px_#000]">
+                <h2 class="text-xl md:text-2xl font-black font-heading mb-2 text-panelBorder dark:text-white">اختر الرمز
+                    الخاص بك</h2>
+                <p class="text-slate-500 text-xs md:text-sm mb-6 font-bold">اسرع باختيار رمزك قبل الخصم!</p>
+
+                <div class="grid grid-cols-2 gap-3 md:gap-4">
+                    <button onclick="selectOnlineRole('X')" id="select-x-btn"
+                        class="cartoon-btn bg-blue-50 dark:bg-slate-700 p-5 rounded-xl hover:bg-blue-100 transition-all group">
+                        <i
+                            class="fa-solid fa-xmark text-4xl md:text-5xl text-brand group-hover:scale-110 transition-transform"></i>
+                        <p class="text-xs md:text-sm text-panelBorder dark:text-white font-black mt-3 uppercase">فريق X
+                        </p>
+                    </button>
+                    <button onclick="selectOnlineRole('O')" id="select-o-btn"
+                        class="cartoon-btn bg-red-50 dark:bg-slate-700 p-5 rounded-xl hover:bg-red-100 transition-all group">
+                        <i
+                            class="fa-solid fa-o text-3xl md:text-4xl text-teamO group-hover:scale-110 transition-transform mt-1"></i>
+                        <p class="text-xs md:text-sm text-panelBorder dark:text-white font-black mt-3 uppercase">فريق O
+                        </p>
+                    </button>
+                </div>
+
+                <!-- رسالة تزامن الشبكة تظهر مكان الأزرار أثناء التحميل -->
+                <div id="selection-status"
+                    class="mt-6 text-[10px] md:text-xs text-brand font-black hidden animate-pulse bg-blue-100 dark:bg-slate-700 inline-block px-4 py-2 rounded-lg border-2 border-brand">
+                    جاري مزامنة الشبكة...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JS Logic -->
+    <script>
+        // --- Theme Management ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.querySelector('#theme-toggle i');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxIfNqb8Jdq-DyCLV5AqN7_4BK9PILYII",
+            authDomain: "myplay-5d574.firebaseapp.com",
+            projectId: "myplay-5d574",
+            storageBucket: "myplay-5d574.firebasestorage.app",
+            messagingSenderId: "937385025400",
+            appId: "1:937385025400:web:43bc15a49750601814b28d",
+            measurementId: "G-M98WPSMHFZ"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // --- Game State Vars ---
+        let currentTab = 'home';
+        let gameMode = 'local';
+        let botDifficulty = 'medium';
+        let currentPlayer = 'X';
+        let myRole = null;
+        let gameState = ["", "", "", "", "", "", "", "", ""];
+        let gameActive = true;
+        let scores = { X: 0, O: 0 };
+        let currentRoomId = null;
+        let selectionPhase = false;
+        let isHost = false;
+
+        let myPlayerId = sessionStorage.getItem('xo_player_id');
+        if (!myPlayerId) {
+            myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
+            sessionStorage.setItem('xo_player_id', myPlayerId);
+        }
+
+        // --- DOM Elements ---
+        const cells = document.querySelectorAll('.cell');
+        const homeView = document.getElementById('home-view');
+        const botConfigView = document.getElementById('bot-config');
+        const onlineConfigView = document.getElementById('online-config');
+        const boardView = document.getElementById('xo-board-view');
+
+        const roleOverlay = document.getElementById('role-selection-overlay');
+        const modeLabel = document.getElementById('mode-label');
+        const turnText = document.getElementById('turn-text');
+        const turnIndicator = document.getElementById('turn-indicator');
+
+        // عناصر مركز لوحة النتائج
+        const centerDefaultElements = document.getElementById('center-default-elements');
+        const centerStatusElements = document.getElementById('center-status-elements');
+        const centerStatusMsg = document.getElementById('center-status-msg');
+
+        // شريط الأونلاين العلوي
+        const headerOnlineStatus = document.getElementById('header-online-status');
+        const headerCodeVal = document.getElementById('header-code-val');
+        const headerBackBtn = document.getElementById('header-back-btn');
+
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        // --- Navigation Control ---
+        function updateNavUI(tab) {
+            // Update Desktop Sidebar
+            document.querySelectorAll('.nav-item').forEach(el => {
+                if (el.getAttribute('data-tab') === tab) {
+                    el.classList.add('bg-blue-50', 'dark:bg-slate-600', 'border-2', 'md:border-3', 'border-panelBorder', 'dark:border-slate-900', 'translate-x-2');
+                    el.classList.remove('bg-white', 'dark:bg-slate-700');
+                } else {
+                    el.classList.remove('bg-blue-50', 'dark:bg-slate-600', 'border-2', 'md:border-3', 'border-panelBorder', 'dark:border-slate-900', 'translate-x-2');
+                    el.classList.add('bg-white', 'dark:bg-slate-700');
+                }
+            });
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            updateNavUI(tab);
+
+            if (tab !== 'online' && currentRoomId) {
+                db.ref('rooms/' + currentRoomId).off();
+                currentRoomId = null;
+            }
+
+            // إخفاء جميع الصفحات
+            homeView.classList.remove('active');
+            botConfigView.classList.remove('active');
+            onlineConfigView.classList.remove('active');
+            boardView.classList.remove('active');
+
+            // إخفاء زر الرجوع والشريط العلوي للأونلاين عند التواجد في الرئيسية
+            if (tab === 'home') {
+                headerBackBtn.classList.add('hidden');
+                headerOnlineStatus.classList.add('hidden');
+                headerOnlineStatus.classList.remove('flex');
+            } else {
+                headerBackBtn.classList.remove('hidden');
+            }
+
+            setTimeout(() => {
+                if (tab === 'home') {
+                    homeView.classList.add('active');
+                } else if (tab === 'local') {
+                    startMode('local');
+                } else if (tab === 'bot') {
+                    botConfigView.classList.add('active');
+                } else if (tab === 'online') {
+                    onlineConfigView.classList.add('active');
+                }
+            }, 50);
+        }
+
+        function returnToHome() {
+            switchTab('home');
+        }
+
+        // --- Game Initialization ---
+        function startMode(mode, diff = 'medium') {
+            gameMode = mode;
+            botDifficulty = diff;
+
+            botConfigView.classList.remove('active');
+            onlineConfigView.classList.remove('active');
+            homeView.classList.remove('active');
+
+            headerBackBtn.classList.remove('hidden');
+
+            // إخفاء شريط الأونلاين العلوي إذا لم نكن في طور الأونلاين
+            if (mode !== 'online') {
+                headerOnlineStatus.classList.add('hidden');
+                headerOnlineStatus.classList.remove('flex');
+            }
+
+            setTimeout(() => {
+                boardView.classList.add('active');
+            }, 50);
+
+            resetGame();
+            hideCenterStatus(); // التأكد من إظهار زر الإعادة بشكل افتراضي
+
+            if (mode === 'local') {
+                modeLabel.textContent = 'مواجهة محلية';
+                document.getElementById('label-x').textContent = 'لاعب X';
+                document.getElementById('label-o').textContent = 'لاعب O';
+            } else if (mode === 'bot') {
+                modeLabel.textContent = `تحدي الذكاء (${diff === 'easy' ? 'سهل' : diff === 'medium' ? 'متوسط' : 'أسطوري'})`;
+                document.getElementById('label-x').textContent = 'أنت (X)';
+                document.getElementById('label-o').textContent = 'الروبوت (O)';
+            }
+        }
+
+        // --- Bot Logic ---
+        function botMove() {
+            if (!gameActive || currentPlayer !== 'O') return;
+            let moveIndex = botDifficulty === 'easy' ? getRandomMove() :
+                botDifficulty === 'medium' ? getMediumMove() : getLegendaryMove();
+            setTimeout(() => { if (gameActive) handleMove(moveIndex); }, 600);
+        }
+
+        function getRandomMove() {
+            let available = gameState.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+            return available[Math.floor(Math.random() * available.length)];
+        }
+
+        function getMediumMove() {
+            for (let cond of winningConditions) {
+                let vals = cond.map(i => gameState[i]);
+                if (vals.filter(v => v === 'O').length === 2 && vals.filter(v => v === "").length === 1) return cond[vals.indexOf("")];
+            }
+            for (let cond of winningConditions) {
+                let vals = cond.map(i => gameState[i]);
+                if (vals.filter(v => v === 'X').length === 2 && vals.filter(v => v === "").length === 1) return cond[vals.indexOf("")];
+            }
+            if (gameState[4] === "") return 4;
+            return getRandomMove();
+        }
+
+        function minimax(state, depth, isMaximizing) {
+            let res = checkWinnerStatic(state);
+            if (res === 'O') return 10 - depth;
+            if (res === 'X') return depth - 10;
+            if (!state.includes("")) return 0;
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (state[i] === "") {
+                        state[i] = 'O';
+                        bestScore = Math.max(minimax(state, depth + 1, false), bestScore);
+                        state[i] = "";
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (state[i] === "") {
+                        state[i] = 'X';
+                        bestScore = Math.min(minimax(state, depth + 1, true), bestScore);
+                        state[i] = "";
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        function getLegendaryMove() {
+            let bestScore = -Infinity;
+            let move = -1;
+            for (let i = 0; i < 9; i++) {
+                if (gameState[i] === "") {
+                    gameState[i] = 'O';
+                    let score = minimax(gameState, 0, false);
+                    gameState[i] = "";
+                    if (score > bestScore) { bestScore = score; move = i; }
+                }
+            }
+            return move;
+        }
+
+        function checkWinnerStatic(state) {
+            for (let cond of winningConditions) {
+                const [a, b, c] = cond;
+                if (state[a] && state[a] === state[b] && state[a] === state[c]) return state[a];
+            }
+            return null;
+        }
+
+        // --- Online Logic ---
+        function createRoom() {
+            const randomCode = Math.floor(100000 + Math.random() * 900000).toString();
+            startOnlineMode(randomCode, true);
+        }
+
+        function joinRoom() {
+            const input = document.getElementById('room-input').value.trim();
+            if (!input) return;
+            startOnlineMode(input, false);
+        }
+
+        function startOnlineMode(roomId, isCreating) {
+            currentRoomId = roomId;
+            gameMode = 'online';
+            isHost = isCreating;
+
+            onlineConfigView.classList.remove('active');
+            headerBackBtn.classList.remove('hidden');
+
+            setTimeout(() => {
+                boardView.classList.add('active');
+            }, 50);
+
+            modeLabel.textContent = 'أونلاين';
+
+            // إظهار الكود في الشريط العلوي
+            headerCodeVal.textContent = currentRoomId;
+            headerOnlineStatus.classList.remove('hidden');
+            headerOnlineStatus.classList.add('flex');
+
+            db.ref('rooms/' + currentRoomId).once('value', snap => {
+                if (snap.exists() && !isCreating) {
+                    db.ref('rooms/' + currentRoomId + '/player2').set(true);
+                    setupRoomListener();
+                } else {
+                    db.ref('rooms/' + currentRoomId).set({
+                        board: ["", "", "", "", "", "", "", "", ""],
+                        turn: 'X',
+                        player2: false,
+                        active: false,
+                        choiceX: null,
+                        choiceO: null,
+                        lastUpdate: Date.now()
+                    });
+                    setupRoomListener();
+                }
+            });
+        }
+
+        function selectOnlineRole(role) {
+            if (!currentRoomId || !selectionPhase) return;
+            const node = role === 'X' ? 'choiceX' : 'choiceO';
+            db.ref('rooms/' + currentRoomId + '/' + node).transaction((val) => {
+                if (val === null) return myPlayerId;
+                return;
+            }, (error, committed) => {
+                if (committed) {
+                    myRole = role;
+                    document.getElementById('selection-status').classList.remove('hidden');
+                }
+            });
+        }
+
+        function setupRoomListener() {
+            db.ref('rooms/' + currentRoomId).on('value', snap => {
+                const data = snap.val();
+                if (!data) return;
+
+                if (data.choiceX === myPlayerId) myRole = 'X';
+                else if (data.choiceO === myPlayerId) myRole = 'O';
+                else if (data.choiceX && data.choiceO && !myRole) myRole = null;
+
+                if (data.board && !Array.isArray(data.board)) {
+                    const boardArray = new Array(9).fill("");
+                    Object.keys(data.board).forEach(key => { boardArray[parseInt(key)] = data.board[key]; });
+                    gameState = boardArray;
+                } else {
+                    gameState = data.board || new Array(9).fill("");
+                }
+
+                currentPlayer = data.turn;
+                updateVisualBoard();
+
+                if (!data.player2) {
+                    showCenterStatus("بانتظار صديقك...");
+                    gameActive = false;
+                    roleOverlay.classList.add('hidden');
+                    return;
+                }
+
+                if (!data.active) {
+                    selectionPhase = true;
+                    roleOverlay.classList.remove('hidden');
+
+                    const xBtn = document.getElementById('select-x-btn');
+                    const oBtn = document.getElementById('select-o-btn');
+
+                    if (data.choiceX) {
+                        xBtn.classList.add('opacity-50', 'pointer-events-none');
+                        if (data.choiceX === myPlayerId) xBtn.classList.add('border-2', 'border-brand', 'bg-blue-200');
+                    } else xBtn.classList.remove('opacity-50', 'pointer-events-none', 'border-2', 'border-brand', 'bg-blue-200');
+
+                    if (data.choiceO) {
+                        oBtn.classList.add('opacity-50', 'pointer-events-none');
+                        if (data.choiceO === myPlayerId) oBtn.classList.add('border-2', 'border-teamO', 'bg-red-200');
+                    } else oBtn.classList.remove('opacity-50', 'pointer-events-none', 'border-2', 'border-teamO', 'bg-red-200');
+
+                    if (data.choiceX && data.choiceO) {
+                        selectionPhase = false;
+                        roleOverlay.classList.add('hidden');
+                        if (!data.active && isHost) db.ref('rooms/' + currentRoomId).update({ active: true });
+                    } else if (myRole) {
+                        document.getElementById('selection-status').classList.remove('hidden');
+                    } else {
+                        document.getElementById('selection-status').classList.add('hidden');
+                    }
+                    showCenterStatus("تحديد الرموز...");
+                    gameActive = false;
+                }
+
+                if (data.active) {
+                    roleOverlay.classList.add('hidden');
+                    selectionPhase = false;
+
+                    const winResult = findWinner(gameState);
+                    const isDraw = !winResult && !gameState.includes("");
+
+                    if (winResult || isDraw) {
+                        gameActive = false;
+                        if (winResult) showWinEffect(winResult.winner, winResult.pattern);
+                        else turnText.textContent = "تعادل !";
+                    } else {
+                        gameActive = true;
+                        hideCenterStatus();
+                        updateTurnIndicator();
+                    }
+
+                    const labX = document.getElementById('label-x');
+                    const labO = document.getElementById('label-o');
+                    if (myRole === 'X') { labX.textContent = 'أنت (X)'; labO.textContent = 'الخصم (O)'; }
+                    else if (myRole === 'O') { labX.textContent = 'الخصم (X)'; labO.textContent = 'أنت (O)'; }
+                }
+            });
+        }
+
+        // إظهار حالة الانتظار في منتصف لوحة النتائج العلوية
+        function showCenterStatus(msg) {
+            centerDefaultElements.classList.add('hidden');
+            centerDefaultElements.classList.remove('flex');
+
+            centerStatusElements.classList.remove('hidden');
+            centerStatusElements.classList.add('flex');
+            centerStatusMsg.textContent = msg;
+
+            turnIndicator.classList.add('opacity-0'); // إخفاء مؤشر الدور بهدوء
+        }
+
+        // إخفاء حالة الانتظار وإظهار زر الإعادة في لوحة النتائج العلوية
+        function hideCenterStatus() {
+            centerDefaultElements.classList.remove('hidden');
+            centerDefaultElements.classList.add('flex');
+
+            centerStatusElements.classList.add('hidden');
+            centerStatusElements.classList.remove('flex');
+
+            turnIndicator.classList.remove('opacity-0');
+        }
+
+        // --- Core Mechanics ---
+        function handleCellClick(cell) {
+            const index = cell.getAttribute('data-index');
+            if (gameState[index] !== "" || !gameActive) return;
+
+            if (gameMode === 'online') {
+                if (!myRole || currentPlayer !== myRole) return;
+                let nextBoard = [...gameState];
+                nextBoard[index] = myRole;
+                db.ref('rooms/' + currentRoomId).update({
+                    board: nextBoard,
+                    turn: myRole === 'X' ? 'O' : 'X',
+                    active: true,
+                    lastUpdate: Date.now()
+                });
+            } else {
+                handleMove(index);
+            }
+        }
+
+        function handleMove(index) {
+            gameState[index] = currentPlayer;
+            updateVisualBoard();
+            if (checkLocalResult()) return;
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateTurnIndicator();
+            if (gameMode === 'bot' && currentPlayer === 'O') botMove();
+        }
+
+        function updateVisualBoard() {
+            cells.forEach((cell, i) => {
+                const val = gameState[i];
+                if (val === 'X') {
+                    cell.innerHTML = '<i class="fa-solid fa-xmark marker-x"></i>';
+                } else if (val === 'O') {
+                    cell.innerHTML = '<i class="fa-solid fa-o marker-o text-[0.9em]"></i>';
+                } else {
+                    cell.innerHTML = "";
+                    cell.classList.remove('win-glow');
+                }
+            });
+        }
+
+        function findWinner(board) {
+            for (let cond of winningConditions) {
+                const [a, b, c] = cond;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) return { winner: board[a], pattern: [a, b, c] };
+            }
+            return null;
+        }
+
+        function checkLocalResult() {
+            const winRes = findWinner(gameState);
+            if (winRes) {
+                gameActive = false;
+                if (gameMode === 'online') db.ref('rooms/' + currentRoomId + '/active').set(false);
+                showWinEffect(winRes.winner, winRes.pattern);
+                return true;
+            }
+            if (!gameState.includes("")) {
+                gameActive = false;
+                turnText.textContent = "تعادل !";
+                if (gameMode === 'online') db.ref('rooms/' + currentRoomId + '/active').set(false);
+                return true;
+            }
+            return false;
+        }
+
+        function showWinEffect(winner, pattern) {
+            turnText.textContent = `الفائز ${winner} !`;
+            turnIndicator.classList.remove('opacity-0');
+            pattern.forEach(idx => cells[idx].classList.add('win-glow'));
+
+            if (!cells[pattern[0]].getAttribute('data-win-anim')) {
+                cells[pattern[0]].setAttribute('data-win-anim', 'done');
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: winner === 'X' ? ['#3b82f6', '#93c5fd', '#ffffff'] : ['#ef4444', '#fca5a5', '#ffffff'],
+                    disableForReducedMotion: true
+                });
+            }
+            scores[winner]++;
+            document.getElementById('score-x').textContent = scores.X;
+            document.getElementById('score-o').textContent = scores.O;
+        }
+
+        function updateTurnIndicator() {
+            if (!gameActive) return;
+            const icon = document.getElementById('turn-icon');
+            const turnText = document.getElementById('turn-text');
+            const cardX = document.getElementById('score-x-card');
+            const cardO = document.getElementById('score-o-card');
+
+            let turnLabel = "";
+            let iconHTML = "";
+            let iconClass = "";
+
+            // إزالة التمييز السابق
+            cardX.classList.remove('active-turn-card-x');
+            cardO.classList.remove('active-turn-card-o');
+
+            if (currentPlayer === 'X') {
+                turnLabel = (gameMode === 'online' && myRole === 'X') ? "دورك" : (gameMode === 'online' ? "دور الخصم" : (gameMode === 'bot' ? "دورك" : "دور X"));
+                iconHTML = '<i class="fa-solid fa-xmark"></i>';
+                iconClass = "text-brand text-lg md:text-xl";
+                cardX.classList.add('active-turn-card-x');
+            } else {
+                turnLabel = (gameMode === 'online' && myRole === 'O') ? "دورك" : (gameMode === 'online' ? "دور الخصم" : (gameMode === 'bot' ? "دور الروبوت" : "دور O"));
+                iconHTML = '<i class="fa-solid fa-o"></i>';
+                iconClass = "text-teamO text-lg md:text-xl";
+                cardO.classList.add('active-turn-card-o');
+            }
+
+            // تحديث المؤشر الرئيسي (حتى لو كان مخفياً)
+            turnText.textContent = turnLabel;
+            icon.innerHTML = iconHTML;
+            icon.className = iconClass;
+        }
+
+        function resetGame() {
+            if (gameMode === 'online' && currentRoomId) {
+                db.ref('rooms/' + currentRoomId).update({
+                    board: ["", "", "", "", "", "", "", "", ""],
+                    turn: 'X',
+                    active: false,
+                    choiceX: null,
+                    choiceO: null,
+                    lastUpdate: Date.now()
+                });
+                myRole = null;
+            } else {
+                gameState = ["", "", "", "", "", "", "", "", ""];
+                currentPlayer = 'X';
+                gameActive = true;
+                updateVisualBoard();
+                updateTurnIndicator();
+                cells.forEach(c => { c.classList.remove('win-glow'); c.removeAttribute('data-win-anim'); });
+            }
+        }
+
+        cells.forEach(c => c.addEventListener('click', () => handleCellClick(c)));
+
+        // بدء التطبيق بالصفحة الرئيسية
+        switchTab('home');
+
+    </script>
+</body>
+
+</html>

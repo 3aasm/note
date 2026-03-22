@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برو أرينا | منصة المحترفين</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts (Tajawal for text, Cairo for bold headings) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Tajawal:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                        heading: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: '#e11d48', // Crimson Red
+                        brandHover: '#be123c',
+                        surfaceDark: '#0a0a0a', // True Black
+                        panelDark: '#171717', // Neutral 900
+                        borderDark: '#262626',
+                        surfaceLight: '#f4f4f5',
+                        panelLight: '#ffffff',
+                        borderLight: '#e4e4e7',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* تأثير القطع المائل (Angled Cut) المميز لألعاب الـ E-Sports */
+        .clip-angled {
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+        }
+
+        .clip-angled-btn {
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        /* -----------------------------------------
+           تطوير الأنيميشن والانتقالات
+           ----------------------------------------- */
+
+        /* أنيميشن خروج الصفحة */
+        @keyframes fadeOutDown {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(10px) scale(0.98);
+            }
+        }
+
+        /* أنيميشن دخول الصفحة */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .page-section.exiting {
+            display: block;
+            animation: fadeOutDown 0.25s ease-in forwards;
+        }
+
+        /* أنيميشن متدرج للعناصر داخل الصفحات (Staggered Items) */
+        .stagger-item {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .stagger-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* شريط التمرير ميكانيكي */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #171717;
+        }
+
+        .light ::-webkit-scrollbar-track {
+            background: #f4f4f5;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #e11d48;
+            border-radius: 0;
+        }
+
+        /* الرسوم المتحركة للخلفية المخططة */
+        .bg-stripes {
+            background-image: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(225, 29, 72, 0.05) 10px,
+                    rgba(225, 29, 72, 0.05) 20px);
+        }
+
+        /* -----------------------------------------
+           تطوير الـ Game Sheet (النافذة المنزلقة)
+           ----------------------------------------- */
+        #game-sheet-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        #game-sheet-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #game-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--panel-bg);
+            z-index: 101;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+            border-top-left-radius: 2rem;
+            border-top-right-radius: 2rem;
+            box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #game-sheet.active {
+            transform: translateY(0);
+            border-radius: 0; /* Cover full screen without radius when active */
+        }
+
+        .sheet-handle {
+            width: 50px;
+            height: 5px;
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 10px;
+            margin: 12px auto;
+            cursor: grab;
+        }
+
+        .sheet-handle:active {
+            cursor: grabbing;
+        }
+
+        #game-iframe {
+            width: 100%;
+            height: calc(100% - 30px);
+            border: none;
+        }
+        /* تفاعل الأزرار في الجوال */
+        .active-mob {
+            color: #e11d48 !important;
+            border-top-color: #e11d48 !important;
+            background: linear-gradient(to bottom, rgba(225, 29, 72, 0.1), transparent);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-surfaceLight dark:bg-surfaceDark text-gray-900 dark:text-gray-100 transition-colors duration-200 h-screen flex overflow-hidden selection:bg-brand selection:text-white">
+
+    <!-- شريط جانبي ثابت (للشاشات الكبيرة) - تصميم لوحة تحكم -->
+    <aside
+        class="hidden md:flex flex-col w-64 bg-panelLight dark:bg-panelDark border-l border-borderLight dark:border-borderDark z-20 relative transition-colors duration-300">
+        <!-- زينة حمراء علوية -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-brand"></div>
+
+        <div class="p-6 pb-2 border-b border-borderLight dark:border-borderDark">
+            <div class="flex items-center gap-3 mb-6 hover:scale-105 transition-transform cursor-pointer">
+                <div
+                    class="w-10 h-10 bg-brand text-white flex items-center justify-center text-xl clip-angled-btn shadow-lg shadow-brand/20">
+                    <i class="fa-solid fa-crosshairs animate-[spin_10s_linear_infinite]"></i>
+                </div>
+                <h1 class="text-2xl font-black font-heading uppercase tracking-widest text-gray-900 dark:text-white">
+                    برو <span class="text-brand">أرينا</span>
+                </h1>
+            </div>
+        </div>
+
+        <nav class="flex-1 py-6 space-y-1">
+            <div class="px-6 text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">القائمة الرئيسية</div>
+
+            <button onclick="switchPage('home')"
+                class="nav-item active w-full flex items-center gap-4 px-6 py-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
+                data-target="home">
+                <i class="fa-solid fa-home text-lg w-6 text-center transition-transform group-hover:scale-110"></i>
+                <span class="font-bold font-heading">مقر القيادة</span>
+            </button>
+
+            <button onclick="switchPage('games')"
+                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
+                data-target="games">
+                <i class="fa-solid fa-gamepad text-lg w-6 text-center transition-transform group-hover:scale-110"></i>
+                <span class="font-bold font-heading">ساحة المعركة</span>
+            </button>
+
+            <button onclick="switchPage('messages')"
+                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
+                data-target="messages">
+                <i
+                    class="fa-solid fa-comment-dots text-lg w-6 text-center relative transition-transform group-hover:scale-110">
+                    <span
+                        class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-brand rounded-full border-2 border-panelLight dark:border-panelDark animate-pulse"></span>
+                </i>
+                <span class="font-bold font-heading">التحالفات</span>
+            </button>
+
+            <button onclick="switchPage('settings')"
+                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
+                data-target="settings">
+                <i class="fa-solid fa-gear text-lg w-6 text-center transition-transform group-hover:rotate-90"></i>
+                <span class="font-bold font-heading">الترسانة</span>
+            </button>
+        </nav>
+
+        <!-- قسم المستخدم السفلي -->
+        <div
+            class="p-4 border-t border-borderLight dark:border-borderDark bg-gray-50 dark:bg-black/20 hover:bg-gray-100 dark:hover:bg-black/40 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 border-2 border-brand clip-angled-btn overflow-hidden group-hover:scale-105 transition-transform">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sniper&backgroundColor=e11d48"
+                            alt="User" class="w-full h-full bg-panelDark">
+                    </div>
+                    <div>
+                        <h4 class="font-bold font-heading text-sm group-hover:text-brand transition-colors">القناص
+                            العربي</h4>
+                        <div class="text-xs text-brand font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-trophy"></i> تصنيف: النخبة
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-stripes">
+
+        <!-- شريط علوي أدوات -->
+        <header
+            class="h-16 border-b border-borderLight dark:border-borderDark bg-panelLight/90 dark:bg-panelDark/90 backdrop-blur-sm z-10 flex items-center justify-between px-6 transition-colors duration-300">
+
+            <!-- العنوان الديناميكي للصفحة -->
+            <div class="flex items-center gap-2">
+                <h2 id="header-title"
+                    class="text-lg md:text-xl font-black font-heading uppercase text-gray-900 dark:text-white transition-all duration-300">
+                    مقر القيادة</h2>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="toggleTheme()"
+                    class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-brand transition-all hover:scale-110 active:scale-90"
+                    id="theme-toggle">
+                    <i class="fa-solid fa-moon text-lg"></i>
+                </button>
+                <div class="w-px h-6 bg-borderLight dark:bg-borderDark"></div>
+                <button
+                    class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-brand transition-all hover:scale-110 active:scale-90 hover:rotate-12 relative">
+                    <i class="fa-solid fa-bell text-lg"></i>
+                    <span
+                        class="absolute top-1 right-1 w-2 h-2 bg-brand rounded-full border border-panelLight dark:border-panelDark"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- منطقة الصفحات -->
+        <div id="main-scroll-area" class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 scroll-smooth">
+
+            <!-- 1. مقر القيادة (الرئيسية) -->
+            <div id="home-page" class="page-section active max-w-6xl mx-auto space-y-8">
+                <!-- بانر البطولة (تم تقليل الارتفاع وتعديل النصوص للجوال) -->
+                <div class="stagger-item relative h-56 md:h-72 bg-black clip-angled overflow-hidden group">
+                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop"
+                        class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                    <div class="absolute inset-0 bg-brand/20 mix-blend-overlay"></div>
+
+                    <div
+                        class="absolute bottom-0 left-0 w-full p-4 md:p-8 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+                        <div class="transform transition-transform duration-500 group-hover:translate-x-2">
+                            <span
+                                class="bg-brand text-white text-[10px] md:text-xs font-bold px-3 py-1 uppercase tracking-wider mb-2 md:mb-3 inline-block clip-angled-btn animate-pulse">بث
+                                مباشر</span>
+                            <h1
+                                class="text-2xl md:text-4xl font-black font-heading text-white mb-1 md:mb-2 uppercase drop-shadow-lg leading-tight">
+                                بطولة
+                                الأبطال 2026</h1>
+                            <p class="text-gray-300 font-medium text-xs md:text-sm">النهائي الكبير: فريق الصقور ضد
+                                أساطير الويب</p>
+                        </div>
+                        <button
+                            class="bg-brand hover:bg-brandHover text-white font-bold py-2 md:py-3 px-6 md:px-8 clip-angled-btn transition-all active:scale-95 flex items-center gap-2 uppercase tracking-wider group/btn text-sm md:text-base self-end md:self-auto w-full md:w-auto justify-center">
+                            <i class="fa-solid fa-play group-hover/btn:scale-125 transition-transform"></i> شاهد الآن
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- القسم الأيمن: البثوث والنشاط -->
+                    <div class="md:col-span-2 space-y-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-2xl font-black font-heading border-r-4 border-brand pr-3 uppercase">أبرز المواجهات</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">تحديث تلقائي</span>
+                                <div class="w-24 h-1 bg-gray-200 dark:bg-gray-800 relative overflow-hidden">
+                                    <div id="matches-progress" class="absolute top-0 right-0 h-full bg-brand w-0 transition-none"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="matches-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 transition-all duration-500 min-h-[180px]">
+                            <!-- سيتم توليد المحتوى بواسطة JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- القسم الأيسر: المتصدرين -->
+                    <div class="space-y-6">
+                        <h3
+                            class="stagger-item text-2xl font-black font-heading border-r-4 border-gray-400 pr-3 uppercase">
+                            قائمة
+                            الشرف</h3>
+
+                        <div
+                            class="stagger-item bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark transition-colors">
+                            <!-- المركز الأول -->
+                            <div
+                                class="flex items-center gap-3 p-4 border-b border-borderLight dark:border-borderDark bg-brand/5 relative overflow-hidden group hover:bg-brand/10 transition-colors cursor-default">
+                                <div class="absolute left-0 top-0 h-full w-1 bg-brand"></div>
+                                <div class="font-black font-heading text-xl text-brand w-6 text-center">1</div>
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=King"
+                                    class="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-none border border-brand group-hover:scale-110 transition-transform">
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-sm">DarkKnight</h4>
+                                    <p class="text-xs text-gray-500">98,450 نقطة</p>
+                                </div>
+                                <i class="fa-solid fa-crown text-yellow-500 animate-bounce"></i>
+                            </div>
+
+                            <!-- المركز الثاني -->
+                            <div
+                                class="flex items-center gap-3 p-4 border-b border-borderLight dark:border-borderDark hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group cursor-default">
+                                <div class="font-black font-heading text-lg text-gray-400 w-6 text-center">2</div>
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Pro"
+                                    class="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-none group-hover:scale-110 transition-transform">
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-sm">SilentSniper</h4>
+                                    <p class="text-xs text-gray-500">95,120 نقطة</p>
+                                </div>
+                            </div>
+
+                            <!-- المركز الثالث -->
+                            <div
+                                class="flex items-center gap-3 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group cursor-default">
+                                <div class="font-black font-heading text-lg text-orange-400 w-6 text-center">3</div>
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Gamer"
+                                    class="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-none group-hover:scale-110 transition-transform">
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-sm">ArabHawk</h4>
+                                    <p class="text-xs text-gray-500">92,000 نقطة</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            class="stagger-item w-full py-3 border border-borderLight dark:border-borderDark text-sm font-bold hover:bg-brand hover:border-brand hover:text-white transition-all active:scale-95 uppercase tracking-widest">عرض
+                            القائمة الكاملة</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. ساحة المعركة (الألعاب) -->
+            <div id="games-page" class="page-section max-w-6xl mx-auto space-y-6">
+
+                <!-- شريط البحث والتصنيفات (بدلاً من العنوان السابق) -->
+                <div class="stagger-item flex flex-col md:flex-row justify-between items-center gap-4 mb-2">
+
+                    <!-- مربع البحث -->
+                    <div class="relative w-full md:w-96 flex-shrink-0">
+                        <input type="text" placeholder="ابحث عن لعبة..."
+                            class="w-full bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark text-gray-900 dark:text-white px-4 py-2.5 pr-10 focus:outline-none focus:border-brand clip-angled-btn transition-colors placeholder-gray-400">
+                        <i class="fa-solid fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+
+                    <!-- أزرار التصنيف -->
+                    <div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                        <button onclick="filterGames('all')"
+                            class="category-btn active bg-brand text-white px-6 py-2.5 font-bold clip-angled-btn whitespace-nowrap active:scale-95 transition-all">الكل</button>
+                        <button onclick="filterGames('group')"
+                            class="category-btn bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark text-gray-600 dark:text-gray-300 px-6 py-2.5 font-bold clip-angled-btn whitespace-nowrap hover:border-brand hover:text-brand transition-all active:scale-95">جماعية</button>
+                        <button onclick="filterGames('1v1')"
+                            class="category-btn bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark text-gray-600 dark:text-gray-300 px-6 py-2.5 font-bold clip-angled-btn whitespace-nowrap hover:border-brand hover:text-brand transition-all active:scale-95">1
+                            ضد 1</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+                    <!-- لعبة 1 (مستطيل كامل) -->
+                    <div
+                        class="stagger-item col-span-2 md:col-span-3 lg:col-span-4 bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:-translate-y-1 hover:border-brand hover:shadow-xl hover:shadow-brand/10 transition-all duration-300 group flex flex-col sm:flex-row">
+                        <div
+                            class="sm:w-1/3 lg:w-1/4 h-32 sm:h-full min-h-[160px] bg-red-900/10 relative overflow-hidden flex items-center justify-center border-b sm:border-b-0 sm:border-l border-borderLight dark:border-borderDark/50">
+                            <i
+                                class="fa-solid fa-xmarks-lines text-6xl text-brand opacity-20 group-hover:scale-110 group-hover:opacity-40 transition-all duration-500 group-hover:rotate-12"></i>
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-l from-panelLight dark:from-panelDark to-transparent">
+                            </div>
+                        </div>
+                        <div class="p-4 sm:p-6 flex-1 flex flex-col justify-center relative z-10">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3
+                                    class="font-black font-heading text-2xl uppercase group-hover:text-brand transition-colors">
+                                    لعبة XO</h3>
+                                <span class="bg-brand text-white text-[10px] font-bold px-2 py-0.5">كلاسيك</span>
+                            </div>
+                            <p class="text-sm text-gray-500 mb-4 line-clamp-2 max-w-lg">لعبة التكتيك الكلاسيكية. العب
+                                الآن وتحدى خصمك في معركة سريعة وممتعة تعتمد على الذكاء وسرعة البديهة!</p>
+                            <div class="mt-auto sm:w-48">
+                                <button onclick="openGameSheet('XO.html')"
+                                    class="w-full py-2 bg-[#121212] border border-brand text-brand font-bold hover:bg-brand hover:text-white transition-all active:scale-95 tracking-widest clip-angled-btn flex justify-center items-center gap-2">
+                                    العب الآن
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- لعبة 2 (مربع) -->
+                    <div
+                        class="stagger-item col-span-1 bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:-translate-y-1 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group flex flex-col">
+                        <div
+                            class="h-28 sm:h-40 bg-blue-900/10 relative overflow-hidden flex items-center justify-center">
+                            <i
+                                class="fa-solid fa-user-secret text-5xl sm:text-6xl text-blue-500 opacity-20 group-hover:scale-110 group-hover:opacity-40 transition-all duration-500"></i>
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-panelLight dark:from-panelDark to-transparent">
+                            </div>
+                        </div>
+                        <div class="p-3 sm:p-5 -mt-6 sm:-mt-8 relative z-10 flex-1 flex flex-col">
+                            <div class="flex justify-between items-start mb-1 sm:mb-2">
+                                <h3
+                                    class="font-black font-heading text-sm sm:text-lg uppercase group-hover:text-blue-500 transition-colors">
+                                    برا السالفة</h3>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3 sm:mb-4 flex-1 line-clamp-2">اكتشف من هو الجاسوس بينكم!
+                            </p>
+                            <button
+                                class="w-full py-1.5 sm:py-2 bg-[#121212] border border-brand text-brand font-bold hover:bg-brand hover:text-white transition-all active:scale-95 text-xs sm:text-sm clip-angled-btn">العب
+                                الآن</button>
+                        </div>
+                    </div>
+
+                    <!-- لعبة 3 (مربع) -->
+                    <div
+                        class="stagger-item col-span-1 bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:-translate-y-1 hover:border-yellow-500 hover:shadow-xl hover:shadow-yellow-500/10 transition-all duration-300 group flex flex-col">
+                        <div
+                            class="h-28 sm:h-40 bg-yellow-900/10 relative overflow-hidden flex items-center justify-center">
+                            <i
+                                class="fa-solid fa-users-viewfinder text-5xl sm:text-6xl text-yellow-500 opacity-20 group-hover:scale-110 group-hover:opacity-40 transition-all duration-500"></i>
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-panelLight dark:from-panelDark to-transparent">
+                            </div>
+                        </div>
+                        <div class="p-3 sm:p-5 -mt-6 sm:-mt-8 relative z-10 flex-1 flex flex-col">
+                            <div class="flex justify-between items-start mb-1 sm:mb-2">
+                                <h3
+                                    class="font-black font-heading text-sm sm:text-lg uppercase group-hover:text-yellow-500 transition-colors">
+                                    خمن اللاعب</h3>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3 sm:mb-4 flex-1 line-clamp-2">تحدى صديقك في 1 ضد 1.</p>
+                            <button onclick="openGameSheet('خمن.الاعب.html')"
+                                class="w-full py-1.5 sm:py-2 bg-[#121212] border border-brand text-brand font-bold hover:bg-brand hover:text-white transition-all active:scale-95 text-xs sm:text-sm clip-angled-btn">العب
+                                الآن</button>
+                        </div>
+                    </div>
+
+                    <!-- لعبة 4 (مربع) -->
+                    <div
+                        class="stagger-item col-span-1 bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:-translate-y-1 hover:border-purple-500 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 group flex flex-col">
+                        <div
+                            class="h-28 sm:h-40 bg-purple-900/10 relative overflow-hidden flex items-center justify-center">
+                            <i
+                                class="fa-solid fa-puzzle-piece text-5xl sm:text-6xl text-purple-500 opacity-20 group-hover:scale-110 group-hover:opacity-40 transition-all duration-500"></i>
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-panelLight dark:from-panelDark to-transparent">
+                            </div>
+                        </div>
+                        <div class="p-3 sm:p-5 -mt-6 sm:-mt-8 relative z-10 flex-1 flex flex-col">
+                            <div class="flex justify-between items-start mb-1 sm:mb-2">
+                                <h3
+                                    class="font-black font-heading text-sm sm:text-lg uppercase group-hover:text-purple-500 transition-colors">
+                                    الألغاز</h3>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3 sm:mb-4 flex-1 line-clamp-2">حل أصعب الألغاز.</p>
+                            <button
+                                class="w-full py-1.5 sm:py-2 bg-[#121212] border border-brand text-brand font-bold hover:bg-brand hover:text-white transition-all active:scale-95 text-xs sm:text-sm clip-angled-btn">العب
+                                الآن</button>
+                        </div>
+                    </div>
+
+                    <!-- لعبة 5 (مربع إضافي لملئ الفراغ بجانب 4) -->
+                    <div
+                        class="stagger-item col-span-1 bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:-translate-y-1 hover:border-green-500 hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300 group flex flex-col">
+                        <div
+                            class="h-28 sm:h-40 bg-green-900/10 relative overflow-hidden flex items-center justify-center">
+                            <i
+                                class="fa-solid fa-chess-knight text-5xl sm:text-6xl text-green-500 opacity-20 group-hover:scale-110 group-hover:opacity-40 transition-all duration-500"></i>
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-panelLight dark:from-panelDark to-transparent">
+                            </div>
+                        </div>
+                        <div class="p-3 sm:p-5 -mt-6 sm:-mt-8 relative z-10 flex-1 flex flex-col">
+                            <div class="flex justify-between items-start mb-1 sm:mb-2">
+                                <h3
+                                    class="font-black font-heading text-sm sm:text-lg uppercase group-hover:text-green-500 transition-colors">
+                                    شطرنج</h3>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3 sm:mb-4 flex-1 line-clamp-2">لعبة الملوك والتكتيك.</p>
+                            <button
+                                class="w-full py-1.5 sm:py-2 bg-[#121212] border border-brand text-brand font-bold hover:bg-brand hover:text-white transition-all active:scale-95 text-xs sm:text-sm clip-angled-btn">العب
+                                الآن</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. التحالفات (الرسائل) -->
+            <div id="messages-page" class="page-section max-w-4xl mx-auto">
+                <div
+                    class="stagger-item flex items-center justify-end mb-6 border-b border-borderLight dark:border-borderDark pb-4">
+                    <button
+                        class="bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:border-brand hover:text-brand text-sm font-bold px-4 py-2 transition-all active:scale-95 flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> قناة جديدة
+                    </button>
+                </div>
+
+                <div class="bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark">
+                    <!-- رسالة نشطة -->
+                    <div
+                        class="stagger-item flex items-center gap-4 p-4 border-b border-borderLight dark:border-borderDark bg-brand/5 cursor-pointer relative hover:bg-brand/10 transition-colors group">
+                        <div class="absolute right-0 top-0 h-full w-1 bg-brand"></div>
+                        <div
+                            class="w-12 h-12 bg-red-900 border border-brand flex items-center justify-center text-brand group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-users-crosshairs text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold font-heading text-lg group-hover:text-brand transition-colors">فريق
+                                    المهام الخاصة</h4>
+                                <span
+                                    class="text-xs font-bold text-brand bg-brand/10 px-2 py-0.5 animate-pulse">الآن</span>
+                            </div>
+                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200 truncate">الكابتن: تجمعوا في
+                                السيرفر 4، المباراة تبدأ بعد 5 دقائق!</p>
+                        </div>
+                        <div
+                            class="w-6 h-6 bg-brand text-white text-xs font-bold flex items-center justify-center transform group-hover:scale-110 transition-transform">
+                            3
+                        </div>
+                    </div>
+
+                    <!-- رسالة عادية -->
+                    <div
+                        class="stagger-item flex items-center gap-4 p-4 border-b border-borderLight dark:border-borderDark hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors group">
+                        <div
+                            class="w-12 h-12 bg-gray-200 dark:bg-gray-800 border border-borderLight dark:border-gray-600 flex items-center justify-center text-gray-500 overflow-hidden group-hover:border-gray-400 transition-colors">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Ghost"
+                                class="w-full h-full group-hover:scale-110 transition-transform">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold font-heading text-lg text-gray-600 dark:text-gray-300">Ghost_Rider
+                                </h4>
+                                <span class="text-xs text-gray-500">منذ ساعة</span>
+                            </div>
+                            <p class="text-sm text-gray-500 truncate">هل قمت بتجربة السلاح الجديد؟ مستوى الضرر مجنون.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- إشعار نظام -->
+                    <div
+                        class="stagger-item flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors group">
+                        <div
+                            class="w-12 h-12 bg-gray-100 dark:bg-gray-900 border border-borderLight dark:border-borderDark flex items-center justify-center text-gray-400 group-hover:text-brand transition-colors">
+                            <i class="fa-solid fa-server text-xl group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4
+                                    class="font-bold font-heading text-lg text-gray-500 group-hover:text-brand transition-colors">
+                                    إشعارات النظام</h4>
+                                <span class="text-xs text-gray-500">أمس</span>
+                            </div>
+                            <p class="text-sm text-gray-500 truncate">تمت صيانة السيرفرات بنجاح. العب الآن!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. الترسانة (الإعدادات) -->
+            <div id="settings-page" class="page-section max-w-4xl mx-auto space-y-6">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    <!-- ملف اللاعب -->
+                    <div
+                        class="stagger-item bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark p-6 hover:border-brand/50 transition-colors">
+                        <h3 class="font-bold text-gray-500 text-xs uppercase tracking-widest mb-4">بطاقة اللاعب</h3>
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-20 h-20 border-2 border-brand clip-angled-btn bg-black p-1 hover:scale-105 transition-transform cursor-pointer">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sniper&backgroundColor=e11d48"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="font-black font-heading text-xl">القناص العربي</h4>
+                                <p class="text-xs text-gray-500 font-mono mb-2">ID: #9842-PRO</p>
+                                <span
+                                    class="bg-borderLight dark:bg-borderDark text-xs font-bold px-2 py-1 border border-borderDark/20">المنطقة:
+                                    الشرق الأوسط</span>
+                            </div>
+                        </div>
+                        <button
+                            class="w-full py-2 bg-borderLight dark:bg-borderDark hover:bg-brand hover:text-white font-bold transition-all active:scale-95 text-sm uppercase">تعديل
+                            الملف</button>
+                    </div>
+
+                    <!-- تبديلات ميكانيكية -->
+                    <div
+                        class="stagger-item bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark p-6 space-y-4">
+                        <h3 class="font-bold text-gray-500 text-xs uppercase tracking-widest mb-2">النظام والمظهر</h3>
+
+                        <!-- إعداد 1 -->
+                        <div
+                            class="flex justify-between items-center py-2 hover:bg-gray-50 dark:hover:bg-white/5 p-2 -mx-2 rounded transition-colors cursor-pointer">
+                            <span class="font-bold font-heading">تراكب الأداء (FPS/Ping)</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <!-- شكل مفتاح ميكانيكي مربع -->
+                                <div
+                                    class="w-12 h-6 bg-borderLight dark:bg-borderDark peer-focus:outline-none peer dark:bg-gray-700 peer-checked:after:-translate-x-6 peer-checked:after:border-brand after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-gray-400 after:border-gray-400 after:border after:h-5 after:w-5 after:transition-all peer-checked:bg-brand/20 peer-checked:after:bg-brand border border-transparent peer-checked:border-brand">
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- إعداد 2 -->
+                        <div
+                            class="flex justify-between items-center py-2 hover:bg-gray-50 dark:hover:bg-white/5 p-2 -mx-2 rounded transition-colors cursor-pointer">
+                            <span class="font-bold font-heading">وضع توفير الطاقة</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div
+                                    class="w-12 h-6 bg-borderLight dark:bg-borderDark peer-focus:outline-none peer dark:bg-gray-700 peer-checked:after:-translate-x-6 peer-checked:after:border-brand after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-gray-400 after:border-gray-400 after:border after:h-5 after:w-5 after:transition-all peer-checked:bg-brand/20 peer-checked:after:bg-brand border border-transparent peer-checked:border-brand">
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- إعداد المظهر -->
+                        <div
+                            class="flex justify-between items-center py-2 border-t border-borderLight dark:border-borderDark mt-2 pt-4">
+                            <span class="font-bold font-heading">تفعيل الوضع الليلي</span>
+                            <button onclick="toggleTheme()"
+                                class="w-10 h-10 border border-borderLight dark:border-borderDark flex items-center justify-center hover:border-brand hover:text-brand transition-all active:scale-90 hover:rotate-12 bg-panelLight dark:bg-panelDark shadow-sm">
+                                <i class="fa-solid fa-circle-half-stroke"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- زر خطير -->
+                <div
+                    class="stagger-item bg-red-500/10 border border-red-500/30 p-4 flex justify-between items-center mt-6 group hover:bg-red-500/20 transition-colors">
+                    <div>
+                        <h4 class="font-bold text-red-600 dark:text-red-500">تسجيل الخروج</h4>
+                        <p class="text-xs text-red-600/70 dark:text-red-500/70">سيتم قطع الاتصال بالسيرفر</p>
+                    </div>
+                    <button
+                        class="bg-red-600 text-white px-6 py-2 font-bold hover:bg-red-700 transition-all active:scale-95 clip-angled-btn flex items-center gap-2">
+                        <i class="fa-solid fa-power-off group-hover:animate-pulse"></i> خروج
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- شريط تنقل سفلي حاد (للجوال فقط) -->
+    <nav
+        class="md:hidden fixed bottom-0 w-full z-50 bg-panelLight dark:bg-panelDark border-t border-borderLight dark:border-borderDark pb-safe transition-colors duration-300">
+        <div class="flex justify-between items-center h-16">
+            <button onclick="switchPage('home')"
+                class="nav-btn flex-1 h-full flex flex-col items-center justify-center gap-1 text-gray-500 dark:text-gray-400 border-t-2 border-transparent active-mob transition-all duration-300 active:scale-95"
+                data-target="home">
+                <i class="fa-solid fa-home text-xl transition-transform"></i>
+                <span class="text-[10px] font-bold font-heading uppercase">القيادة</span>
+            </button>
+
+            <button onclick="switchPage('games')"
+                class="nav-btn flex-1 h-full flex flex-col items-center justify-center gap-1 text-gray-500 dark:text-gray-400 border-t-2 border-transparent hover:text-gray-900 dark:hover:text-white transition-all duration-300 active:scale-95"
+                data-target="games">
+                <i class="fa-solid fa-gamepad text-xl transition-transform"></i>
+                <span class="text-[10px] font-bold font-heading uppercase">الساحة</span>
+            </button>
+
+            <button onclick="switchPage('messages')"
+                class="nav-btn flex-1 h-full flex flex-col items-center justify-center gap-1 text-gray-500 dark:text-gray-400 border-t-2 border-transparent hover:text-gray-900 dark:hover:text-white transition-all duration-300 active:scale-95 relative"
+                data-target="messages">
+                <i class="fa-solid fa-comment-dots text-xl relative transition-transform">
+                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-brand rounded-full animate-pulse"></span>
+                </i>
+                <span class="text-[10px] font-bold font-heading uppercase">التحالفات</span>
+            </button>
+
+            <button onclick="switchPage('settings')"
+                class="nav-btn flex-1 h-full flex flex-col items-center justify-center gap-1 text-gray-500 dark:text-gray-400 border-t-2 border-transparent hover:text-gray-900 dark:hover:text-white transition-all duration-300 active:scale-95"
+                data-target="settings">
+                <i class="fa-solid fa-gear text-xl transition-transform"></i>
+                <span class="text-[10px] font-bold font-heading uppercase">الترسانة</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Game Sheet (النافذة المنزلقة من الأسفل للأعلى) -->
+    <div id="game-sheet-overlay" onclick="closeGameSheet()"></div>
+    <div id="game-sheet" class="bg-surfaceLight dark:bg-surfaceDark">
+        <div class="flex flex-col h-full w-full">
+            <!-- مقبض السحب في الأعلى للحركة من الأسفل -->
+            <div class="sheet-handle" onclick="closeGameSheet()"></div>
+            <iframe id="game-iframe" src=""></iframe>
+        </div>
+    </div>
+
+    <!-- سكربت التحكم بالواجهة -->
+    <script>
+        // دالة تبديل الوضع (الفاتح/الداكن) مع أنيميشن بسيط للأيقونة
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.querySelector('#theme-toggle i');
+
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        let isAnimating = false;
+
+        // مسميات الصفحات للشريط العلوي
+        const pageTitles = {
+            'home': 'مقر القيادة',
+            'games': 'ترسانة الألعاب',
+            'messages': 'قنوات الاتصال',
+            'settings': 'إعدادات النظام'
+        };
+
+        // دالة تبديل الصفحات المطورة (مع الأنيميشن)
+        function switchPage(pageId) {
+            if (isAnimating) return; // منع الضغط المتكرر السريع
+
+            const currentPage = document.querySelector('.page-section.active');
+            const targetPage = document.getElementById(pageId + '-page');
+
+            // إذا تم الضغط على نفس الصفحة الحالية، لا تفعل شيء
+            if (currentPage && currentPage.id === targetPage.id) return;
+
+            isAnimating = true;
+
+            // 1. تحديث شكل الأزرار والعنوان العلوي فوراً لتجاوب سريع
+            updateNavigationUI(pageId);
+            document.getElementById('header-title').textContent = pageTitles[pageId];
+
+            // 2. خروج الصفحة الحالية (إذا وجدت)
+            if (currentPage) {
+                currentPage.classList.remove('active');
+                currentPage.classList.add('exiting');
+
+                // إعادة تعيين العناصر المتدرجة للصفحة القديمة لتكون جاهزة للمرة القادمة
+                resetStaggerItems(currentPage);
+            }
+
+            // 3. الانتظار حتى ينتهي أنيميشن الخروج (250ms)، ثم إظهار الصفحة الجديدة
+            setTimeout(() => {
+                if (currentPage) {
+                    currentPage.classList.remove('exiting');
+                    currentPage.style.display = 'none'; // إخفاء إجباري بعد الخروج
+                }
+
+                // تجهيز الصفحة الجديدة
+                targetPage.style.display = 'block';
+                targetPage.classList.add('active');
+
+                // التمرير السلس لأعلى منطقة المحتوى
+                document.getElementById('main-scroll-area').scrollTo({ top: 0, behavior: 'smooth' });
+
+                // 4. تشغيل الأنيميشن المتدرج (Staggered Items) للعناصر داخل الصفحة الجديدة
+                playStaggerAnimation(targetPage);
+
+                // فك قفل الأنيميشن بعد انتهاء الدخول
+                setTimeout(() => {
+                    isAnimating = false;
+                }, 400);
+
+            }, currentPage ? 250 : 0); // 250ms تتطابق مع مدة أنيميشن fadeOutDown
+        }
+
+        // وظائف النافذة المنزلقة (Game Sheet)
+        function openGameSheet(url) {
+            const sheet = document.getElementById('game-sheet');
+            const overlay = document.getElementById('game-sheet-overlay');
+            const iframe = document.getElementById('game-iframe');
+            
+            iframe.src = url;
+            sheet.classList.add('active');
+            overlay.classList.add('active');
+            
+            // منع تمرير الصفحة الخلفية
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGameSheet() {
+            const sheet = document.getElementById('game-sheet');
+            const overlay = document.getElementById('game-sheet-overlay');
+            const iframe = document.getElementById('game-iframe');
+            
+            sheet.classList.remove('active');
+            overlay.classList.remove('active');
+            
+            // إفراغ الـ iframe بعد انتهاء الأنميشن لتوفير الموارد
+            setTimeout(() => {
+                iframe.src = "";
+                document.body.style.overflow = '';
+            }, 500);
+        }
+
+        // دالة مساعدة لتحديث شكل القوائم
+        function updateNavigationUI(pageId) {
+            // تحديث Desktop
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                const icon = btn.querySelector('i');
+                if (btn.getAttribute('data-target') === pageId) {
+                    btn.classList.add('border-brand', 'text-gray-900', 'dark:text-white', 'bg-gray-100', 'dark:bg-white/5');
+                    btn.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                    icon.classList.add('text-brand', 'scale-110');
+                } else {
+                    btn.classList.remove('border-brand', 'text-gray-900', 'dark:text-white', 'bg-gray-100', 'dark:bg-white/5');
+                    btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                    icon.classList.remove('text-brand', 'scale-110');
+                }
+            });
+
+            // تحديث Mobile
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const icon = btn.querySelector('i');
+                if (btn.getAttribute('data-target') === pageId) {
+                    btn.classList.add('active-mob');
+                    icon.classList.add('scale-110', '-translate-y-1');
+                } else {
+                    btn.classList.remove('active-mob');
+                    icon.classList.remove('scale-110', '-translate-y-1');
+                }
+            });
+        }
+
+        // إخفاء العناصر المتدرجة
+        function resetStaggerItems(page) {
+            const items = page.querySelectorAll('.stagger-item');
+            items.forEach(item => {
+                item.classList.remove('show');
+            });
+        }
+
+        // إظهار العناصر المتدرجة بتأخير زمني
+        function playStaggerAnimation(page) {
+            const items = page.querySelectorAll('.stagger-item');
+            items.forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('show');
+                }, 50 + (index * 75)); // كل عنصر يتأخر 75 ملي ثانية عن الذي قبله
+            });
+        }
+
+        // تهيئة مبدئية عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            const homePage = document.getElementById('home-page');
+            homePage.classList.add('active');
+            updateNavigationUI('home');
+            document.getElementById('header-title').textContent = pageTitles['home'];
+
+            // تشغيل حركة الدخول للصفحة الرئيسية
+            setTimeout(() => {
+                playStaggerAnimation(homePage);
+                startMatchesCarousel(); // تشغيل الكاروسيل عند تحميل الصفحة
+            }, 100);
+        });
+
+        // منطق أزرار التصنيف في صفحة الألعاب
+        function filterGames(category) {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-brand', 'text-white');
+                btn.classList.add('bg-panelLight', 'dark:bg-panelDark', 'border', 'border-borderLight', 'dark:border-borderDark', 'text-gray-600', 'dark:text-gray-300');
+            });
+
+            // تحديد الزر النشط
+            event.currentTarget.classList.add('active', 'bg-brand', 'text-white');
+            event.currentTarget.classList.remove('bg-panelLight', 'dark:bg-panelDark', 'border', 'border-borderLight', 'dark:border-borderDark', 'text-gray-600', 'dark:text-gray-300');
+
+            // هنا يمكن إضافة منطق الفلترة الفعلي للعناصر
+            console.log("Filtering by:", category);
+        }
+
+        // --- نظام الكاروسيل لأبرز المواجهات ---
+        const matchesData = [
+            [
+                { title: 'نهائي بطولة ببجي', type: 'مباشر', viewers: '24.5K', icon: 'fa-crosshairs', color: 'red' },
+                { title: 'تراكر المحترفين', type: 'إعادة', viewers: '12K', icon: 'fa-radar', color: 'blue' }
+            ],
+            [
+                { title: 'تحدي XO القوي', type: 'مباشر', viewers: '8.2K', icon: 'fa-xmarks-lines', color: 'brand' },
+                { title: 'دوري الألغاز', type: 'قريباً', viewers: '5K', icon: 'fa-puzzle-piece', color: 'purple' }
+            ]
+        ];
+
+        let currentMatchSet = 0;
+        let progressInterval;
+
+        function startMatchesCarousel() {
+            renderMatches();
+            resetProgressBar();
+            
+            setInterval(() => {
+                currentMatchSet = (currentMatchSet + 1) % matchesData.length;
+                
+                const container = document.getElementById('matches-container');
+                container.classList.add('opacity-0', 'translate-x-4');
+                
+                setTimeout(() => {
+                    renderMatches();
+                    container.classList.remove('opacity-0', 'translate-x-4');
+                    resetProgressBar();
+                }, 500);
+            }, 10000);
+        }
+
+        function renderMatches() {
+            const container = document.getElementById('matches-container');
+            if (!container) return;
+            
+            const matches = matchesData[currentMatchSet];
+            container.innerHTML = matches.map(match => `
+                <div class="bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:border-brand transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-brand/10">
+                    <div class="relative h-32 bg-gray-900 overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-20 group-hover:scale-110 transition-transform duration-700">
+                            <i class="fa-solid ${match.icon} text-6xl"></i>
+                        </div>
+                        <div class="absolute top-2 right-2 bg-${match.color === 'brand' ? 'brand' : match.color + '-600'} text-white text-[10px] font-bold px-2 py-0.5 clip-angled-btn">
+                            ${match.type}
+                        </div>
+                        <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 backdrop-blur-sm">
+                            ${match.viewers} مشاهد
+                        </div>
+                    </div>
+                    <div class="p-4 flex justify-between items-center bg-panelLight dark:bg-panelDark">
+                        <div>
+                            <h4 class="font-bold text-sm mb-1 group-hover:text-brand transition-colors">${match.title}</h4>
+                            <p class="text-[10px] text-gray-500">انضم للمتعة الآن</p>
+                        </div>
+                        <button class="bg-brand text-white text-[10px] font-bold px-4 py-2 clip-angled-btn hover:bg-brandHover transition-colors active:scale-95">العب الآن</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function resetProgressBar() {
+            const progress = document.getElementById('matches-progress');
+            if (!progress) return;
+            
+            progress.style.transition = 'none';
+            progress.style.width = '100%';
+            
+            setTimeout(() => {
+                progress.style.transition = 'width 10s linear';
+                progress.style.width = '0%';
+            }, 50);
+        }
+    </script>
+</body>
+
+</html>

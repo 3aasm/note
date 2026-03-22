@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="referrer" content="no-referrer">
+    <title>خمن اللاعب | 1vs1</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Tajawal:wght@500;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Game Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                        heading: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: '#10b981', // Emerald Green (Football Field)
+                        teamO: '#3b82f6', // Blue for Player 2
+                        bgLight: '#dcfce7', // Light green background
+                        bgDark: '#0f172a', // Slate Dark
+                        panelBorder: '#0f172a',
+                        panelLight: '#ffffff',
+                        panelDark: '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            background-image: radial-gradient(#22c55e 2px, transparent 2px);
+            background-size: 24px 24px;
+        }
+
+        .dark body {
+            background-image: radial-gradient(#1e293b 2px, transparent 2px);
+        }
+
+        /* أنيميشن دخول الصفحة */
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .page-section {
+            display: none !important;
+        }
+
+        .page-section.active {
+            display: block !important;
+            animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .stagger-item {
+            opacity: 0;
+            animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* التصميم الكرتوني */
+        .cartoon-panel {
+            background-color: var(--tw-bg-opacity, #ffffff);
+            border: 3px solid #0f172a;
+            border-radius: 1.25rem;
+            box-shadow: 4px 4px 0px #0f172a;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .dark .cartoon-panel {
+            background-color: #1e293b;
+            border-color: #020617;
+            box-shadow: 4px 4px 0px #020617;
+        }
+
+        .cartoon-btn {
+            border: 2px solid #0f172a;
+            box-shadow: 3px 3px 0px #0f172a;
+            transition: all 0.1s ease-in-out;
+            cursor: pointer;
+        }
+
+        .dark .cartoon-btn {
+            border-color: #020617;
+            box-shadow: 3px 3px 0px #020617;
+        }
+
+        .cartoon-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #0f172a !important;
+        }
+
+        .dark .cartoon-btn:active {
+            box-shadow: 0px 0px 0px #020617 !important;
+        }
+
+        @media (min-width: 768px) {
+            .cartoon-panel {
+                border-width: 4px;
+                box-shadow: 6px 6px 0px #0f172a;
+                border-radius: 1.5rem;
+            }
+
+            .dark .cartoon-panel {
+                box-shadow: 6px 6px 0px #020617;
+            }
+
+            .cartoon-btn {
+                border-width: 3px;
+                box-shadow: 4px 4px 0px #0f172a;
+            }
+
+            .dark .cartoon-btn {
+                box-shadow: 4px 4px 0px #020617;
+            }
+
+            .cartoon-btn:active {
+                transform: translate(4px, 4px);
+            }
+        }
+
+        /* مربعات التخمين */
+        .attr-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4rem 0.2rem;
+            border: 2px solid #0f172a;
+            border-radius: 0.75rem;
+            font-weight: 900;
+            text-align: center;
+            transition: all 0.3s;
+            line-height: 1.1;
+        }
+
+        .dark .attr-box {
+            border-color: #020617;
+        }
+
+        .attr-match {
+            background-color: #4ade80;
+            color: #064e3b;
+            animation: popBounce 0.5s;
+        }
+
+        .attr-mismatch {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .dark .attr-mismatch {
+            background-color: #334155;
+            color: #cbd5e1;
+        }
+
+        @keyframes popBounce {
+            0% {
+                transform: scale(0.8);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* قائمة الإكمال التلقائي */
+        .autocomplete-list {
+            max-height: 180px;
+            overflow-y: auto;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+
+        .autocomplete-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid #e2e8f0;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dark .autocomplete-item {
+            border-bottom-color: #0f172a;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #f1f5f9;
+        }
+
+        .dark .autocomplete-item:hover {
+            background-color: #334155;
+        }
+
+        /* تأثيرات الصورة */
+        .mystery-img {
+            filter: blur(0px) brightness(1) contrast(1);
+            transition: all 1s ease-in-out;
+        }
+
+        .revealed-img {
+            filter: blur(0px) brightness(1) contrast(1);
+            transform: scale(1.1);
+        }
+
+        @keyframes popStart {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            40% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            80% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .animate-start-game {
+            animation: popStart 1.5s ease-in-out forwards;
+        }
+
+        /* تأثير الستارة الحديدية */
+        .iron-curtain {
+            position: absolute;
+            top: -100%;
+            /* مخفية في الأعلى */
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(to bottom,
+                    #64748b,
+                    #64748b 15px,
+                    #475569 15px,
+                    #475569 30px);
+            border-bottom: 8px solid #0f172a;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dark .iron-curtain {
+            background: repeating-linear-gradient(to bottom,
+                    #334155,
+                    #334155 15px,
+                    #1e293b 15px,
+                    #1e293b 30px);
+            border-bottom-color: #020617;
+        }
+
+        .curtain-down {
+            top: 0;
+            /* تنزل للأسفل */
+        }
+
+        .text-blurred {
+            filter: blur(8px);
+            user-select: none;
+            opacity: 0.7;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+            border: 1px solid #0f172a;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-color: #020617;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .animate-slideInLeft {
+            animation: slideInLeft 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .history-ribbon {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 3px solid #0f172a;
+            border-radius: 0 0 1.5rem 1.5rem;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dark .history-ribbon {
+            background: #1e293b;
+            border-color: #020617;
+        }
+
+        .ribbon-active {
+            max-height: 300px;
+            padding: 1rem;
+            border-top: none;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-bgLight dark:bg-bgDark text-gray-900 dark:text-gray-100 transition-colors duration-300 h-screen flex flex-col overflow-hidden selection:bg-brand selection:text-white">
+
+    <!-- نافذة إذن عرض الصور (جديدة) -->
+    <div id="image-consent-modal"
+        class="fixed inset-0 z-[500] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="cartoon-panel bg-white dark:bg-slate-800 p-6 max-w-sm w-full text-center animate-popIn">
+            <div
+                class="w-16 h-16 mx-auto bg-blue-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-blue-500 text-3xl mb-4 border-2 border-panelBorder shadow-[3px_3px_0px_#0f172a]">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="text-xl font-black font-heading mb-2">إذن تحميل الصور</h3>
+            <p class="text-xs font-bold text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+                بعض المتصفحات تحظر صور اللاعبين الحقيقية لدواعي الأمان. هل توافق على جلب الصور من خوادم خارجية لتجربة
+                أفضل؟
+            </p>
+            <div class="flex flex-col gap-3">
+                <button onclick="resolveImageConsent(true)"
+                    class="cartoon-btn bg-brand text-white w-full py-2.5 rounded-xl font-black hover:bg-green-600 text-sm">
+                    نعم، اعرض الصور الحقيقية <i class="fa-solid fa-check ml-1"></i>
+                </button>
+                <button onclick="resolveImageConsent(false)"
+                    class="cartoon-btn bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white w-full py-2.5 rounded-xl font-black hover:bg-slate-300 text-sm">
+                    لا، استخدم صور بديلة <i class="fa-solid fa-user-astronaut ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تأكيد الخروج -->
+    <div id="exit-modal"
+        class="fixed inset-0 z-[400] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="cartoon-panel bg-white dark:bg-slate-800 p-6 max-w-sm w-full text-center animate-popIn">
+            <div
+                class="w-16 h-16 mx-auto bg-red-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-red-500 text-3xl mb-4 border-2 border-panelBorder shadow-[3px_3px_0px_#0f172a]">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-xl font-black font-heading mb-2">تأكيد الخروج</h3>
+            <p class="text-sm font-bold text-slate-600 dark:text-slate-300 mb-6">هل أنت متأكد من الخروج للرئيسية؟ ستفقد
+                تقدم اللعبة الحالي!</p>
+            <div class="flex gap-3">
+                <button onclick="confirmExit(true)"
+                    class="cartoon-btn bg-red-500 text-white flex-1 py-2 rounded-xl font-black hover:bg-red-600">نعم،
+                    خروج</button>
+                <button onclick="confirmExit(false)"
+                    class="cartoon-btn bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-white flex-1 py-2 rounded-xl font-black hover:bg-slate-300">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الإشعار لسؤال الخصم -->
+    <div id="proposal-notification"
+        class="fixed top-20 left-4 md:left-8 z-[300] hidden flex-col gap-2 cartoon-panel bg-blue-50 dark:bg-slate-800 p-3 rounded-xl border-2 border-teamO shadow-[3px_3px_0px_#3b82f6] w-64 md:w-72 animate-slideInLeft">
+        <div class="flex items-center gap-2 mb-1 border-b-2 border-blue-200 dark:border-slate-600 pb-2">
+            <i class="fa-solid fa-bell text-teamO text-lg animate-bounce"></i>
+            <span class="font-black text-sm text-panelBorder dark:text-white">الخصم يسأل/يخمن!</span>
+        </div>
+        <p id="proposal-text" class="text-sm font-bold text-slate-700 dark:text-slate-300 leading-tight mb-2">...</p>
+
+        <div class="flex gap-1.5 w-full">
+            <button onclick="respondToProposal('correct_hint')"
+                class="cartoon-btn bg-brand text-white py-1.5 rounded-lg font-black flex-1 hover:bg-green-600 text-[11px] md:text-xs">صح
+                <i class="fa-solid fa-check"></i></button>
+            <button onclick="respondToProposal('wrong_hint')"
+                class="cartoon-btn bg-red-500 text-white py-1.5 rounded-lg font-black flex-1 hover:bg-red-600 text-[11px] md:text-xs">خطأ
+                <i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <button onclick="respondToProposal('win')"
+            class="cartoon-btn bg-yellow-400 text-panelBorder py-1.5 rounded-lg font-black w-full hover:bg-yellow-500 text-[11px] md:text-xs mt-1">هذا
+            هو اللاعب! 🏆</button>
+    </div>
+
+    <!-- أنيميشن بدء الجولة -->
+    <div id="start-anim-overlay"
+        class="fixed inset-0 z-[200] hidden items-center justify-center pointer-events-none bg-black/40 backdrop-blur-sm">
+        <span id="start-anim-text"
+            class="text-6xl md:text-8xl font-black text-brand drop-shadow-[4px_4px_0px_#ffffff] dark:drop-shadow-[4px_4px_0px_#0f172a] font-heading scale-0 opacity-0">بدأ
+            التحدي!</span>
+    </div>
+
+    <!-- شريط علوي -->
+    <header class="h-16 z-20 flex items-center justify-between px-4 md:px-8 mt-3 shrink-0">
+        <div class="flex items-center gap-2 flex-1">
+            <button id="header-back-btn" onclick="handleHomeClick()"
+                class="hidden w-10 h-10 cartoon-btn bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center text-panelBorder dark:text-white font-bold text-lg shrink-0">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <!-- تعديل وظيفة النقر لفتح نافذة التأكيد إذا كنا في اللعبة -->
+            <div class="flex items-center gap-2 cartoon-panel bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border-2 cursor-pointer shrink-0"
+                onclick="handleHomeClick()">
+                <i class="fa-solid fa-futbol text-brand text-sm sm:block"></i>
+                <h2 class="font-black font-heading text-lg">خمن اللاعب</h2>
+            </div>
+
+            <div id="header-online-status"
+                class="hidden items-center gap-1.5 cartoon-panel bg-green-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border-2 border-green-500 shadow-[2px_2px_0px_#22c55e] mr-1 relative">
+                <div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse border border-green-700"></div>
+                <span class="text-[11px] font-black text-green-700 dark:text-green-400">كود: <span id="header-code-val"
+                        class="text-panelBorder dark:text-white font-mono tracking-widest bg-white/50 dark:bg-black/20 px-1 rounded">---</span></span>
+
+                <div class="flex gap-1 ml-2 border-r-2 border-green-300 dark:border-slate-600 pr-1 mr-1 relative">
+                    <button onclick="toggleHistoryRibbon('correct')"
+                        class="w-7 h-7 rounded-lg bg-white dark:bg-slate-700 flex items-center justify-center text-brand border-2 border-panelBorder shadow-[2px_2px_0px_#0f172a] hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </button>
+                    <button onclick="toggleHistoryRibbon('wrong')"
+                        class="w-7 h-7 rounded-lg bg-white dark:bg-slate-700 flex items-center justify-center text-red-500 border-2 border-panelBorder shadow-[2px_2px_0px_#0f172a] hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                </div>
+
+                <div id="ribbon-correct" class="history-ribbon">
+                    <h4 class="text-[10px] font-black text-brand mb-2 border-b-2 border-brand pb-1">تلميحات صحيحة</h4>
+                    <div id="history-correct-list" class="flex flex-col gap-1.5"></div>
+                </div>
+                <div id="ribbon-wrong" class="history-ribbon">
+                    <h4 class="text-[10px] font-black text-red-500 mb-2 border-b-2 border-red-500 pb-1">تلميحات خاطئة
+                    </h4>
+                    <div id="history-wrong-list" class="flex flex-col gap-1.5"></div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="toggleTheme()"
+            class="w-10 h-10 cartoon-btn bg-yellow-300 dark:bg-indigo-500 rounded-xl flex items-center justify-center text-panelBorder dark:text-white transition-all shrink-0"
+            id="theme-toggle">
+            <i class="fa-solid fa-moon text-xl"></i>
+        </button>
+    </header>
+
+    <!-- منطقة المحتوى -->
+    <div id="main-scroll-area"
+        class="flex-1 overflow-y-auto p-4 md:p-6 pb-6 scroll-smooth relative z-0 flex flex-col items-center justify-start md:justify-center">
+        <div class="w-full max-w-[28rem] mx-auto relative">
+
+            <!-- ====== الشاشة الرئيسية ====== -->
+            <div id="home-view" class="page-section w-full active">
+                <div class="text-center mb-6">
+                    <h2 class="text-4xl font-black font-heading mb-2 text-panelBorder dark:text-white">خمن <span
+                            class="text-brand">اللاعب</span> ⚽</h2>
+                    <p
+                        class="text-sm text-slate-800 dark:text-slate-200 font-bold bg-white/70 dark:bg-slate-800/70 inline-block px-4 py-1.5 rounded-xl border-2 border-panelBorder/20">
+                        تحدى صديقك واكتشف من الخبير الكروي!</p>
+                </div>
+
+                <div class="flex flex-col gap-4">
+                    <div onclick="initGameMode('local')"
+                        class="cartoon-panel bg-white dark:bg-slate-800 p-4 flex items-center justify-between hover:-translate-y-1 transition-transform cursor-pointer group w-full">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-14 h-14 shrink-0 rounded-xl bg-blue-100 dark:bg-slate-700 flex items-center justify-center text-2xl text-blue-600 border-2 border-panelBorder shadow-[2px_2px_0px_#0f172a] group-hover:-rotate-6 transition-transform">
+                                <i class="fa-solid fa-mobile-screen"></i>
+                            </div>
+                            <div class="text-right flex-1">
+                                <h3
+                                    class="text-lg font-black font-heading text-panelBorder dark:text-white leading-tight">
+                                    1vs1 محلي (هاتف واحد)</h3>
+                                <p class="text-[10px] sm:text-[11px] text-slate-500 font-bold mt-1">تخمين بالتناوب على
+                                    نفس الجهاز</p>
+                            </div>
+                        </div>
+                        <button
+                            class="cartoon-btn bg-blue-500 text-white font-black text-sm px-3 py-2 rounded-lg shrink-0 flex items-center gap-2 group-hover:bg-blue-600">العب
+                            <i class="fa-solid fa-play text-[10px]"></i></button>
+                    </div>
+
+                    <div onclick="switchTab('online')"
+                        class="cartoon-panel bg-white dark:bg-slate-800 p-4 flex items-center justify-between hover:-translate-y-1 transition-transform cursor-pointer group w-full">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-14 h-14 shrink-0 rounded-xl bg-green-100 dark:bg-slate-700 flex items-center justify-center text-2xl text-green-600 border-2 border-panelBorder shadow-[2px_2px_0px_#0f172a] group-hover:rotate-6 transition-transform">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <div class="text-right flex-1">
+                                <h3
+                                    class="text-lg font-black font-heading text-panelBorder dark:text-white leading-tight">
+                                    أونلاين (مع صديق)</h3>
+                                <p class="text-[10px] sm:text-[11px] text-slate-500 font-bold mt-1">سباق الأسئلة
+                                    والتخمين</p>
+                            </div>
+                        </div>
+                        <button
+                            class="cartoon-btn bg-green-500 text-white font-black text-sm px-3 py-2 rounded-lg shrink-0 flex items-center gap-2 group-hover:bg-green-600">العب
+                            <i class="fa-solid fa-play text-[10px]"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== إعدادات الأونلاين ====== -->
+            <div id="online-config" class="page-section w-full">
+                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 text-center">
+                    <div
+                        class="w-20 h-20 mx-auto rounded-full bg-green-100 dark:bg-slate-800 flex items-center justify-center text-4xl text-green-600 mb-5 border-2 border-panelBorder shadow-[3px_3px_0px_#0f172a] transform rotate-6">
+                        <i class="fa-solid fa-globe"></i>
+                    </div>
+                    <h2 class="text-2xl font-black font-heading mb-2 text-panelBorder dark:text-white">تحدي الأونلاين
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 font-bold">أنشئ غرفة أو أدخل كود صديقك
+                        للبدء.</p>
+
+                    <div class="space-y-4">
+                        <button onclick="createRoom()"
+                            class="cartoon-btn w-full py-3 rounded-xl bg-brand text-white font-black text-lg flex items-center justify-center gap-3 hover:bg-green-600">
+                            <i class="fa-solid fa-plus-circle"></i> إنشاء غرفة كـ(مضيف)
+                        </button>
+                        <div class="relative flex items-center my-2">
+                            <div class="flex-grow border-t-2 border-panelBorder dark:border-slate-700 rounded"></div>
+                            <span
+                                class="flex-shrink-0 mx-3 text-panelBorder dark:text-slate-400 font-black text-sm bg-bgLight dark:bg-bgDark px-3 py-1 rounded-lg border-2 border-panelBorder">أو</span>
+                            <div class="flex-grow border-t-2 border-panelBorder dark:border-slate-700 rounded"></div>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <input type="text" id="room-input" placeholder="أدخل كود الغرفة"
+                                class="cartoon-btn w-full bg-white dark:bg-slate-700 rounded-xl text-center px-4 py-3 outline-none font-black text-lg text-panelBorder dark:text-white focus:border-brand">
+                            <button onclick="joinRoom()"
+                                class="cartoon-btn w-full bg-teamO text-white font-black text-lg px-6 py-3 rounded-xl hover:bg-blue-600">انضمام
+                                للغرفة</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== شاشة اختيار اللاعب السري ====== -->
+            <div id="setup-view" class="page-section w-full">
+                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 text-center relative overflow-hidden">
+                    <div id="setup-wait-msg"
+                        class="hidden absolute inset-0 bg-white/90 dark:bg-panelDark/90 backdrop-blur-sm flex-col items-center justify-center z-10">
+                        <i class="fa-solid fa-spinner fa-spin text-brand mb-2 text-3xl"></i>
+                        <span id="setup-wait-text"
+                            class="text-sm font-black text-slate-600 dark:text-slate-300 text-center leading-tight">بانتظار
+                            الخصم...</span>
+                    </div>
+
+                    <div
+                        class="w-20 h-20 mx-auto rounded-full bg-purple-100 dark:bg-slate-800 flex items-center justify-center text-4xl text-purple-600 mb-4 border-2 border-panelBorder shadow-[3px_3px_0px_#0f172a] transform -rotate-6">
+                        <i class="fa-solid fa-user-secret"></i>
+                    </div>
+                    <h2 class="text-2xl font-black font-heading mb-2 text-panelBorder dark:text-white">اللاعب السري</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 font-bold">اختر اللاعب الذي سيحاول خصمك
+                        تخمينه!</p>
+
+                    <div class="flex flex-col gap-4">
+                        <button onclick="confirmSetup('random')"
+                            class="cartoon-btn bg-brand text-white w-full py-4 rounded-xl flex items-center justify-center gap-3 font-black text-lg hover:bg-green-600">
+                            <i class="fa-solid fa-robot text-2xl"></i>
+                            <div class="text-right">
+                                <span class="block leading-none">اختيار عشوائي</span>
+                                <span class="text-[10px] font-normal opacity-80">الذكاء الاصطناعي يختار لاعباً</span>
+                            </div>
+                        </button>
+
+                        <div class="cartoon-panel bg-slate-50 dark:bg-slate-700 p-4 border-2">
+                            <label class="block text-sm font-black text-panelBorder dark:text-white mb-2 text-right"><i
+                                    class="fa-solid fa-hand-pointer text-teamO ml-1"></i> اختيار مخصص:</label>
+                            <div class="relative">
+                                <input type="text" id="setup-player-input" autocomplete="off"
+                                    placeholder="ابحث عن لاعب..."
+                                    class="cartoon-btn w-full bg-white dark:bg-slate-800 px-3 py-3 rounded-xl font-bold text-sm text-panelBorder dark:text-white outline-none focus:border-teamO">
+                                <div id="setup-autocomplete"
+                                    class="autocomplete-list hidden cartoon-panel bg-white dark:bg-slate-800 border-2 mt-1">
+                                </div>
+                            </div>
+                            <button onclick="confirmSetup('custom')"
+                                class="cartoon-btn bg-teamO text-white w-full mt-3 py-2 rounded-xl font-black text-sm hover:bg-blue-600">تأكيد
+                                اللاعب <i class="fa-solid fa-check"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== شاشة اختيار طريقة عرض الأونلاين (خلف أو أمام الهاتف) ====== -->
+            <div id="position-view" class="page-section w-full">
+                <div class="text-center mb-6">
+                    <h2 class="text-3xl font-black font-heading mb-2 text-panelBorder dark:text-white">طريقة اللعب</h2>
+                    <p
+                        class="text-xs text-slate-800 dark:text-slate-200 font-bold bg-white/70 dark:bg-slate-800/70 inline-block px-4 py-1.5 rounded-xl border-2 border-panelBorder/20">
+                        اختر طريقة عرض الشاشة</p>
+                </div>
+
+                <div class="flex flex-col gap-4">
+                    <!-- خيار اللعب من خلف الهاتف -->
+                    <div onclick="selectPosition('behind')"
+                        class="cartoon-panel bg-white dark:bg-slate-800 p-4 flex items-center justify-between hover:-translate-y-1 transition-transform cursor-pointer group w-full">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-14 h-14 shrink-0 rounded-xl bg-orange-100 dark:bg-slate-700 flex items-center justify-center text-2xl text-orange-600 border-2 border-panelBorder shadow-[2px_2px_0px_#0f172a] group-hover:-rotate-6 transition-transform">
+                                <i class="fa-solid fa-eye-slash"></i>
+                            </div>
+                            <div class="text-right flex-1">
+                                <h3
+                                    class="text-lg font-black font-heading text-panelBorder dark:text-white leading-tight">
+                                    خلف الهاتف</h3>
+                                <p class="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-1">يظهر لك لاعب الخصم
+                                    انقر مرتين في أي مكان لإسدال الستارة وإخفائه.</p>
+                            </div>
+                        </div>
+                        <button
+                            class="cartoon-btn bg-orange-500 text-white font-black text-sm px-3 py-2 rounded-lg shrink-0 flex items-center gap-2 group-hover:bg-orange-600">اختيار
+                            <i class="fa-solid fa-check text-[10px]"></i></button>
+                    </div>
+
+                    <!-- خيار اللعب من أمام الهاتف -->
+                    <div onclick="selectPosition('front')"
+                        class="cartoon-panel bg-white dark:bg-slate-800 p-4 flex items-center justify-between hover:-translate-y-1 transition-transform cursor-pointer group w-full">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-14 h-14 shrink-0 rounded-xl bg-cyan-100 dark:bg-slate-700 flex items-center justify-center text-2xl text-cyan-600 border-2 border-panelBorder shadow-[2px_2px_0px_#0f172a] group-hover:rotate-6 transition-transform">
+                                <i class="fa-solid fa-eye"></i>
+                            </div>
+                            <div class="text-right flex-1">
+                                <h3
+                                    class="text-lg font-black font-heading text-panelBorder dark:text-white leading-tight">
+                                    أمام الهاتف</h3>
+                                <p class="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-1">الوضع الطبيعي، يظهر
+                                    اللاعب بدون إمكانية إخفائه بالستارة.</p>
+                            </div>
+                        </div>
+                        <button
+                            class="cartoon-btn bg-cyan-500 text-white font-black text-sm px-3 py-2 rounded-lg shrink-0 flex items-center gap-2 group-hover:bg-cyan-600">اختيار
+                            <i class="fa-solid fa-check text-[10px]"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== شاشة اللعب ====== -->
+            <div id="game-board-view" class="page-section w-full mt-0 relative">
+
+                <!-- إضافة إرشاد بسيط يظهر لفترة قصيرة فقط عند اختيار وضع خلف الهاتف -->
+                <div id="behind-hint"
+                    class="hidden absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-black px-3 py-1 rounded-full whitespace-nowrap z-50 animate-pulse">
+                    💡 انقر مرتين متتاليتين في أي مكان لإخفاء اللاعب!
+                </div>
+
+                <div class="w-full flex flex-col items-center gap-3">
+                    <!-- الهيدر -->
+                    <div
+                        class="w-full cartoon-panel bg-white dark:bg-panelDark p-2 flex items-center justify-between stagger-item rounded-xl relative min-h-[4rem]">
+                        <div id="player1-card"
+                            class="flex flex-col items-center justify-center w-1/4 transition-transform duration-300">
+                            <div
+                                class="w-8 h-8 rounded-lg border-2 border-panelBorder bg-brand flex items-center justify-center mb-1 shadow-[2px_2px_0px_#0f172a]">
+                                <i class="fa-solid fa-user text-white text-sm"></i>
+                            </div>
+                            <span id="score-p1"
+                                class="text-lg font-black font-heading text-panelBorder dark:text-white leading-none">0</span>
+                        </div>
+
+                        <div
+                            class="flex flex-col items-center justify-center w-2/4 px-1 border-x-2 border-slate-200 dark:border-slate-700 h-full relative z-10">
+                            <div id="turn-indicator" class="text-center w-full hidden flex-col items-center">
+                                <div id="opponent-player-info"
+                                    class="hidden text-[10px] md:text-xs font-black text-slate-700 dark:text-slate-300 mb-1 leading-none text-center">
+                                    الاعب الخصم : <span id="opponent-player-name"
+                                        class="text-teamO transition-all duration-300">---</span>
+                                </div>
+                                <span id="turn-text"
+                                    class="text-[10px] md:text-xs font-black px-2 py-0.5 rounded border">...</span>
+                            </div>
+                        </div>
+
+                        <div id="player2-card"
+                            class="flex flex-col items-center justify-center w-1/4 transition-transform duration-300 opacity-50 scale-90">
+                            <div
+                                class="w-8 h-8 rounded-lg border-2 border-panelBorder bg-teamO flex items-center justify-center mb-1 shadow-[2px_2px_0px_#0f172a]">
+                                <i class="fa-solid fa-user-ninja text-white text-sm"></i>
+                            </div>
+                            <span id="score-p2"
+                                class="text-lg font-black font-heading text-panelBorder dark:text-white leading-none">0</span>
+                        </div>
+                    </div>
+
+                    <!-- إدخال التخمين -->
+                    <div id="input-container" class="w-full relative stagger-item">
+                        <div class="flex flex-col gap-3">
+                            <div class="flex gap-2 relative">
+                                <div class="relative flex-1">
+                                    <input type="text" id="player-input" autocomplete="off"
+                                        placeholder="اكتب سؤالاً أو خمن اللاعب..."
+                                        class="cartoon-btn w-full bg-white dark:bg-slate-700 px-3 py-3 rounded-xl font-bold text-sm text-panelBorder dark:text-white outline-none focus:border-brand">
+                                    <div id="autocomplete-wrapper"
+                                        class="autocomplete-list hidden cartoon-panel bg-white dark:bg-slate-800 border-2 mt-1">
+                                    </div>
+                                </div>
+                                <button id="submit-guess-btn" onclick="submitGuess()"
+                                    class="cartoon-btn bg-brand text-white px-4 rounded-xl font-black shrink-0 hover:bg-green-600 transition-colors">إرسال</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- منطقة العرض والنتيجة -->
+                    <div
+                        class="w-full cartoon-panel bg-slate-50 dark:bg-slate-800 p-2 md:p-3 stagger-item min-h-[250px] flex flex-col relative overflow-hidden">
+
+                        <!-- زر الدورة القادمة -->
+                        <div id="next-round-controls" class="hidden absolute top-2 left-2 right-2 z-30">
+                            <button onclick="startNextRound()"
+                                class="cartoon-btn bg-white dark:bg-slate-700 text-panelBorder dark:text-white w-full py-2 rounded-xl font-black hover:bg-slate-100 shadow-lg">
+                                بدء جولة جديدة <i class="fa-solid fa-rotate-right ml-1"></i>
+                            </button>
+                        </div>
+
+                        <!-- رأس الجدول للمحلي -->
+                        <div id="game-grid-header"
+                            class="grid grid-cols-5 gap-1 mb-2 px-1 text-center border-b-2 border-slate-200 dark:border-slate-700 pb-2">
+                            <div class="flex flex-col items-center justify-center">
+                                <div
+                                    class="relative w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded-full border-2 border-panelBorder shadow-inner overflow-hidden flex items-center justify-center">
+                                    <img id="mystery-avatar" alt="Mystery"
+                                        class="w-full h-full object-cover mystery-img">
+                                    <i id="mystery-q-mark"
+                                        class="fa-solid fa-question absolute text-lg text-slate-500/80 dark:text-white/50 drop-shadow-md hidden"></i>
+                                </div>
+                                <span class="text-[8px] font-black text-slate-500 mt-0.5 uppercase">اللاعب</span>
+                            </div>
+                            <span class="attr-label text-[9px] font-black text-slate-500">الجنسية</span>
+                            <span class="attr-label text-[9px] font-black text-slate-500">الدوري</span>
+                            <span class="attr-label text-[9px] font-black text-slate-500">النادي</span>
+                            <span class="attr-label text-[9px] font-black text-slate-500">المركز</span>
+                        </div>
+
+                        <!-- المعاينة الكبيرة للأونلاين مع طبقة النتيجة والستارة -->
+                        <div id="online-large-preview"
+                            class="hidden flex-1 flex-col items-center justify-center py-4 animate-fadeIn relative">
+
+                            <!-- صورة الخصم (اللاعب المطلوب) -->
+                            <div
+                                class="relative w-56 h-56 md:w-72 md:h-72 rounded-3xl cartoon-panel overflow-hidden border-4 border-panelBorder shadow-[0_10px_30px_rgba(0,0,0,0.3)] bg-white dark:bg-slate-700 transition-all duration-500 group">
+
+                                <!-- الستارة الحديدية (تُستخدم فقط في وضع "خلف الهاتف") -->
+                                <div id="iron-curtain" class="iron-curtain">
+                                    <i
+                                        class="fa-solid fa-lock text-slate-800 dark:text-slate-900 text-5xl opacity-40"></i>
+                                </div>
+
+                                <img id="large-mystery-avatar" alt="Large Mystery"
+                                    class="w-full h-full object-contain blur-0 scale-100 transition-all duration-1000 ease-in-out">
+
+                                <div id="large-mystery-q"
+                                    class="absolute inset-0 hidden items-center justify-center bg-black/10">
+                                    <i
+                                        class="fa-solid fa-question text-7xl text-white/50 drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)]"></i>
+                                </div>
+
+                                <!-- Overlay للنتيجة في وسط الصورة -->
+                                <div id="image-result-overlay"
+                                    class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 transition-opacity duration-500 z-20 pointer-events-none">
+                                    <span id="image-result-text"
+                                        class="text-4xl md:text-5xl font-black drop-shadow-[4px_4px_0px_#0f172a] transform scale-0 transition-transform duration-500 font-heading"></span>
+                                </div>
+                            </div>
+
+                            <!-- زر تم المعرفة تحت الصورة -->
+                            <button id="done-guess-btn" onclick="declareDone()"
+                                class="mt-4 cartoon-btn bg-yellow-400 text-panelBorder px-6 py-2 rounded-xl font-black hover:bg-yellow-500 shadow-[3px_3px_0px_#0f172a] text-sm hidden z-10 relative">
+                                تم معرفة اللاعب! <i class="fa-solid fa-check-double ml-1"></i>
+                            </button>
+                        </div>
+
+                        <!-- قائمة التخمينات للمحلي -->
+                        <div id="guesses-list" class="flex flex-col gap-1.5 overflow-y-auto max-h-[300px] pr-1">
+                            <div id="empty-state" class="text-center py-10 text-slate-400 font-bold text-xs">ابدأ
+                                التخمين لتكشف التلميحات!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        // --- Theme Management ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.querySelector('#theme-toggle i');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark'); html.classList.add('light');
+                icon.classList.remove('fa-moon'); icon.classList.add('fa-sun');
+            } else {
+                html.classList.remove('light'); html.classList.add('dark');
+                icon.classList.remove('fa-sun'); icon.classList.add('fa-moon');
+            }
+        }
+
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxIfNqb8Jdq-DyCLV5AqN7_4BK9PILYII",
+            authDomain: "myplay-5d574.firebaseapp.com",
+            projectId: "myplay-5d574",
+            storageBucket: "myplay-5d574.firebasestorage.app",
+            messagingSenderId: "937385025400",
+            appId: "1:937385025400:web:43bc15a49750601814b28d"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // --- Players Database ---
+        // قمنا بتخزين روابط الصور من Sofifa واستخدام Proxy الصور wsrv.nl لضمان عملها
+        const playersDB = [
+            { id: 1, name: "ليونيل ميسي", nameEn: "Lionel Messi", realImage: "cdn.sofifa.net/players/158/023/24_120.png", nation: "الأرجنتين", league: "الأمريكي", club: "إنتر ميامي", pos: "هجوم" },
+            { id: 2, name: "كريستيانو رونالدو", nameEn: "Cristiano Ronaldo", realImage: "cdn.sofifa.net/players/020/801/24_120.png", nation: "البرتغال", league: "السعودي", club: "النصر", pos: "هجوم" },
+            { id: 3, name: "كيليان مبابي", nameEn: "Kylian Mbappe", realImage: "cdn.sofifa.net/players/231/747/24_120.png", nation: "فرنسا", league: "الإسباني", club: "ريال مدريد", pos: "هجوم" },
+            { id: 4, name: "إيرلينغ هالاند", nameEn: "Erling Haaland", realImage: "cdn.sofifa.net/players/239/085/24_120.png", nation: "النرويج", league: "الإنجليزي", club: "مانشستر سيتي", pos: "هجوم" },
+            { id: 5, name: "محمد صلاح", nameEn: "Mohamed Salah", realImage: "cdn.sofifa.net/players/209/331/24_120.png", nation: "مصر", league: "الإنجليزي", club: "ليفربول", pos: "هجوم" },
+            { id: 6, name: "كيفين دي بروين", nameEn: "Kevin De Bruyne", realImage: "cdn.sofifa.net/players/192/985/24_120.png", nation: "بلجيكا", league: "الإنجليزي", club: "مانشستر سيتي", pos: "وسط" },
+            { id: 7, name: "فينيسيوس جونيور", nameEn: "Vinicius Junior", realImage: "cdn.sofifa.net/players/238/794/24_120.png", nation: "البرازيل", league: "الإسباني", club: "ريال مدريد", pos: "هجوم" },
+            { id: 8, name: "جود بيلينجهام", nameEn: "Jude Bellingham", realImage: "cdn.sofifa.net/players/252/371/24_120.png", nation: "إنجلترا", league: "الإسباني", club: "ريال مدريد", pos: "وسط" },
+            { id: 9, name: "هاري كين", nameEn: "Harry Kane", realImage: "cdn.sofifa.net/players/202/126/24_120.png", nation: "إنجلترا", league: "الألماني", club: "بايرن ميونخ", pos: "هجوم" },
+            { id: 10, name: "نيمار جونيور", nameEn: "Neymar", realImage: "cdn.sofifa.net/players/190/871/24_120.png", nation: "البرازيل", league: "السعودي", club: "الهلال", pos: "هجوم" },
+            { id: 11, name: "روبرت ليفاندوفسكي", nameEn: "Robert Lewandowski", realImage: "cdn.sofifa.net/players/188/545/24_120.png", nation: "بولندا", league: "الإسباني", club: "برشلونة", pos: "هجوم" },
+            { id: 12, name: "أنطوان جريزمان", nameEn: "Antoine Griezmann", realImage: "cdn.sofifa.net/players/194/765/24_120.png", nation: "فرنسا", league: "الإسباني", club: "أتلتيكو مدريد", pos: "هجوم" },
+            { id: 13, name: "برونو فيرنانديز", nameEn: "Bruno Fernandes", realImage: "cdn.sofifa.net/players/212/198/24_120.png", nation: "البرتغال", league: "الإنجليزي", club: "مانشستر يونايتد", pos: "وسط" },
+            { id: 14, name: "سون هيونج مين", nameEn: "Son Heung-min", realImage: "cdn.sofifa.net/players/200/104/24_120.png", nation: "كوريا الجنوبية", league: "الإنجليزي", club: "توتنهام", pos: "هجوم" },
+            { id: 15, name: "بوكايو ساكا", nameEn: "Bukayo Saka", realImage: "cdn.sofifa.net/players/246/669/24_120.png", nation: "إنجلترا", league: "الإنجليزي", club: "أرسنال", pos: "هجوم" },
+            { id: 16, name: "لامين يامال", nameEn: "Lamine Yamal", realImage: "cdn.sofifa.net/players/273/934/25_120.png", nation: "إسبانيا", league: "الإسباني", club: "برشلونة", pos: "هجوم" },
+
+            // --- إضافة لاعبي برشلونة ---
+            { id: 17, name: "رافينيا", nameEn: "Raphinha", realImage: "cdn.sofifa.net/players/225/696/25_120.png", nation: "البرازيل", league: "الإسباني", club: "برشلونة", pos: "هجوم" },
+            { id: 18, name: "بيدري", nameEn: "Pedri", realImage: "cdn.sofifa.net/players/251/854/25_120.png", nation: "إسبانيا", league: "الإسباني", club: "برشلونة", pos: "وسط" },
+            { id: 19, name: "جواو كانسيلو", nameEn: "Joao Cancelo", realImage: "cdn.sofifa.net/players/210/514/25_120.png", nation: "البرتغال", league: "السعودي", club: "الهلال", pos: "دفاع" },
+            { id: 20, name: "لويس سواريز", nameEn: "Luis Suarez", realImage: "cdn.sofifa.net/players/176/580/24_120.png", nation: "الأوروغواي", league: "الأمريكي", club: "إنتر ميامي", pos: "هجوم" },
+
+            // --- إضافة لاعبي ريال مدريد ---
+            { id: 21, name: "فيديريكو فالفيردي", nameEn: "Federico Valverde", realImage: "cdn.sofifa.net/players/239/053/25_120.png", nation: "الأوروغواي", league: "الإسباني", club: "ريال مدريد", pos: "وسط" },
+            { id: 22, name: "إدواردو كامافينجا", nameEn: "Eduardo Camavinga", realImage: "cdn.sofifa.net/players/248/243/25_120.png", nation: "فرنسا", league: "الإسباني", club: "ريال مدريد", pos: "وسط" },
+            { id: 23, name: "داني كارفاخال", nameEn: "Dani Carvajal", realImage: "cdn.sofifa.net/players/204/963/25_120.png", nation: "إسبانيا", league: "الإسباني", club: "ريال مدريد", pos: "دفاع" },
+            { id: 24, name: "تيبو كورتوا", nameEn: "Thibaut Courtois", realImage: "cdn.sofifa.net/players/192/119/25_120.png", nation: "بلجيكا", league: "الإسباني", club: "ريال مدريد", pos: "حارس" },
+            { id: 25, name: "إيكر كاسياس", nameEn: "Iker Casillas", realImage: "cdn.sofifa.net/players/005/479/20_120.png", nation: "إسبانيا", league: "الإسباني", club: "ريال مدريد", pos: "حارس" },
+
+            // --- إضافة لاعبي مانشستر سيتي (+ مرموش) ---
+            { id: 26, name: "فيل فودين", nameEn: "Phil Foden", realImage: "cdn.sofifa.net/players/237/692/25_120.png", nation: "إنجلترا", league: "الإنجليزي", club: "مانشستر سيتي", pos: "وسط" },
+            { id: 27, name: "عمر مرموش", nameEn: "Omar Marmoush", realImage: "cdn.sofifa.net/players/236/536/25_120.png", nation: "مصر", league: "الألماني", club: "آينتراخت فرانكفورت", pos: "هجوم" },
+            { id: 28, name: "جيريمي دوكو", nameEn: "Jeremy Doku", realImage: "cdn.sofifa.net/players/243/715/25_120.png", nation: "بلجيكا", league: "الإنجليزي", club: "مانشستر سيتي", pos: "هجوم" },
+            { id: 29, name: "برناردو سيلفا", nameEn: "Bernardo Silva", realImage: "cdn.sofifa.net/players/218/667/25_120.png", nation: "البرتغال", league: "الإنجليزي", club: "مانشستر سيتي", pos: "وسط" },
+            { id: 30, name: "رودري", nameEn: "Rodri", realImage: "cdn.sofifa.net/players/231/866/25_120.png", nation: "إسبانيا", league: "الإنجليزي", club: "مانشستر سيتي", pos: "وسط" },
+
+            // --- إضافة لاعبي الدوري السعودي ---
+            { id: 31, name: "سالم الدوسري", nameEn: "Salem Al-Dawsari", realImage: "cdn.sofifa.net/players/210/930/25_120.png", nation: "السعودية", league: "السعودي", club: "الهلال", pos: "هجوم" },
+            { id: 32, name: "محمد نور", nameEn: "Mohammed Noor", realImage: "cdn.sofifa.net/players/156/321/15_120.png", nation: "السعودية", league: "السعودي", club: "الاتحاد", pos: "وسط" },
+            { id: 33, name: "محمد كنو", nameEn: "Mohamed Kanno", realImage: "cdn.sofifa.net/players/240/011/25_120.png", nation: "السعودية", league: "السعودي", club: "الهلال", pos: "وسط" },
+            { id: 34, name: "ساديو ماني", nameEn: "Sadio Mane", realImage: "cdn.sofifa.net/players/208/722/25_120.png", nation: "السنغال", league: "السعودي", club: "النصر", pos: "هجوم" },
+            { id: 35, name: "ياسين بونو", nameEn: "Yassine Bounou", realImage: "cdn.sofifa.net/players/209/981/25_120.png", nation: "المغرب", league: "السعودي", club: "الهلال", pos: "حارس" }
+        ];
+
+        // تهيئة الصور المبدئية لتكون الحروف (إلى أن يوافق المستخدم)
+        playersDB.forEach(p => {
+            p.image = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.nameEn)}&background=1e293b&color=fff&size=200`;
+        });
+
+        // دالة الاستجابة لرسالة الموافقة
+        function resolveImageConsent(agreed) {
+            document.getElementById('image-consent-modal').classList.add('hidden');
+            document.getElementById('image-consent-modal').classList.remove('flex');
+
+            if (agreed) {
+                // إذا وافق، نضع الروابط الحقيقية التي تجلب الصور من سيرفرات خارجية
+                playersDB.forEach(p => {
+                    // استخدام wsrv.nl المخصص للصور لكسر الحماية
+                    p.image = `https://wsrv.nl/?url=${p.realImage}`;
+                });
+            }
+        }
+
+        function handlePlayerImgError(img, player) {
+            if (!player) return;
+            img.onerror = null; // نمنع التكرار اللانهائي
+            // صورة بديلة احترافية في حال تعذر جلب الصورة الحقيقية نهائياً
+            img.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(player.nameEn)}&background=1e293b&color=fff&size=200`;
+        }
+
+        // --- Game State Vars ---
+        let currentTab = 'home';
+        let gameMode = 'local';
+        let playPosition = null; // 'front' أو 'behind'
+        let isCurtainClosed = false;
+        let lastTapTime = 0;
+
+        let currentRoomId = null;
+        let isHost = false;
+        let isListeningToProposals = false;
+
+        let targetPlayer = null;
+        let myChosenPlayer = null;
+        let isGameOver = false;
+        let currentPlayer = 1;
+        let scores = { p1: 0, p2: 0 };
+        let myRole = null;
+
+        // --- DOM Elements ---
+        const views = {
+            home: document.getElementById('home-view'),
+            online: document.getElementById('online-config'),
+            setup: document.getElementById('setup-view'),
+            position: document.getElementById('position-view'),
+            game: document.getElementById('game-board-view')
+        };
+        const inputEl = document.getElementById('player-input');
+        const autocompleteWrap = document.getElementById('autocomplete-wrapper');
+        const setupInputEl = document.getElementById('setup-player-input');
+        const setupAutocompleteWrap = document.getElementById('setup-autocomplete');
+
+        // ميزة النقر المزدوج لإنزال الستارة
+        document.addEventListener('touchstart', handleDoubleTap, { passive: false });
+        document.addEventListener('click', handleDoubleTap);
+
+        function handleDoubleTap(e) {
+            // تجاهل النقر إذا كان على أزرار أو حقول إدخال
+            if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.history-ribbon') || e.target.closest('.autocomplete-list')) return;
+
+            if (currentTab === 'game' && gameMode === 'online' && playPosition === 'behind') {
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTapTime;
+
+                if (tapLength < 400 && tapLength > 0) {
+                    toggleCurtain();
+                    e.preventDefault();
+                }
+                lastTapTime = currentTime;
+            }
+        }
+
+        function toggleCurtain() {
+            isCurtainClosed = !isCurtainClosed;
+            const curtain = document.getElementById('iron-curtain');
+            const nameText = document.getElementById('opponent-player-name');
+
+            if (isCurtainClosed) {
+                curtain.classList.add('curtain-down');
+                nameText.classList.add('text-blurred');
+            } else {
+                curtain.classList.remove('curtain-down');
+                nameText.classList.remove('text-blurred');
+            }
+        }
+
+        // History UI Toggles
+        function toggleHistoryRibbon(type) {
+            const ribbonC = document.getElementById('ribbon-correct');
+            const ribbonW = document.getElementById('ribbon-wrong');
+            if (type === 'correct') { ribbonW.classList.remove('ribbon-active'); ribbonC.classList.toggle('ribbon-active'); }
+            else { ribbonC.classList.remove('ribbon-active'); ribbonW.classList.toggle('ribbon-active'); }
+        }
+
+        document.addEventListener('click', (e) => {
+            const statusDiv = document.getElementById('header-online-status');
+            if (statusDiv && !statusDiv.contains(e.target)) {
+                document.getElementById('ribbon-correct').classList.remove('ribbon-active');
+                document.getElementById('ribbon-wrong').classList.remove('ribbon-active');
+            }
+        });
+
+        // Navigation Control & Exit Modal
+        function handleHomeClick() {
+            if (currentTab === 'game' || currentRoomId) {
+                document.getElementById('exit-modal').classList.remove('hidden');
+                document.getElementById('exit-modal').classList.add('flex');
+            } else {
+                switchTab('home');
+            }
+        }
+
+        function confirmExit(yes) {
+            document.getElementById('exit-modal').classList.add('hidden');
+            document.getElementById('exit-modal').classList.remove('flex');
+
+            if (yes) {
+                if (currentRoomId) {
+                    db.ref('football_rooms/' + currentRoomId).off();
+                    currentRoomId = null;
+                }
+                playPosition = null; // تصفير طريقة العرض
+                switchTab('home');
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            Object.values(views).forEach(v => v.classList.remove('active'));
+            const headerBackBtn = document.getElementById('header-back-btn');
+            const headerOnlineStatus = document.getElementById('header-online-status');
+
+            if (tab === 'home') {
+                headerBackBtn.classList.add('hidden');
+                headerOnlineStatus.classList.add('hidden');
+                setTimeout(() => views.home.classList.add('active'), 50);
+            } else {
+                headerBackBtn.classList.remove('hidden');
+                if (tab === 'online') setTimeout(() => views.online.classList.add('active'), 50);
+                else if (tab === 'setup') setTimeout(() => views.setup.classList.add('active'), 50);
+                else if (tab === 'position') setTimeout(() => views.position.classList.add('active'), 50);
+                else if (tab === 'game') setTimeout(() => views.game.classList.add('active'), 50);
+            }
+        }
+
+        // --- Autocomplete Logic ---
+        function setupAutocomplete(inpEl, wrapEl, onSelect) {
+            inpEl.addEventListener('input', function () {
+                const val = this.value.trim().toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه');
+                wrapEl.innerHTML = '';
+                if (!val) { wrapEl.classList.add('hidden'); return; }
+
+                const matches = playersDB.filter(p => p.name.toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').includes(val));
+
+                if (matches.length > 0) {
+                    matches.forEach(p => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-item text-xs md:text-sm';
+                        div.innerHTML = `<div class="flex items-center gap-2"><img src="${p.image}" class="w-8 h-8 rounded-full bg-slate-200 object-cover" onerror="handlePlayerImgError(this, playersDB[${p.id - 1}])"> <span>${p.name}</span></div>`;
+                        div.onclick = () => {
+                            inpEl.value = p.name;
+                            wrapEl.classList.add('hidden');
+                            if (onSelect) onSelect(p);
+                        };
+                        wrapEl.appendChild(div);
+                    });
+                    wrapEl.classList.remove('hidden');
+                } else {
+                    wrapEl.classList.add('hidden');
+                }
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!inpEl.contains(e.target) && !wrapEl.contains(e.target)) wrapEl.classList.add('hidden');
+            });
+        }
+
+        setupAutocomplete(inputEl, autocompleteWrap);
+        setupAutocomplete(setupInputEl, setupAutocompleteWrap);
+
+        function getPlayerByName(name) {
+            const nName = name.trim().toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه');
+            return playersDB.find(p => p.name.toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه') === nName);
+        }
+
+        // --- UI Resets & Updates ---
+        function resetGameBoardUI() {
+            document.getElementById('guesses-list').innerHTML = '<div id="empty-state" class="text-center py-10 text-slate-400 font-bold text-xs">ابدأ التخمين لتكشف التلميحات!</div>';
+            document.getElementById('input-container').classList.remove('hidden');
+            document.getElementById('next-round-controls').classList.add('hidden');
+
+            const resultOverlay = document.getElementById('image-result-overlay');
+            const resultText = document.getElementById('image-result-text');
+            resultOverlay.classList.remove('opacity-100');
+            resultOverlay.classList.add('opacity-0', 'pointer-events-none');
+            resultText.classList.remove('scale-100');
+            resultText.classList.add('scale-0');
+
+            // تهيئة الستارة الحديدية (مرفوعة افتراضياً)
+            isCurtainClosed = false;
+            document.getElementById('iron-curtain').classList.remove('curtain-down');
+            document.getElementById('opponent-player-name').classList.remove('text-blurred');
+
+            if (gameMode === 'online') {
+                document.getElementById('history-correct-list').innerHTML = '';
+                document.getElementById('history-wrong-list').innerHTML = '';
+
+                // إظهار تلميح اللعب من خلف الهاتف
+                if (playPosition === 'behind') {
+                    const hint = document.getElementById('behind-hint');
+                    hint.classList.remove('hidden');
+                    setTimeout(() => hint.classList.add('hidden'), 5000);
+                }
+            }
+
+            inputEl.value = ''; inputEl.disabled = false; document.getElementById('submit-guess-btn').disabled = false;
+            isGameOver = false;
+            document.getElementById('score-p1').textContent = scores.p1;
+            document.getElementById('score-p2').textContent = scores.p2;
+
+            const avatarImg = document.getElementById('mystery-avatar');
+            const qMark = document.getElementById('mystery-q-mark');
+
+            if (targetPlayer) {
+                if (gameMode === 'online') {
+                    if (avatarImg) {
+                        const dispP = playPosition === 'behind' ? targetPlayer : myChosenPlayer;
+                        if (dispP) {
+                            avatarImg.onerror = function () { handlePlayerImgError(this, dispP); };
+                            avatarImg.src = dispP.image;
+                            avatarImg.className = "w-full h-full object-cover revealed-img";
+                        }
+                    }
+                    if (qMark) qMark.classList.add('hidden');
+                } else {
+                    if (avatarImg) {
+                        avatarImg.onerror = function () { handlePlayerImgError(this, targetPlayer); };
+                        avatarImg.src = targetPlayer.image;
+                        avatarImg.className = "w-full h-full object-cover mystery-img";
+                    }
+                    if (qMark) qMark.classList.add('hidden');
+                }
+            }
+
+            if (gameMode === 'online') {
+                const largeImg = document.getElementById('large-mystery-avatar');
+                if (largeImg) {
+                    const dispP = playPosition === 'behind' ? targetPlayer : myChosenPlayer;
+                    if (dispP) {
+                        largeImg.onerror = function () { handlePlayerImgError(this, dispP); };
+                        largeImg.src = dispP.image;
+                        largeImg.classList.remove('blur-[15px]', 'scale-125');
+                        largeImg.classList.add('blur-0', 'scale-100');
+                    }
+                }
+                document.getElementById('large-mystery-q').classList.add('hidden');
+                document.getElementById('done-guess-btn').classList.remove('hidden');
+            }
+        }
+
+        function updateTurnUI() {
+            const turnText = document.getElementById('turn-text');
+            const oppInfo = document.getElementById('opponent-player-info');
+            const oppName = document.getElementById('opponent-player-name');
+            document.getElementById('turn-indicator').classList.remove('hidden');
+            document.getElementById('turn-indicator').classList.add('flex');
+
+            if (gameMode === 'local') {
+                oppInfo.classList.add('hidden');
+                if (currentPlayer === 1) {
+                    turnText.textContent = "دور: لاعب 1"; turnText.className = "text-[10px] md:text-xs font-black text-brand border-brand border px-2 py-1 rounded bg-green-50";
+                } else {
+                    turnText.textContent = "دور: لاعب 2"; turnText.className = "text-[10px] md:text-xs font-black text-teamO border-teamO border px-2 py-1 rounded bg-blue-50";
+                }
+            } else {
+                oppInfo.classList.remove('hidden');
+                // في وضع التخفي "خلف الهاتف" - نعرض لاعب الخصم
+                if (playPosition === 'behind') {
+                    oppName.textContent = targetPlayer ? targetPlayer.name : '---';
+                    turnText.textContent = "أنت الآن في وضع خلف الهاتف!"; turnText.className = "text-[10px] md:text-xs font-black text-blue-600 bg-blue-50 border-blue-300 border px-2 py-1 rounded";
+                } else {
+                    oppName.textContent = myChosenPlayer ? myChosenPlayer.name : '---';
+                    turnText.textContent = "اسأل الخصم لتخمين لاعبه!"; turnText.className = "text-[10px] md:text-xs font-black text-slate-600 bg-slate-100 border-slate-300 border px-2 py-1 rounded";
+                }
+            }
+        }
+
+        function playStartAnimation() {
+            const animOverlay = document.getElementById('start-anim-overlay');
+            const animText = document.getElementById('start-anim-text');
+            animOverlay.classList.remove('hidden'); animOverlay.classList.add('flex');
+            animText.classList.remove('animate-start-game'); void animText.offsetWidth;
+            animText.classList.add('animate-start-game');
+            setTimeout(() => { animOverlay.classList.add('hidden'); animOverlay.classList.remove('flex'); }, 1500);
+        }
+
+        // --- Core Game Flow ---
+        function submitGuess() {
+            if (isGameOver || !targetPlayer) return;
+            const val = inputEl.value.trim();
+            if (!val) return;
+            inputEl.value = '';
+
+            if (gameMode === 'local') {
+                const selected = getPlayerByName(val);
+                if (!selected) {
+                    inputEl.classList.add('border-red-500', 'bg-red-50');
+                    setTimeout(() => inputEl.classList.remove('border-red-500', 'bg-red-50'), 400);
+                    return;
+                }
+                renderLocalGuess(selected);
+                if (selected.id === targetPlayer.id) handleWin(currentPlayer);
+                else { currentPlayer = currentPlayer === 1 ? 2 : 1; updateTurnUI(); }
+            } else if (gameMode === 'online') {
+                const proposalData = { text: val, sender: myRole, timestamp: Date.now() };
+                db.ref('football_rooms/' + currentRoomId + '/proposals').set(proposalData);
+
+                autocompleteWrap.classList.add('hidden');
+                inputEl.value = 'جاري انتظار رد الخصم...';
+                inputEl.disabled = true; document.getElementById('submit-guess-btn').disabled = true;
+            }
+        }
+
+        function respondToProposal(responseType) {
+            document.getElementById('proposal-notification').classList.add('hidden');
+            document.getElementById('proposal-notification').classList.remove('flex');
+            db.ref('football_rooms/' + currentRoomId + '/proposal_response').set({
+                type: responseType, timestamp: Date.now()
+            });
+        }
+
+        function declareDone() {
+            if (gameMode === 'online' && !isGameOver) {
+                let up = { state: 'ended', winner: myRole };
+                up[myRole + '_score'] = scores[myRole] + 1;
+                db.ref('football_rooms/' + currentRoomId).update(up);
+            }
+        }
+
+        function renderLocalGuess(guessedPlayer) {
+            const empty = document.getElementById('empty-state');
+            if (empty) empty.style.display = 'none';
+            const isMatch = guessedPlayer.id === targetPlayer.id;
+            const shortName = guessedPlayer.name.split(' ').pop();
+            const rowHtml = `
+                <div class="guess-row grid grid-cols-5 gap-1 mb-1 p-1 rounded-xl border-2 border-brand bg-white items-center">
+                    <div class="flex flex-col items-center justify-center p-1 border-2 border-transparent ${isMatch ? 'attr-match rounded-lg' : ''}">
+                        <img src="${guessedPlayer.image}" class="w-6 h-6 rounded-full bg-slate-200 object-cover mb-0.5" onerror="handlePlayerImgError(this, playersDB[${guessedPlayer.id - 1}])">
+                        <span class="text-[8px] font-black truncate w-full text-center">${shortName}</span>
+                    </div>
+                    <div class="attr-box ${guessedPlayer.nation === targetPlayer.nation ? 'attr-match' : 'attr-mismatch'} text-[9px] truncate border-0 h-full">${guessedPlayer.nation}</div>
+                    <div class="attr-box ${guessedPlayer.league === targetPlayer.league ? 'attr-match' : 'attr-mismatch'} text-[9px] truncate border-0 h-full">${guessedPlayer.league.replace('الدوري ', '')}</div>
+                    <div class="attr-box ${guessedPlayer.club === targetPlayer.club ? 'attr-match' : 'attr-mismatch'} text-[9px] truncate border-0 h-full">${guessedPlayer.club}</div>
+                    <div class="attr-box ${guessedPlayer.pos === targetPlayer.pos ? 'attr-match' : 'attr-mismatch'} text-[9px] border-0 h-full">${guessedPlayer.pos}</div>
+                </div>`;
+            document.getElementById('guesses-list').insertAdjacentHTML('afterbegin', rowHtml);
+        }
+
+        function renderTextHistory(text, isCorrect) {
+            const list = isCorrect ? document.getElementById('history-correct-list') : document.getElementById('history-wrong-list');
+            const colorClass = isCorrect ? 'text-brand bg-green-50 border-green-200' : 'text-red-500 bg-red-50 border-red-200';
+            const icon = isCorrect ? 'fa-check' : 'fa-xmark';
+            const html = `<div class="flex items-center justify-between p-2 rounded-lg border-2 ${colorClass} text-xs font-black animate-fadeIn"><span>${text}</span><i class="fa-solid ${icon}"></i></div>`;
+            list.insertAdjacentHTML('afterbegin', html);
+        }
+
+        function handleWin(winnerNum) {
+            isGameOver = true;
+            document.getElementById('input-container').classList.add('hidden');
+            if (document.getElementById('done-guess-btn')) document.getElementById('done-guess-btn').classList.add('hidden');
+            document.getElementById('next-round-controls').classList.remove('hidden');
+
+            // فتح الستارة إذا كانت مغلقة لحظة الفوز
+            isCurtainClosed = false;
+            document.getElementById('iron-curtain').classList.remove('curtain-down');
+            document.getElementById('opponent-player-name').classList.remove('text-blurred');
+
+            const largeImg = document.getElementById('large-mystery-avatar');
+            const largeQ = document.getElementById('large-mystery-q');
+            const resultOverlay = document.getElementById('image-result-overlay');
+            const resultText = document.getElementById('image-result-text');
+
+            if (largeImg) {
+                largeImg.onerror = function () { handlePlayerImgError(this, targetPlayer); };
+                largeImg.src = targetPlayer.image;
+                largeImg.classList.remove('blur-[15px]', 'scale-125');
+                largeImg.classList.add('blur-0', 'scale-100');
+            }
+            if (largeQ) largeQ.classList.add('hidden');
+
+            resultOverlay.classList.remove('pointer-events-none', 'hidden', 'opacity-0');
+            resultOverlay.classList.add('opacity-100');
+            resultText.classList.remove('scale-0');
+            resultText.classList.add('scale-100');
+
+            if (gameMode === 'local') {
+                scores[`p${winnerNum}`]++;
+                document.getElementById(`score-p${winnerNum}`).textContent = scores[`p${winnerNum}`];
+                resultText.textContent = `فاز لاعب ${winnerNum}! 🎉`;
+                resultText.className = "text-4xl md:text-5xl font-black text-white drop-shadow-[4px_4px_0px_#10b981] transform scale-100 transition-transform duration-500 font-heading";
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            } else if (gameMode === 'online') {
+                if (winnerNum === parseInt(myRole.replace('p', ''))) {
+                    resultText.textContent = "فزت! 🎉";
+                    resultText.className = "text-5xl md:text-6xl font-black text-green-400 drop-shadow-[4px_4px_0px_#022c22] transform scale-100 transition-transform duration-500 font-heading";
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                } else {
+                    resultText.textContent = "خسرت 💔";
+                    resultText.className = "text-5xl md:text-6xl font-black text-red-500 drop-shadow-[4px_4px_0px_#450a0a] transform scale-100 transition-transform duration-500 font-heading";
+                }
+            }
+        }
+
+        // --- Setup Logic ---
+        function initGameMode(mode) {
+            gameMode = mode; scores = { p1: 0, p2: 0 }; currentPlayer = 1; targetPlayer = null; playPosition = null;
+            setupInputEl.value = ''; switchTab('setup');
+        }
+
+        function confirmSetup(choice) {
+            let pickedPlayer = null;
+            if (choice === 'random') pickedPlayer = playersDB[Math.floor(Math.random() * playersDB.length)];
+            else {
+                pickedPlayer = getPlayerByName(setupInputEl.value);
+                if (!pickedPlayer) { setupInputEl.classList.add('border-red-500'); setTimeout(() => setupInputEl.classList.remove('border-red-500'), 400); return; }
+            }
+            if (pickedPlayer) finalizeSetupAndStart(pickedPlayer);
+        }
+
+        function finalizeSetupAndStart(pickedPlayer) {
+            if (gameMode === 'local') {
+                targetPlayer = pickedPlayer;
+                switchTab('game');
+                document.getElementById('game-grid-header').classList.remove('hidden');
+                document.getElementById('guesses-list').classList.remove('hidden');
+                document.getElementById('online-large-preview').classList.add('hidden');
+                resetGameBoardUI(); updateTurnUI();
+                setTimeout(() => alert('تم إخفاء اللاعب! سلم الهاتف لصديقك ليبدأ التخمين.'), 100);
+            } else if (gameMode === 'online') {
+                document.getElementById('game-grid-header').classList.add('hidden');
+                document.getElementById('guesses-list').classList.add('hidden');
+                document.getElementById('online-large-preview').classList.remove('hidden');
+                document.getElementById('online-large-preview').classList.add('flex');
+
+                db.ref('football_rooms/' + currentRoomId).update({ [myRole + '_target']: pickedPlayer.id, [myRole + '_ready']: true });
+                document.getElementById('setup-wait-msg').classList.remove('hidden');
+                document.getElementById('setup-wait-msg').classList.add('flex');
+                document.getElementById('setup-wait-text').textContent = "بانتظار الخصم ليختار لاعبه...";
+            }
+        }
+
+        // --- اختيار عرض الأونلاين ---
+        function selectPosition(pos) {
+            playPosition = pos;
+            switchTab('game');
+            resetGameBoardUI();
+            updateTurnUI();
+            playStartAnimation();
+        }
+
+        // --- Online Logic ---
+        function createRoom() {
+            const code = Math.floor(10000 + Math.random() * 90000).toString();
+            isHost = true; myRole = 'p1'; currentRoomId = code; gameMode = 'online'; scores = { p1: 0, p2: 0 }; playPosition = null;
+            document.getElementById('header-code-val').textContent = code;
+            document.getElementById('header-online-status').classList.remove('hidden'); document.getElementById('header-online-status').classList.add('flex');
+            db.ref('football_rooms/' + currentRoomId).set({ state: "waiting", p1_score: 0, p2_score: 0, p1_ready: false, p2_ready: false, p1_target: null, p2_target: null, winner: null });
+            setupOnlineListener();
+            document.getElementById('setup-wait-msg').classList.remove('hidden'); document.getElementById('setup-wait-msg').classList.add('flex');
+            document.getElementById('setup-wait-text').textContent = "بانتظار دخول الخصم..."; switchTab('setup');
+        }
+
+        function joinRoom() {
+            const code = document.getElementById('room-input').value.trim();
+            if (!code) return;
+            currentRoomId = code; gameMode = 'online'; isHost = false; myRole = 'p2'; scores = { p1: 0, p2: 0 }; playPosition = null;
+            document.getElementById('header-code-val').textContent = code;
+            document.getElementById('header-online-status').classList.remove('hidden'); document.getElementById('header-online-status').classList.add('flex');
+            db.ref('football_rooms/' + currentRoomId).once('value', snap => {
+                if (snap.exists()) {
+                    db.ref('football_rooms/' + currentRoomId).update({ state: "setup" });
+                    setupOnlineListener();
+                    document.getElementById('setup-wait-msg').classList.add('hidden'); setupInputEl.value = ''; switchTab('setup');
+                } else { alert("الغرفة غير موجودة!"); switchTab('online'); }
+            });
+        }
+
+        function setupOnlineListener() {
+            db.ref('football_rooms/' + currentRoomId).on('value', snap => {
+                const data = snap.val(); if (!data) return;
+                scores.p1 = data.p1_score || 0; scores.p2 = data.p2_score || 0;
+                if (document.getElementById('score-p1')) { document.getElementById('score-p1').textContent = scores.p1; document.getElementById('score-p2').textContent = scores.p2; }
+
+                if (data.state === "setup") {
+                    if (!data[myRole + '_ready']) {
+                        document.getElementById('setup-wait-msg').classList.add('hidden');
+                        if (currentTab !== 'setup') switchTab('setup');
+                    } else {
+                        document.getElementById('setup-wait-msg').classList.remove('hidden');
+                        document.getElementById('setup-wait-text').textContent = "بانتظار الخصم ليختار...";
+                    }
+                    if (isHost && data.p1_ready && data.p2_ready) db.ref('football_rooms/' + currentRoomId).update({ state: "playing" });
+                } else if (data.state === "playing") {
+                    document.getElementById('setup-wait-msg').classList.add('hidden');
+                    const myTargetId = myRole === 'p1' ? data.p2_target : data.p1_target;
+
+                    if (!targetPlayer || targetPlayer.id !== myTargetId || isGameOver) {
+                        targetPlayer = playersDB.find(p => p.id === myTargetId);
+                        const myChoiceId = myRole === 'p1' ? data.p1_target : data.p2_target;
+                        myChosenPlayer = playersDB.find(p => p.id === myChoiceId);
+                    }
+
+                    // هنا يظهر قائمة الاختيار (خلف/أمام الهاتف) بدلاً من الدخول مباشرة للعبة
+                    if (!playPosition) {
+                        if (currentTab !== 'position') switchTab('position');
+                    } else {
+                        if (currentTab !== 'game') switchTab('game');
+
+                        inputEl.disabled = false; document.getElementById('submit-guess-btn').disabled = false;
+
+                        if (!isListeningToProposals) {
+                            isListeningToProposals = true;
+                            db.ref('football_rooms/' + currentRoomId + '/proposals').on('value', pSnap => {
+                                const pData = pSnap.val();
+                                if (!pData || pData.sender === myRole) return;
+                                document.getElementById('proposal-text').textContent = pData.text;
+                                document.getElementById('proposal-notification').classList.remove('hidden');
+                                document.getElementById('proposal-notification').classList.add('flex');
+                            });
+
+                            db.ref('football_rooms/' + currentRoomId + '/proposal_response').on('value', rSnap => {
+                                const rData = rSnap.val();
+                                if (!rData) return;
+                                db.ref('football_rooms/' + currentRoomId + '/proposals').once('value').then(myPSnap => {
+                                    const myPData = myPSnap.val();
+                                    if (!myPData || myPData.sender !== myRole) return;
+                                    inputEl.value = ''; inputEl.disabled = false; document.getElementById('submit-guess-btn').disabled = false;
+                                    if (rData.type === 'win') {
+                                        declareDone();
+                                    } else {
+                                        const isCorrectHint = rData.type === 'correct_hint';
+                                        renderTextHistory(myPData.text, isCorrectHint);
+                                    }
+                                    if (isHost) {
+                                        db.ref('football_rooms/' + currentRoomId + '/proposals').remove();
+                                        db.ref('football_rooms/' + currentRoomId + '/proposal_response').remove();
+                                    }
+                                });
+                            });
+                        }
+                    }
+                } else if (data.state === "ended") {
+                    if (!isGameOver && data.winner) handleWin(data.winner === 'p1' ? 1 : 2);
+                }
+            });
+        }
+
+        function startNextRound() {
+            if (gameMode === 'local') initGameMode('local');
+            else if (gameMode === 'online') {
+                playPosition = null; // إعادة تعيين لتظهر الشاشة مرة أخرى
+                db.ref('football_rooms/' + currentRoomId).update({ state: "setup", p1_target: null, p2_target: null, p1_ready: false, p2_ready: false, winner: null });
+            }
+        }
+
+        switchTab('home');
+    </script>
+</body>
+
+</html>
