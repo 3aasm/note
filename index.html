@@ -203,30 +203,58 @@
         }
 
         /* Light Mode */
+        /* Cartoon Close Button Style */
         .sheet-close-btn {
-            background: #f4f4f5;
-            color: #71717a;
-        }
-        .sheet-close-btn:hover {
-            background: #fee2e2;
-            color: #ef4444;
-            border-color: #fecaca;
+            background: #e11d48;
+            color: #ffffff;
+            border: 3px solid #0f172a;
+            box-shadow: 4px 4px 0px #0f172a;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 1.25rem;
+            border-radius: 12px;
         }
 
-        /* Dark Mode */
-        .dark .sheet-close-btn {
-            background: #171717;
-            color: #a1a1aa;
+        .sheet-close-btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px #0f172a;
+            background: #be123c;
         }
+
+        .sheet-close-btn:active {
+            scale: 0.95;
+        }
+
+        .dark .sheet-close-btn {
+            border-color: #020617;
+            box-shadow: 4px 4px 0px #020617;
+        }
+
         .dark .sheet-close-btn:hover {
-            background: #450a0a;
-            color: #ef4444;
-            border-color: #7f1d1d;
+            box-shadow: 0px 0px 0px #020617;
+        }
+
+        /* Full Width Cartoon Line */
+        .cartoon-separator {
+            height: 4px;
+            width: 100%;
+            background: #0f172a;
+            position: relative;
+            z-index: 10;
+        }
+
+        .dark .cartoon-separator {
+            background: #020617;
         }
 
         #game-iframe {
             width: 100%;
-            height: calc(100% - 62px); /* Adjusted for reduced header height (was 72) */
+            height: calc(100% - 84px); /* Adjusted for new cartoon header + separator */
             border: none;
         }
 
@@ -869,16 +897,21 @@
     <div id="game-sheet" class="bg-panelLight dark:bg-panelDark">
         <div class="flex flex-col h-full w-full">
             <!-- Header with Title and Exit Button -->
-            <div id="game-sheet-header" class="flex items-center justify-between px-6 py-3 border-b border-borderLight dark:border-borderDark">
+            <!-- Header with Title and Exit Button (Cartoon Style) -->
+            <div id="game-sheet-header" class="flex items-center justify-between px-6 py-4 bg-white dark:bg-panelDark">
                 <div class="flex items-center gap-3">
-                    <div class="w-2 h-2 rounded-full bg-brand animate-pulse"></div>
-                    <h3 class="font-black font-heading text-lg uppercase tracking-tight text-gray-900 dark:text-white">ساحة المعركة الآن</h3>
+                    <div class="w-10 h-10 bg-brand border-[3px] border-[#0f172a] dark:border-[#020617] rounded-xl flex items-center justify-center text-white shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#020617]">
+                        <i class="fa-solid fa-gamepad text-lg"></i>
+                    </div>
+                    <h3 class="font-black font-heading text-xl uppercase tracking-tight text-[#0f172a] dark:text-white uppercase tracking-tight">ساحة المعركة</h3>
                 </div>
-                <button onclick="closeGameSheet()" class="sheet-close-btn group flex items-center gap-2 px-4 !w-auto" title="خروج من اللعبة">
-                    <span class="text-xs font-bold uppercase tracking-widest hidden sm:inline">خروج</span>
-                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                <button onclick="closeGameSheet()" class="sheet-close-btn" title="خروج من اللعبة">
+                    <span class="text-xs font-bold">خروج</span>
+                    <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
+            <!-- Full Width Cartoon Separator -->
+            <div class="cartoon-separator"></div>
             <iframe id="game-iframe" src=""></iframe>
         </div>
     </div>
