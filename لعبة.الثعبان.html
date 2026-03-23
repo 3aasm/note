@@ -375,6 +375,12 @@
     <audio id="gameOverSound" preload="auto">
         <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3" type="audio/mpeg">
     </audio>
+    <audio id="startSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-changing-tab-206.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="clickSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-click-release-907.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
         // --- Theme Management ---
@@ -409,6 +415,8 @@
         const eatSound = document.getElementById('eatSound');
         const bonusSound = document.getElementById('bonusSound');
         const gameOverSound = document.getElementById('gameOverSound');
+        const startSound = document.getElementById('startSound');
+        const clickSound = document.getElementById('clickSound');
 
         function toggleSound() {
             soundEnabled = !soundEnabled;
@@ -553,6 +561,7 @@
 
             updateUI();
             showScreen('gamePlayArea');
+            playSound(startSound);
 
             generateFood();
             generateObstacles(4);
@@ -844,16 +853,21 @@
             isDirectionChanged = true;
         }
 
-        document.getElementById('up').addEventListener('click', () => changeDirection(0, -1));
-        document.getElementById('down').addEventListener('click', () => changeDirection(0, 1));
-        document.getElementById('left').addEventListener('click', () => changeDirection(1, 0)); // reversed for RTL layout feeling logically, but canvas is LTR. Left = right button conceptually?
-        // Wait, physical buttons should match visual direction.
-        // Canvas (0,0) is top-left. dx=1 is Right physically. dx=-1 is Left physically.
-        document.getElementById('right').addEventListener('click', () => changeDirection(-1, 0)); // Visual Right arrow -> moves Left in RTL canvas mapping? No, let's keep it physical.
-        // Let's remap physical buttons to their visual representation.
-        // The HTML D-Pad has physical arrows. 
-        // id="right" has fa-caret-left. So it moves left (dx = -1)
-        // id="left" has fa-caret-right. So it moves right (dx = 1)
+        // التحسين للجوال: استخدام pointerdown لجعل الاستجابة فورية
+        const setupControl = (id, dx, dy) => {
+            const btn = document.getElementById(id);
+            const handler = (e) => {
+                e.preventDefault(); 
+                changeDirection(dx, dy);
+                playSound(clickSound); // تشغيل الصوت فوراً عند الضغط
+            };
+            btn.addEventListener('pointerdown', handler);
+        };
+
+        setupControl('up', 0, -1);
+        setupControl('down', 0, 1);
+        setupControl('left', 1, 0);
+        setupControl('right', -1, 0);
 
         document.addEventListener('keydown', e => {
             if (isGameOver) return;
@@ -905,6 +919,16 @@
         window.addEventListener('DOMContentLoaded', () => {
             loadGameData();
             showStartScreen();
+
+            // إضافة أصوات لجميع الأزرار (باستخدام pointerdown لسرعة الاستجابة)
+            document.querySelectorAll('button').forEach(btn => {
+                // استثناء أزرار التحكم لأنها تملك معالج خاص بها بالفعل لمنع التكرار
+                if (!['up', 'down', 'left', 'right'].includes(btn.id)) {
+                    btn.addEventListener('pointerdown', () => {
+                        playSound(clickSound);
+                    });
+                }
+            });
         });
     </script>
 </body>
