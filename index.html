@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" id="status-bar-color" content="#0a0a0a">
     <title>برو أرينا | منصة المحترفين</title>
 
@@ -179,19 +180,22 @@
 
         #game-sheet.active {
             transform: translateY(0);
-            border-radius: 0; /* Cover full screen without radius when active */
+            border-radius: 0;
+            /* Cover full screen without radius when active */
         }
 
         #game-sheet-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.75rem 1.5rem; /* Reduced padding */
+            padding: 0.75rem 1.5rem;
+            /* Reduced padding */
             border-bottom: 1px solid var(--border-color);
         }
 
         .sheet-close-btn {
-            width: 32px; /* Reduced width/height */
+            width: 32px;
+            /* Reduced width/height */
             height: 32px;
             display: flex;
             align-items: center;
@@ -254,7 +258,8 @@
 
         #game-iframe {
             width: 100%;
-            height: calc(100% - 84px); /* Adjusted for new cartoon header + separator */
+            height: calc(100% - 84px);
+            /* Adjusted for new cartoon header + separator */
             border: none;
         }
 
@@ -315,12 +320,14 @@
             background: #450a0a;
             color: #ef4444;
         }
+
         /* تفاعل الأزرار في الجوال */
         .active-mob {
             color: #e11d48 !important;
             border-top-color: #e11d48 !important;
             background: linear-gradient(to bottom, rgba(225, 29, 72, 0.1), transparent);
         }
+
         /* شريط تصنيفات الألعاب المنزلق */
         #game-filters-bar {
             max-height: 0;
@@ -328,12 +335,14 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             opacity: 0;
         }
+
         #game-filters-bar.active {
             max-height: 100px;
             opacity: 1;
             margin-top: 1rem;
             padding-bottom: 0.5rem;
         }
+
         .filter-toggle-btn.active {
             background-color: #e11d48;
             color: white;
@@ -487,16 +496,20 @@
                     <!-- القسم الأيمن: البثوث والنشاط -->
                     <div class="md:col-span-2 space-y-6">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-2xl font-black font-heading border-r-4 border-brand pr-3 uppercase">أبرز المواجهات</h3>
+                            <h3 class="text-2xl font-black font-heading border-r-4 border-brand pr-3 uppercase">أبرز
+                                المواجهات</h3>
                             <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">تحديث تلقائي</span>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">تحديث
+                                    تلقائي</span>
                                 <div class="w-24 h-1 bg-gray-200 dark:bg-gray-800 relative overflow-hidden">
-                                    <div id="matches-progress" class="absolute top-0 right-0 h-full bg-brand w-0 transition-none"></div>
+                                    <div id="matches-progress"
+                                        class="absolute top-0 right-0 h-full bg-brand w-0 transition-none"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div id="matches-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 transition-all duration-500 min-h-[180px]">
+                        <div id="matches-container"
+                            class="grid grid-cols-1 sm:grid-cols-2 gap-4 transition-all duration-500 min-h-[180px]">
                             <!-- سيتم توليد المحتوى بواسطة JavaScript -->
                         </div>
                     </div>
@@ -592,38 +605,46 @@
                     <!-- لعبة XO (Redesigned - Compact) -->
                     <div
                         class="stagger-item col-span-2 md:col-span-3 lg:col-span-4 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-brand/30 transition-all duration-500 group flex overflow-hidden relative min-h-[140px]">
-                        
+
                         <!-- الزينة الخلفية (faint Icons) -->
-                        <div class="absolute right-0 top-0 bottom-0 w-1/4 sm:w-1/3 bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center pointer-events-none overflow-hidden">
+                        <div
+                            class="absolute right-0 top-0 bottom-0 w-1/4 sm:w-1/3 bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center pointer-events-none overflow-hidden">
                             <div class="flex flex-col gap-2 opacity-10 dark:opacity-5 transform rotate-12 scale-150">
                                 <i class="fa-solid fa-xmarks-lines text-6xl text-gray-400 dark:text-white"></i>
                                 <i class="fa-solid fa-xmarks-lines text-6xl text-gray-400 dark:text-white"></i>
                             </div>
                             <!-- الأيقونة الرئيسية البارزة -->
-                            <i class="fa-solid fa-xmarks-lines text-7xl text-brand opacity-20 dark:opacity-10 absolute group-hover:scale-110 transition-transform duration-700 drop-shadow-sm"></i>
+                            <i
+                                class="fa-solid fa-xmarks-lines text-7xl text-brand opacity-20 dark:opacity-10 absolute group-hover:scale-110 transition-transform duration-700 drop-shadow-sm"></i>
                         </div>
 
                         <!-- المحتوى النصي -->
                         <div class="flex-1 p-4 sm:p-6 flex flex-col relative z-10">
                             <!-- البادج (Classic) -->
                             <div class="absolute top-4 left-4">
-                                <span class="bg-brand text-white text-[9px] font-black px-2.5 py-1 uppercase tracking-widest clip-angled-btn">كلاسيك</span>
+                                <span
+                                    class="bg-brand text-white text-[9px] font-black px-2.5 py-1 uppercase tracking-widest clip-angled-btn">كلاسيك</span>
                             </div>
 
                             <div class="mt-6 sm:mt-0 text-right">
-                                <h3 class="font-black font-heading text-xl sm:text-2xl text-gray-900 dark:text-white mb-1 uppercase group-hover:text-brand transition-colors">
+                                <h3
+                                    class="font-black font-heading text-xl sm:text-2xl text-gray-900 dark:text-white mb-1 uppercase group-hover:text-brand transition-colors">
                                     لعبة XO
                                 </h3>
-                                <p class="text-[10px] sm:text-xs text-gray-600 dark:text-gray-500 max-w-md leading-relaxed mb-3 mr-0 ml-auto line-clamp-2">
-                                    لعبة التكتيك الكلاسيكية. العب الآن وتحدى خصمك في معركة سريعة وممتعة تعتمد على الذكاء وسرعة البديهة!
+                                <p
+                                    class="text-[10px] sm:text-xs text-gray-600 dark:text-gray-500 max-w-md leading-relaxed mb-3 mr-0 ml-auto line-clamp-2">
+                                    لعبة التكتيك الكلاسيكية. العب الآن وتحدى خصمك في معركة سريعة وممتعة تعتمد على الذكاء
+                                    وسرعة البديهة!
                                 </p>
                             </div>
 
                             <div class="mt-auto">
                                 <button onclick="openGameSheet('XO.html')"
-                                    class="w-full py-2.5 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black font-heading uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white transition-all active:scale-95 text-xs relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
+                                    class="w-full py-2.5 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black font-heading uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white dark:hover:text-white transition-all active:scale-95 text-xs relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
                                     <span class="relative z-10">العب الآن</span>
-                                    <div class="absolute inset-0 bg-brand translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                                    <div
+                                        class="absolute inset-0 bg-brandHover translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
+                                    </div>
                                 </button>
                             </div>
                         </div>
@@ -632,15 +653,23 @@
                     <!-- لعبة 2 (برا السالفة - Redesigned) -->
                     <div
                         class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-blue-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-user-secret text-8xl text-blue-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
+                        <div
+                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i
+                                class="fa-solid fa-user-secret text-8xl text-blue-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
                         </div>
                         <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3 class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-blue-500 transition-colors">برا السالفة</h3>
-                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">اكتشف من هو الجاسوس بينكم!</p>
-                            <button class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
+                            <h3
+                                class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-blue-500 transition-colors">
+                                برا السالفة</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">اكتشف من هو
+                                الجاسوس بينكم!</p>
+                            <button onclick="openGameSheet('برا.السالفة.html')"
+                                class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white dark:hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
                                 <span class="relative z-10">العب الآن</span>
-                                <div class="absolute inset-0 bg-brand translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                                <div
+                                    class="absolute inset-0 bg-brandHover translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
+                                </div>
                             </button>
                         </div>
                     </div>
@@ -648,16 +677,23 @@
                     <!-- لعبة 3 (خمن اللاعب - Redesigned) -->
                     <div
                         class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-yellow-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-users-viewfinder text-8xl text-yellow-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
+                        <div
+                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i
+                                class="fa-solid fa-users-viewfinder text-8xl text-yellow-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
                         </div>
                         <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3 class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-yellow-500 transition-colors">خمن اللاعب</h3>
-                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">تحدى صديقك في 1 ضد 1.</p>
+                            <h3
+                                class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-yellow-500 transition-colors">
+                                خمن اللاعب</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">تحدى صديقك في 1 ضد
+                                1.</p>
                             <button onclick="openGameSheet('خمن.الاعب.html')"
-                                class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
+                                class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white dark:hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
                                 <span class="relative z-10">العب الآن</span>
-                                <div class="absolute inset-0 bg-brand translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                                <div
+                                    class="absolute inset-0 bg-brandHover translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
+                                </div>
                             </button>
                         </div>
                     </div>
@@ -665,31 +701,47 @@
                     <!-- لعبة 4 (الألغاز - Redesigned) -->
                     <div
                         class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-purple-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-puzzle-piece text-8xl text-purple-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
+                        <div
+                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i
+                                class="fa-solid fa-puzzle-piece text-8xl text-purple-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
                         </div>
                         <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3 class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-purple-500 transition-colors">الألغاز</h3>
-                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">حل أصعب الألغاز.</p>
-                            <button class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
+                            <h3
+                                class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-purple-500 transition-colors">
+                                الألغاز</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">حل أصعب الألغاز.
+                            </p>
+                            <button
+                                class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white dark:hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
                                 <span class="relative z-10">العب الآن</span>
-                                <div class="absolute inset-0 bg-brand translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                                <div
+                                    class="absolute inset-0 bg-brandHover translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
+                                </div>
                             </button>
                         </div>
                     </div>
 
-                    <!-- لعبة 5 (شطرنج - Redesigned) -->
+                    <!-- لعبة 5 (لعبة الثعبان - Redesigned) -->
                     <div
                         class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-green-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-chess-knight text-8xl text-green-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
+                        <div
+                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i
+                                class="fa-solid fa-worm text-8xl text-green-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
                         </div>
                         <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3 class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-green-500 transition-colors">شطرنج</h3>
-                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">لعبة الملوك والتكتيك.</p>
-                            <button class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
+                            <h3
+                                class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-green-500 transition-colors">
+                                لعبة الثعبان</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">تحدى نفسك في جمع
+                                الطعام وتجنب العقبات.</p>
+                            <button onclick="openGameSheet('لعبة.الثعبان.html')"
+                                class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white dark:hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
                                 <span class="relative z-10">العب الآن</span>
-                                <div class="absolute inset-0 bg-brand translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                                <div
+                                    class="absolute inset-0 bg-brandHover translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
+                                </div>
                             </button>
                         </div>
                     </div>
@@ -900,10 +952,13 @@
             <!-- Header with Title and Exit Button (Cartoon Style) -->
             <div id="game-sheet-header" class="flex items-center justify-between px-6 py-4 bg-white dark:bg-panelDark">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-brand border-[3px] border-[#0f172a] dark:border-[#020617] rounded-xl flex items-center justify-center text-white shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#020617]">
+                    <div
+                        class="w-10 h-10 bg-brand border-[3px] border-[#0f172a] dark:border-[#020617] rounded-xl flex items-center justify-center text-white shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#020617]">
                         <i class="fa-solid fa-gamepad text-lg"></i>
                     </div>
-                    <h3 class="font-black font-heading text-xl uppercase tracking-tight text-[#0f172a] dark:text-white uppercase tracking-tight">ساحة المعركة</h3>
+                    <h3
+                        class="font-black font-heading text-xl uppercase tracking-tight text-[#0f172a] dark:text-white uppercase tracking-tight">
+                        ساحة المعركة</h3>
                 </div>
                 <button onclick="closeGameSheet()" class="sheet-close-btn" title="خروج من اللعبة">
                     <span class="text-xs font-bold">خروج</span>
@@ -922,11 +977,14 @@
             <div class="modal-icon">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </div>
-            <h3 class="text-xl font-black font-heading text-center mb-2 text-gray-900 dark:text-white uppercase tracking-tight">هل تريد الخروج؟</h3>
-            <p class="text-gray-500 dark:text-gray-400 text-center mb-8 text-sm font-medium">سيتم فقدان أي تقدم لم يتم حفظه في المباراة الحالية.</p>
-            
+            <h3
+                class="text-xl font-black font-heading text-center mb-2 text-gray-900 dark:text-white uppercase tracking-tight">
+                هل تريد الخروج؟</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-center mb-8 text-sm font-medium">سيتم فقدان أي تقدم لم يتم
+                حفظه في المباراة الحالية.</p>
+
             <div class="flex flex-col gap-3">
-                <button onclick="confirmExit(true)" 
+                <button onclick="confirmExit(true)"
                     class="w-full py-3 bg-brand hover:bg-brandHover text-white font-black font-heading uppercase tracking-widest clip-angled-btn transition-all active:scale-95 shadow-lg shadow-brand/20">
                     تأكيد الخروج
                 </button>
@@ -1038,15 +1096,15 @@
             const sheet = document.getElementById('game-sheet');
             const overlay = document.getElementById('game-sheet-overlay');
             const iframe = document.getElementById('game-iframe');
-            
+
             // إضافة الوضع الحالي للرابط لضمان التناسق
             const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
             const separator = url.includes('?') ? '&' : '?';
             iframe.src = `${url}${separator}theme=${currentTheme}`;
-            
+
             sheet.classList.add('active');
             overlay.classList.add('active');
-            
+
             // منع تمرير الصفحة الخلفية
             document.body.style.overflow = 'hidden';
         }
@@ -1064,10 +1122,10 @@
                 const sheet = document.getElementById('game-sheet');
                 const overlay = document.getElementById('game-sheet-overlay');
                 const iframe = document.getElementById('game-iframe');
-                
+
                 sheet.classList.remove('active');
                 overlay.classList.remove('active');
-                
+
                 // Clear iframe after animation
                 setTimeout(() => {
                     iframe.src = "";
@@ -1143,10 +1201,10 @@
             const bar = document.getElementById('game-filters-bar');
             const btn = document.getElementById('filter-toggle-btn');
             const icon = btn.querySelector('i');
-            
+
             bar.classList.toggle('active');
             btn.classList.toggle('active');
-            
+
             // تدوير الأيقونة عند الفتح
             if (bar.classList.contains('active')) {
                 icon.style.transform = 'rotate(180deg)';
@@ -1191,13 +1249,13 @@
         function startMatchesCarousel() {
             renderMatches();
             resetProgressBar();
-            
+
             setInterval(() => {
                 currentMatchSet = (currentMatchSet + 1) % matchesData.length;
-                
+
                 const container = document.getElementById('matches-container');
                 container.classList.add('opacity-0', 'translate-x-4');
-                
+
                 setTimeout(() => {
                     renderMatches();
                     container.classList.remove('opacity-0', 'translate-x-4');
@@ -1209,7 +1267,7 @@
         function renderMatches() {
             const container = document.getElementById('matches-container');
             if (!container) return;
-            
+
             const matches = matchesData[currentMatchSet];
             container.innerHTML = matches.map(match => `
                 <div class="bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:border-brand transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-brand/10">
@@ -1238,10 +1296,10 @@
         function resetProgressBar() {
             const progress = document.getElementById('matches-progress');
             if (!progress) return;
-            
+
             progress.style.transition = 'none';
             progress.style.width = '100%';
-            
+
             setTimeout(() => {
                 progress.style.transition = 'width 10s linear';
                 progress.style.width = '0%';
