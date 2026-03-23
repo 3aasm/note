@@ -211,12 +211,18 @@
                 <i class="fa-solid fa-volume-up text-lg md:text-xl"></i>
             </button>
 
-            <!-- زر الثيم -->
+            <!-- زر الثيم (يظهر فقط إذا كانت اللعبة تعمل بشكل مستقل) -->
             <button onclick="toggleTheme()"
                 class="w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-yellow-300 dark:bg-indigo-500 rounded-xl flex items-center justify-center text-panelBorder dark:text-white transition-all"
                 id="theme-toggle">
                 <i class="fa-solid fa-sun text-xl md:text-2xl"></i>
             </button>
+            <script>
+                // إخفاء زر النمط إذا كانت اللعبة داخل iframe (لأن الأب يتحكم بالنمط)
+                if (window !== window.parent) {
+                    document.getElementById('theme-toggle').style.display = 'none';
+                }
+            </script>
         </div>
     </header>
 
@@ -252,7 +258,7 @@
                             class="font-black text-panelBorder dark:text-white mb-3 text-lg flex items-center justify-between border-b-2 border-yellow-200 dark:border-slate-700 pb-2">
                             <span><i class="fa-solid fa-trophy text-yellow-500 ml-1"></i> أفضل النتائج</span>
                         </h3>
-                        <ul id="highScoresList" class="space-y-2">
+                        <ul id="highScoresList" class="space-y-2 max-h-[140px] overflow-y-auto no-scrollbar py-1">
                             <!-- سيتم التعبئة بواسطة JS -->
                         </ul>
                     </div>
@@ -484,22 +490,43 @@
             showScreen('startScreen');
         }
 
-        // --- Local Storage ---
+        // --- Local Storage & Syncing ---
         function loadGameData() {
             const saved = localStorage.getItem('lmah_snake_data_v2');
             if (saved) {
                 gameData = JSON.parse(saved);
                 soundEnabled = gameData.soundEnabled;
+            }
+
+            // التحقق من وجود نمط مرسل من الصفحة الأم (URL Parameter)
+            const urlParams = new URLSearchParams(window.location.search);
+            const themeParam = urlParams.get('theme');
+
+            if (themeParam && (themeParam === 'dark' || themeParam === 'light')) {
+                applyTheme(themeParam);
+                gameData.theme = themeParam;
+            } else if (gameData.theme) {
                 applyTheme(gameData.theme);
             } else {
                 // Check system preference
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                     gameData.theme = 'dark';
                     applyTheme('dark');
+                } else {
+                    applyTheme('light');
                 }
             }
             updateSoundIcon();
         }
+
+        // الاستماع لتغييرات النمط من الصفحة الأم (postMessage)
+        window.addEventListener('message', function (event) {
+            if (event.data && event.data.type === 'set_theme') {
+                applyTheme(event.data.theme);
+                gameData.theme = event.data.theme;
+                saveGameData();
+            }
+        });
 
         function saveGameData() {
             localStorage.setItem('lmah_snake_data_v2', JSON.stringify(gameData));
@@ -784,21 +811,28 @@
         }
 
         function displayHighScores(scores) {
-            const list = document.getElementById('highScoresList');
-            list.innerHTML = '';
-            scores.forEach((score, index) => {
-                let medal = '';
-                let colorClass = 'text-slate-600 dark:text-slate-300';
-                if (index === 0) { medal = '🥇'; colorClass = 'text-yellow-600 dark:text-yellow-400 font-black'; }
-                else if (index === 1) { medal = '🥈'; colorClass = 'text-slate-500 dark:text-slate-300 font-bold'; }
-                else if (index === 2) { medal = '🥉'; colorClass = 'text-orange-500 dark:text-orange-400 font-bold'; }
+            const list = document.querySelectorAll('#highScoresList');
+            list.forEach(ul => {
+                ul.innerHTML = '';
+                scores.forEach((score, index) => {
+                    let medal = '🏆'; // Simple trophy for all scores
+                    let colorClass = 'text-slate-600 dark:text-slate-300';
+                    let label = 'أعلى نتيجة';
+                    
+                    if (index === 0) { medal = '🥇'; colorClass = 'text-yellow-600 dark:text-yellow-400 font-black'; }
+                    else if (index === 1) { medal = '🥈'; colorClass = 'text-slate-500 dark:text-slate-300 font-bold'; }
+                    else if (index === 2) { medal = '🥉'; colorClass = 'text-orange-500 dark:text-orange-400 font-bold'; }
 
-                list.innerHTML += `
-                    <li class="flex justify-between items-center bg-white/50 dark:bg-black/20 p-2 rounded-lg border border-yellow-200 dark:border-slate-600">
-                        <span class="${colorClass}">${medal} المركز ${index + 1}</span>
-                        <span class="font-black text-panelBorder dark:text-white">${score}</span>
-                    </li>
-                `;
+                    ul.innerHTML += `
+                        <li class="flex justify-between items-center bg-white/50 dark:bg-black/20 p-2.5 rounded-lg border-2 border-slate-200 dark:border-slate-700 shadow-sm transition-transform hover:scale-[0.98]">
+                            <span class="${colorClass} flex items-center gap-2">
+                                <span class="text-lg">${medal}</span>
+                                <span class="text-xs font-black uppercase tracking-tighter">${label}</span>
+                            </span>
+                            <span class="font-black text-panelBorder dark:text-white text-lg">${score}</span>
+                        </li>
+                    `;
+                });
             });
         }
 
