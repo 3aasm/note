@@ -761,9 +761,11 @@
         function applyTheme(theme) {
             const html = document.documentElement;
             const icon = document.querySelector('#theme-toggle i');
+            const metaThemeColor = document.getElementById('status-bar-color');
             if (theme === 'dark') {
                 html.classList.add('dark');
                 html.classList.remove('light');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#0f172a');
                 if (icon) {
                     icon.classList.remove('fa-sun');
                     icon.classList.add('fa-moon');
@@ -771,6 +773,7 @@
             } else {
                 html.classList.add('light');
                 html.classList.remove('dark');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#fef08a');
                 if (icon) {
                     icon.classList.remove('fa-moon');
                     icon.classList.add('fa-sun');
