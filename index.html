@@ -367,21 +367,21 @@
             <div class="px-6 text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">القائمة الرئيسية</div>
 
             <button onclick="switchPage('home')"
-                class="nav-item active w-full flex items-center gap-4 px-6 py-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
+                class="nav-item active w-full flex items-center gap-4 px-6 py-4 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
                 data-target="home">
                 <i class="fa-solid fa-home text-lg w-6 text-center transition-transform group-hover:scale-110"></i>
                 <span class="font-bold font-heading">مقر القيادة</span>
             </button>
 
             <button onclick="switchPage('games')"
-                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
+                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
                 data-target="games">
                 <i class="fa-solid fa-gamepad text-lg w-6 text-center transition-transform group-hover:scale-110"></i>
                 <span class="font-bold font-heading">ساحة المعركة</span>
             </button>
 
             <button onclick="switchPage('messages')"
-                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
+                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
                 data-target="messages">
                 <i
                     class="fa-solid fa-comment-dots text-lg w-6 text-center relative transition-transform group-hover:scale-110">
@@ -392,7 +392,7 @@
             </button>
 
             <button onclick="switchPage('settings')"
-                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
+                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all duration-300 border-r-4 border-transparent hover:bg-gray-100 dark:hover:bg-white/5 active:scale-[0.98]"
                 data-target="settings">
                 <i class="fa-solid fa-gear text-lg w-6 text-center transition-transform group-hover:rotate-90"></i>
                 <span class="font-bold font-heading">الترسانة</span>
@@ -591,16 +591,16 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
                     <!-- لعبة XO (Redesigned - Compact) -->
                     <div
-                        class="stagger-item col-span-2 md:col-span-3 lg:col-span-4 bg-[#141414] border border-white/5 hover:border-brand/30 transition-all duration-500 group flex overflow-hidden relative min-h-[140px]">
+                        class="stagger-item col-span-2 md:col-span-3 lg:col-span-4 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-brand/30 transition-all duration-500 group flex overflow-hidden relative min-h-[140px]">
                         
                         <!-- الزينة الخلفية (faint Icons) -->
-                        <div class="absolute right-0 top-0 bottom-0 w-1/4 sm:w-1/3 bg-[#1a1a1a] flex items-center justify-center pointer-events-none overflow-hidden">
-                            <div class="flex flex-col gap-2 opacity-5 transform rotate-12 scale-150">
-                                <i class="fa-solid fa-xmarks-lines text-6xl"></i>
-                                <i class="fa-solid fa-xmarks-lines text-6xl"></i>
+                        <div class="absolute right-0 top-0 bottom-0 w-1/4 sm:w-1/3 bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center pointer-events-none overflow-hidden">
+                            <div class="flex flex-col gap-2 opacity-10 dark:opacity-5 transform rotate-12 scale-150">
+                                <i class="fa-solid fa-xmarks-lines text-6xl text-gray-400 dark:text-white"></i>
+                                <i class="fa-solid fa-xmarks-lines text-6xl text-gray-400 dark:text-white"></i>
                             </div>
-                            <!-- الأيقونة الظاهرة في الصورة -->
-                            <i class="fa-solid fa-xmarks-lines text-6xl text-brand opacity-10 absolute group-hover:scale-110 transition-transform duration-700"></i>
+                            <!-- الأيقونة الرئيسية البارزة -->
+                            <i class="fa-solid fa-xmarks-lines text-7xl text-brand opacity-20 dark:opacity-10 absolute group-hover:scale-110 transition-transform duration-700 drop-shadow-sm"></i>
                         </div>
 
                         <!-- المحتوى النصي -->
@@ -611,17 +611,17 @@
                             </div>
 
                             <div class="mt-6 sm:mt-0 text-right">
-                                <h3 class="font-black font-heading text-xl sm:text-2xl text-white mb-1 uppercase group-hover:text-brand transition-colors">
+                                <h3 class="font-black font-heading text-xl sm:text-2xl text-gray-900 dark:text-white mb-1 uppercase group-hover:text-brand transition-colors">
                                     لعبة XO
                                 </h3>
-                                <p class="text-[10px] sm:text-xs text-gray-500 max-w-md leading-relaxed mb-3 mr-0 ml-auto line-clamp-2">
+                                <p class="text-[10px] sm:text-xs text-gray-600 dark:text-gray-500 max-w-md leading-relaxed mb-3 mr-0 ml-auto line-clamp-2">
                                     لعبة التكتيك الكلاسيكية. العب الآن وتحدى خصمك في معركة سريعة وممتعة تعتمد على الذكاء وسرعة البديهة!
                                 </p>
                             </div>
 
                             <div class="mt-auto">
                                 <button onclick="openGameSheet('XO.html')"
-                                    class="w-full py-2.5 bg-transparent border-2 border-brand text-brand font-black font-heading uppercase tracking-widest hover:bg-brand hover:text-white transition-all active:scale-95 text-xs relative group/btn overflow-hidden">
+                                    class="w-full py-2.5 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black font-heading uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white transition-all active:scale-95 text-xs relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
                                     <span class="relative z-10">العب الآن</span>
                                     <div class="absolute inset-0 bg-brand translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
                                 </button>
@@ -631,14 +631,14 @@
 
                     <!-- لعبة 2 (برا السالفة - Redesigned) -->
                     <div
-                        class="stagger-item col-span-1 bg-[#141414] border border-white/5 hover:border-blue-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-user-secret text-7xl text-blue-500 group-hover:scale-110 transition-transform duration-700"></i>
+                        class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-blue-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-user-secret text-8xl text-blue-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
                         </div>
                         <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3 class="font-black font-heading text-base sm:text-lg text-white mb-1 uppercase group-hover:text-blue-500 transition-colors">برا السالفة</h3>
-                            <p class="text-[10px] text-gray-500 mb-3 line-clamp-2">اكتشف من هو الجاسوس بينكم!</p>
-                            <button class="w-full py-2 bg-transparent border-2 border-brand text-brand font-black text-[10px] uppercase tracking-widest hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden">
+                            <h3 class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-blue-500 transition-colors">برا السالفة</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">اكتشف من هو الجاسوس بينكم!</p>
+                            <button class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
                                 <span class="relative z-10">العب الآن</span>
                                 <div class="absolute inset-0 bg-brand translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
                             </button>
@@ -647,15 +647,15 @@
 
                     <!-- لعبة 3 (خمن اللاعب - Redesigned) -->
                     <div
-                        class="stagger-item col-span-1 bg-[#141414] border border-white/5 hover:border-yellow-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-users-viewfinder text-7xl text-yellow-500 group-hover:scale-110 transition-transform duration-700"></i>
+                        class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-yellow-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-users-viewfinder text-8xl text-yellow-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
                         </div>
                         <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3 class="font-black font-heading text-base sm:text-lg text-white mb-1 uppercase group-hover:text-yellow-500 transition-colors">خمن اللاعب</h3>
-                            <p class="text-[10px] text-gray-500 mb-3 line-clamp-2">تحدى صديقك في 1 ضد 1.</p>
+                            <h3 class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-yellow-500 transition-colors">خمن اللاعب</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">تحدى صديقك في 1 ضد 1.</p>
                             <button onclick="openGameSheet('خمن.الاعب.html')"
-                                class="w-full py-2 bg-transparent border-2 border-brand text-brand font-black text-[10px] uppercase tracking-widest hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden">
+                                class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
                                 <span class="relative z-10">العب الآن</span>
                                 <div class="absolute inset-0 bg-brand translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
                             </button>
@@ -664,14 +664,14 @@
 
                     <!-- لعبة 4 (الألغاز - Redesigned) -->
                     <div
-                        class="stagger-item col-span-1 bg-[#141414] border border-white/5 hover:border-purple-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-puzzle-piece text-7xl text-purple-500 group-hover:scale-110 transition-transform duration-700"></i>
+                        class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-purple-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-puzzle-piece text-8xl text-purple-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
                         </div>
                         <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3 class="font-black font-heading text-base sm:text-lg text-white mb-1 uppercase group-hover:text-purple-500 transition-colors">الألغاز</h3>
-                            <p class="text-[10px] text-gray-500 mb-3 line-clamp-2">حل أصعب الألغاز.</p>
-                            <button class="w-full py-2 bg-transparent border-2 border-brand text-brand font-black text-[10px] uppercase tracking-widest hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden">
+                            <h3 class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-purple-500 transition-colors">الألغاز</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">حل أصعب الألغاز.</p>
+                            <button class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
                                 <span class="relative z-10">العب الآن</span>
                                 <div class="absolute inset-0 bg-brand translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
                             </button>
@@ -680,14 +680,14 @@
 
                     <!-- لعبة 5 (شطرنج - Redesigned) -->
                     <div
-                        class="stagger-item col-span-1 bg-[#141414] border border-white/5 hover:border-green-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-chess-knight text-7xl text-green-500 group-hover:scale-110 transition-transform duration-700"></i>
+                        class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-green-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-chess-knight text-8xl text-green-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
                         </div>
                         <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3 class="font-black font-heading text-base sm:text-lg text-white mb-1 uppercase group-hover:text-green-500 transition-colors">شطرنج</h3>
-                            <p class="text-[10px] text-gray-500 mb-3 line-clamp-2">لعبة الملوك والتكتيك.</p>
-                            <button class="w-full py-2 bg-transparent border-2 border-brand text-brand font-black text-[10px] uppercase tracking-widest hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden">
+                            <h3 class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-green-500 transition-colors">شطرنج</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">لعبة الملوك والتكتيك.</p>
+                            <button class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
                                 <span class="relative z-10">العب الآن</span>
                                 <div class="absolute inset-0 bg-brand translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
                             </button>
@@ -861,7 +861,7 @@
         class="md:hidden fixed bottom-0 w-full z-50 bg-panelLight dark:bg-panelDark border-t border-borderLight dark:border-borderDark pb-safe transition-colors duration-300">
         <div class="flex justify-between items-center h-16">
             <button onclick="switchPage('home')"
-                class="nav-btn flex-1 h-full flex flex-col items-center justify-center gap-1 text-gray-500 dark:text-gray-400 border-t-2 border-transparent active-mob transition-all duration-300 active:scale-95"
+                class="nav-btn flex-1 h-full flex flex-col items-center justify-center gap-1 text-gray-700 dark:text-gray-400 border-t-2 border-transparent active-mob transition-all duration-300 active:scale-95"
                 data-target="home">
                 <i class="fa-solid fa-home text-xl transition-transform"></i>
                 <span class="text-[10px] font-bold font-heading uppercase">القيادة</span>
@@ -1087,7 +1087,7 @@
                     icon.classList.add('text-brand', 'scale-110');
                 } else {
                     btn.classList.remove('border-brand', 'text-gray-900', 'dark:text-white', 'bg-gray-100', 'dark:bg-white/5');
-                    btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                    btn.classList.add('border-transparent', 'text-gray-700', 'dark:text-gray-400');
                     icon.classList.remove('text-brand', 'scale-110');
                 }
             });
@@ -1213,9 +1213,9 @@
             const matches = matchesData[currentMatchSet];
             container.innerHTML = matches.map(match => `
                 <div class="bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:border-brand transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-brand/10">
-                    <div class="relative h-32 bg-gray-900 overflow-hidden">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-20 group-hover:scale-110 transition-transform duration-700">
-                            <i class="fa-solid ${match.icon} text-6xl"></i>
+                    <div class="relative h-32 bg-gray-100 dark:bg-gray-900 overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-30 dark:opacity-20 group-hover:scale-110 transition-transform duration-700">
+                            <i class="fa-solid ${match.icon} text-6xl text-gray-400 dark:text-white"></i>
                         </div>
                         <div class="absolute top-2 right-2 bg-${match.color === 'brand' ? 'brand' : match.color + '-600'} text-white text-[10px] font-bold px-2 py-0.5 clip-angled-btn">
                             ${match.type}
