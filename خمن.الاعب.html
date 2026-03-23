@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" id="status-bar-color" content="#0f172a">
     <meta name="referrer" content="no-referrer">
     <title>خمن اللاعب | 1vs1</title>
 
@@ -877,9 +878,11 @@
         function applyTheme(theme) {
             const html = document.documentElement;
             const icon = document.querySelector('#theme-toggle i');
+            const metaThemeColor = document.getElementById('status-bar-color');
             if (theme === 'dark') {
                 html.classList.add('dark');
                 html.classList.remove('light');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#0f172a');
                 if (icon) {
                     icon.classList.remove('fa-sun');
                     icon.classList.add('fa-moon');
@@ -887,6 +890,7 @@
             } else {
                 html.classList.add('light');
                 html.classList.remove('dark');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#dcfce7');
                 if (icon) {
                     icon.classList.remove('fa-moon');
                     icon.classList.add('fa-sun');
