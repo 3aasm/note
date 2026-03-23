@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" id="status-bar-color" content="#fef08a">
+    <title>لعبة الثعبان | عالم المرح</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Tajawal:wght@500;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Confetti for winning/high scores -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                        heading: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: '#3b82f6', // Bright Blue
+                        accent: '#ef4444', // Bright Red
+                        success: '#22c55e', // Green
+                        bonus: '#facc15', // Yellow
+                        bgLight: '#fef08a', // Sunny Yellow
+                        bgDark: '#0f172a', // Slate Dark
+                        panelBorder: '#0f172a', // Very dark blue/black
+                        panelDark: '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            background-image: radial-gradient(#fbbf24 2px, transparent 2px);
+            background-size: 24px 24px;
+        }
+
+        .dark body {
+            background-image: radial-gradient(#1e293b 2px, transparent 2px);
+        }
+
+        /* أنيميشن دخول الصفحة */
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .page-section {
+            display: none !important;
+        }
+
+        .page-section.active {
+            display: flex !important;
+            animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* التصميم الكرتوني (Neobrutalism) */
+        .cartoon-panel {
+            background-color: var(--tw-bg-opacity, #ffffff);
+            border: 3px solid #0f172a;
+            border-radius: 1.25rem;
+            box-shadow: 4px 4px 0px #0f172a;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .dark .cartoon-panel {
+            background-color: #1e293b;
+            border-color: #020617;
+            box-shadow: 4px 4px 0px #020617;
+        }
+
+        .cartoon-btn {
+            border: 2px solid #0f172a;
+            box-shadow: 3px 3px 0px #0f172a;
+            transition: all 0.1s ease-in-out;
+            cursor: pointer;
+            outline: none;
+            user-select: none;
+        }
+
+        .dark .cartoon-btn {
+            border-color: #020617;
+            box-shadow: 3px 3px 0px #020617;
+        }
+
+        .cartoon-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #0f172a !important;
+        }
+
+        .dark .cartoon-btn:active {
+            box-shadow: 0px 0px 0px #020617 !important;
+        }
+
+        @media (min-width: 768px) {
+            .cartoon-panel {
+                border-width: 4px;
+                box-shadow: 6px 6px 0px #0f172a;
+                border-radius: 1.5rem;
+            }
+
+            .dark .cartoon-panel {
+                box-shadow: 6px 6px 0px #020617;
+            }
+
+            .cartoon-btn {
+                border-width: 3px;
+                box-shadow: 4px 4px 0px #0f172a;
+            }
+
+            .dark .cartoon-btn {
+                box-shadow: 4px 4px 0px #020617;
+            }
+
+            .cartoon-btn:active {
+                transform: translate(4px, 4px);
+            }
+        }
+
+        /* إخفاء شريط التمرير */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .shake {
+            animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-2px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(4px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-6px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(6px, 0, 0);
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-bgLight dark:bg-bgDark text-gray-900 dark:text-gray-100 transition-colors duration-300 h-screen flex flex-col overflow-hidden selection:bg-brand selection:text-white"
+    id="body-container">
+
+    <!-- شريط علوي -->
+    <header class="h-16 z-20 flex items-center justify-between px-4 md:px-8 mt-3 md:mt-5 shrink-0">
+        <div class="flex items-center gap-2 flex-1">
+            <!-- زر الرجوع -->
+            <button id="back-btn" onclick="showStartScreen()"
+                class="hidden w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center text-panelBorder dark:text-white font-bold text-lg md:text-xl shrink-0">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <!-- الشعار / العنوان -->
+            <div class="flex items-center gap-2 cartoon-panel bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border-2 cursor-pointer shrink-0"
+                onclick="showStartScreen()">
+                <i class="fa-solid fa-worm text-brand text-sm hidden sm:block"></i>
+                <h2 class="font-black font-heading text-lg">الثعبان</h2>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <!-- زر الصوت -->
+            <button id="sound-toggle" onclick="toggleSound()"
+                class="w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center text-panelBorder dark:text-white transition-all">
+                <i class="fa-solid fa-volume-up text-lg md:text-xl"></i>
+            </button>
+
+            <!-- زر الثيم -->
+            <button onclick="toggleTheme()"
+                class="w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-yellow-300 dark:bg-indigo-500 rounded-xl flex items-center justify-center text-panelBorder dark:text-white transition-all"
+                id="theme-toggle">
+                <i class="fa-solid fa-sun text-xl md:text-2xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- منطقة المحتوى الرئيسية -->
+    <main
+        class="flex-1 overflow-y-auto no-scrollbar p-4 md:p-6 pb-6 scroll-smooth relative z-10 flex flex-col items-center justify-start md:justify-center">
+        <div class="w-full max-w-[28rem] md:max-w-md mx-auto h-full flex flex-col">
+
+            <!-- 1. شاشة البداية -->
+            <div id="startScreen" class="page-section w-full active flex-col h-full justify-center">
+                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center w-full">
+                    <div
+                        class="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full bg-blue-100 dark:bg-slate-800 flex items-center justify-center text-5xl md:text-6xl text-brand mb-5 border-4 border-panelBorder dark:border-slate-900 shadow-[4px_4px_0px_#0f172a] transform -rotate-12">
+                        <i class="fa-solid fa-worm"></i>
+                    </div>
+
+                    <h2 class="text-3xl md:text-4xl font-black font-heading mb-3 text-panelBorder dark:text-white">لعبة
+                        الثعبان</h2>
+                    <p
+                        class="text-sm md:text-base text-slate-500 dark:text-slate-400 mb-6 font-bold bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700">
+                        تحكم بالثعبان لجمع الطعام وتجنب الاصطدام بالجدران أو بنفسك! 🐍
+                    </p>
+
+                    <button onclick="initializeGame()"
+                        class="cartoon-btn w-full bg-brand text-white py-4 rounded-xl font-black text-xl flex items-center justify-center gap-3 hover:bg-blue-600 mb-6">
+                        ابدأ اللعب <i class="fa-solid fa-play"></i>
+                    </button>
+
+                    <!-- قائمة المتصدرين -->
+                    <div
+                        class="bg-yellow-50 dark:bg-slate-800 border-2 border-yellow-300 dark:border-slate-600 rounded-xl p-4 text-right">
+                        <h3
+                            class="font-black text-panelBorder dark:text-white mb-3 text-lg flex items-center justify-between border-b-2 border-yellow-200 dark:border-slate-700 pb-2">
+                            <span><i class="fa-solid fa-trophy text-yellow-500 ml-1"></i> أفضل النتائج</span>
+                        </h3>
+                        <ul id="highScoresList" class="space-y-2">
+                            <!-- سيتم التعبئة بواسطة JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. منطقة اللعب -->
+            <div id="gamePlayArea" class="page-section w-full flex-col h-full">
+
+                <!-- الإحصائيات العلوية -->
+                <div class="grid grid-cols-3 gap-2 mb-3">
+                    <div class="cartoon-panel bg-white dark:bg-slate-800 p-2 flex flex-col items-center justify-center">
+                        <span class="text-[10px] md:text-xs font-bold text-slate-500 dark:text-slate-400">النتيجة</span>
+                        <span id="score" class="text-lg md:text-xl font-black text-brand">0</span>
+                    </div>
+                    <div class="cartoon-panel bg-white dark:bg-slate-800 p-2 flex flex-col items-center justify-center">
+                        <span class="text-[10px] md:text-xs font-bold text-slate-500 dark:text-slate-400">الطول</span>
+                        <span id="length" class="text-lg md:text-xl font-black text-success">1</span>
+                    </div>
+                    <div class="cartoon-panel bg-white dark:bg-slate-800 p-2 flex flex-col items-center justify-center">
+                        <span class="text-[10px] md:text-xs font-bold text-slate-500 dark:text-slate-400">السرعة</span>
+                        <span id="speed" class="text-sm font-black text-accent truncate w-full text-center">عادية</span>
+                    </div>
+                </div>
+
+                <!-- لوحة الرسم (Canvas) -->
+                <div
+                    class="cartoon-panel bg-slate-50 dark:bg-slate-900 p-2 md:p-3 w-full flex items-center justify-center mx-auto relative overflow-hidden flex-shrink-0">
+                    <canvas id="gameCanvas" width="300" height="300"
+                        class="w-full max-w-[300px] aspect-square bg-slate-100 dark:bg-slate-800 border-2 border-panelBorder dark:border-slate-700 rounded-xl"></canvas>
+                </div>
+
+                <!-- أزرار التحكم (D-Pad) -->
+                <div class="flex-1 flex items-center justify-center mt-4 mb-2">
+                    <div class="grid grid-cols-3 gap-2 md:gap-3 w-48 md:w-56">
+                        <div></div>
+                        <button id="up"
+                            class="cartoon-btn bg-slate-200 dark:bg-slate-700 aspect-square rounded-xl flex items-center justify-center text-2xl md:text-3xl text-panelBorder dark:text-white">
+                            <i class="fa-solid fa-caret-up"></i>
+                        </button>
+                        <div></div>
+                        <button id="left"
+                            class="cartoon-btn bg-slate-200 dark:bg-slate-700 aspect-square rounded-xl flex items-center justify-center text-2xl md:text-3xl text-panelBorder dark:text-white">
+                            <i class="fa-solid fa-caret-right"></i>
+                        </button>
+                        <button id="down"
+                            class="cartoon-btn bg-slate-200 dark:bg-slate-700 aspect-square rounded-xl flex items-center justify-center text-2xl md:text-3xl text-panelBorder dark:text-white">
+                            <i class="fa-solid fa-caret-down"></i>
+                        </button>
+                        <button id="right"
+                            class="cartoon-btn bg-slate-200 dark:bg-slate-700 aspect-square rounded-xl flex items-center justify-center text-2xl md:text-3xl text-panelBorder dark:text-white">
+                            <i class="fa-solid fa-caret-left"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. شاشة نهاية اللعبة -->
+            <div id="gameOverScreen" class="page-section w-full flex-col h-full justify-center">
+                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center w-full">
+                    <div
+                        class="w-20 h-20 mx-auto rounded-full bg-red-100 dark:bg-slate-800 flex items-center justify-center text-4xl text-accent mb-4 border-4 border-panelBorder dark:border-slate-900 shadow-[3px_3px_0px_#0f172a]">
+                        <i class="fa-solid fa-skull"></i>
+                    </div>
+
+                    <h2 class="text-3xl font-black font-heading mb-4 text-accent">انتهت اللعبة!</h2>
+
+                    <div
+                        class="bg-slate-50 dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 p-4 mb-6 space-y-3">
+                        <div
+                            class="flex justify-between items-center border-b-2 border-slate-200 dark:border-slate-700 pb-2">
+                            <span class="font-bold text-slate-500 dark:text-slate-400">النتيجة النهائية</span>
+                            <span id="finalScore" class="font-black text-2xl text-brand">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-slate-500 dark:text-slate-400">طول الثعبان</span>
+                            <span id="finalLength" class="font-black text-xl text-success">1</span>
+                        </div>
+                    </div>
+
+                    <div class="cartoon-panel bg-white/50 dark:bg-slate-900/50 p-4">
+                        <h3 class="font-black font-heading text-sm mb-3 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-trophy text-yellow-500"></i>
+                            أفضل النتائج
+                        </h3>
+                        <div id="highScoresList" class="max-h-[120px] overflow-y-auto custom-scrollbar space-y-2 pr-2">
+                            <!-- سيتم توليد المحتوى بواسطة JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button onclick="initializeGame()"
+                            class="cartoon-btn w-full bg-brand text-white py-3 rounded-xl font-black text-lg flex items-center justify-center gap-2">
+                            إعادة اللعب <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                        <button onclick="showStartScreen()"
+                            class="cartoon-btn w-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white py-3 rounded-xl font-black text-lg flex items-center justify-center gap-2">
+                            القائمة الرئيسية <i class="fa-solid fa-house"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ملفات الصوت -->
+    <audio id="eatSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bonusSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="gameOverSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // --- Theme Management ---
+        function toggleTheme() {
+            const currentTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            gameData.theme = currentTheme;
+            saveGameData();
+        }
+
+        function applyTheme(theme) {
+            const html = document.documentElement;
+            const icon = document.querySelector('#theme-toggle i');
+            const metaThemeColor = document.getElementById('status-bar-color');
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#0f172a');
+                if (icon) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
+                isDarkMode = true;
+            } else {
+                html.classList.add('light');
+                html.classList.remove('dark');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#fef08a');
+                if (icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+                isDarkMode = false;
+            }
+        }
+
+        // --- Sound Management ---
+        let soundEnabled = true;
+        const eatSound = document.getElementById('eatSound');
+        const bonusSound = document.getElementById('bonusSound');
+        const gameOverSound = document.getElementById('gameOverSound');
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            gameData.soundEnabled = soundEnabled;
+            saveGameData();
+            updateSoundIcon();
+        }
+
+        function updateSoundIcon() {
+            const icon = document.querySelector('#sound-toggle i');
+            icon.className = soundEnabled ? 'fa-solid fa-volume-up text-lg md:text-xl' : 'fa-solid fa-volume-xmark text-lg md:text-xl text-slate-400';
+        }
+
+        function playSound(sound) {
+            if (soundEnabled) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("Audio error:", e));
+            }
+        }
+
+        // --- Game Variables & Data ---
+        let gameData = {
+            highScores: [0, 0, 0, 0, 0],
+            soundEnabled: true,
+            theme: 'light'
+        };
+        let isDarkMode = false;
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const TILE_SIZE = 15;
+        const BONUS_FOOD_VALUE = 50;
+
+        let snake, food, bonusFood, obstacles;
+        let dx, dy;
+        let score, snakeLength, foodEaten;
+        let lastRenderTime;
+        let gameSpeed = 150;
+        let isGameOver;
+        let isDirectionChanged = false;
+        let bonusFoodTimer;
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        // --- Navigation ---
+        function updateUI() {
+            const elScore = document.getElementById('score');
+            const elLength = document.getElementById('length');
+            const elSpeed = document.getElementById('speed');
+
+            if (elScore) elScore.textContent = score;
+            if (elLength) elLength.textContent = snakeLength;
+
+            if (elSpeed) {
+                let speedText = "عادية";
+                if (gameSpeed < 100) speedText = "برق";
+                else if (gameSpeed < 130) speedText = "سريع";
+                elSpeed.textContent = speedText;
+            }
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.page-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+
+            const backBtn = document.getElementById('back-btn');
+            if (screenId === 'startScreen') {
+                backBtn.classList.add('hidden');
+                displayHighScores(gameData.highScores);
+            } else {
+                backBtn.classList.remove('hidden');
+            }
+        }
+
+        function showStartScreen() {
+            isGameOver = true; // Stop loop if running
+            showScreen('startScreen');
+        }
+
+        // --- Local Storage ---
+        function loadGameData() {
+            const saved = localStorage.getItem('lmah_snake_data_v2');
+            if (saved) {
+                gameData = JSON.parse(saved);
+                soundEnabled = gameData.soundEnabled;
+                applyTheme(gameData.theme);
+            } else {
+                // Check system preference
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    gameData.theme = 'dark';
+                    applyTheme('dark');
+                }
+            }
+            updateSoundIcon();
+        }
+
+        function saveGameData() {
+            localStorage.setItem('lmah_snake_data_v2', JSON.stringify(gameData));
+        }
+
+        // --- Game Logic ---
+        function initializeGame() {
+            snake = [
+                { x: 10, y: 10 },
+                { x: 9, y: 10 },
+                { x: 8, y: 10 }
+            ];
+            food = {};
+            bonusFood = null;
+            obstacles = [];
+            dx = 1;
+            dy = 0;
+            score = 0;
+            snakeLength = 3;
+            foodEaten = 0;
+            gameSpeed = 150;
+            isGameOver = false;
+            isDirectionChanged = false;
+
+            updateUI();
+            showScreen('gamePlayArea');
+
+            generateFood();
+            generateObstacles(4);
+
+            lastRenderTime = 0;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function generateFood() {
+            const maxX = canvas.width / TILE_SIZE;
+            const maxY = canvas.height / TILE_SIZE;
+
+            do {
+                food = {
+                    x: Math.floor(Math.random() * maxX),
+                    y: Math.floor(Math.random() * maxY),
+                    isBonus: Math.random() < 0.15 // 15% chance
+                };
+            } while (isFoodOnSnakeOrObstacle(food));
+
+            if (food.isBonus) {
+                bonusFood = food;
+                clearTimeout(bonusFoodTimer);
+                bonusFoodTimer = setTimeout(() => {
+                    bonusFood = null;
+                }, 6000);
+            } else {
+                bonusFood = null;
+            }
+        }
+
+        function generateObstacles(count) {
+            const maxX = canvas.width / TILE_SIZE;
+            const maxY = canvas.height / TILE_SIZE;
+            obstacles = [];
+            for (let i = 0; i < count; i++) {
+                let newObstacle;
+                do {
+                    newObstacle = {
+                        x: Math.floor(Math.random() * maxX),
+                        y: Math.floor(Math.random() * maxY)
+                    };
+                } while (isFoodOnSnakeOrObstacle(newObstacle) ||
+                    (newObstacle.x === food.x && newObstacle.y === food.y));
+                obstacles.push(newObstacle);
+            }
+        }
+
+        function isFoodOnSnakeOrObstacle(position) {
+            for (let i = 0; i < snake.length; i++) {
+                if (position.x === snake[i].x && position.y === snake[i].y) return true;
+            }
+            for (let i = 0; i < obstacles.length; i++) {
+                if (position.x === obstacles[i].x && position.y === obstacles[i].y) return true;
+            }
+            return false;
+        }
+
+        function draw() {
+            // Clear Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Grid (Neobrutalism subtle grid)
+            ctx.strokeStyle = isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.05)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= canvas.width; x += TILE_SIZE) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = 0; y <= canvas.height; y += TILE_SIZE) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            // Draw Obstacles (Solid gray with thick border)
+            obstacles.forEach(obstacle => {
+                ctx.fillStyle = isDarkMode ? '#475569' : '#94a3b8'; // Slate colors
+                ctx.strokeStyle = isDarkMode ? '#020617' : '#0f172a'; // Panel Border
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(obstacle.x * TILE_SIZE + 1, obstacle.y * TILE_SIZE + 1, TILE_SIZE - 2, TILE_SIZE - 2, 3);
+                ctx.fill();
+                ctx.stroke();
+            });
+
+            // Draw Normal Food (Red circle, black border)
+            ctx.fillStyle = '#ef4444'; // accent
+            ctx.strokeStyle = isDarkMode ? '#020617' : '#0f172a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(food.x * TILE_SIZE + TILE_SIZE / 2, food.y * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE / 2 - 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Draw Bonus Food
+            if (bonusFood) {
+                ctx.fillStyle = '#facc15'; // bonus yellow
+                ctx.strokeStyle = isDarkMode ? '#020617' : '#0f172a';
+                ctx.lineWidth = 2;
+
+                // Outer star/spikes effect (simplified for cartoon look)
+                ctx.save();
+                ctx.translate(bonusFood.x * TILE_SIZE + TILE_SIZE / 2, bonusFood.y * TILE_SIZE + TILE_SIZE / 2);
+                ctx.rotate(Date.now() / 200); // Simple rotation
+                ctx.fillRect(-TILE_SIZE / 2 + 1, -TILE_SIZE / 2 + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+                ctx.strokeRect(-TILE_SIZE / 2 + 1, -TILE_SIZE / 2 + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+                ctx.restore();
+            }
+
+            // Draw Snake
+            snake.forEach((segment, index) => {
+                const isHead = index === 0;
+
+                ctx.fillStyle = isHead ? '#3b82f6' : '#93c5fd'; // brand : light blue
+                ctx.strokeStyle = isDarkMode ? '#020617' : '#0f172a';
+                ctx.lineWidth = 2;
+
+                // Cartoon body
+                ctx.beginPath();
+                ctx.roundRect(segment.x * TILE_SIZE, segment.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, isHead ? 4 : 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Cartoon Eyes for Head
+                if (isHead) {
+                    const eyeSize = 3;
+                    const pupilSize = 1.5;
+                    let e1x, e1y, e2x, e2y;
+
+                    const offset = 4;
+                    const center = TILE_SIZE / 2;
+
+                    if (dx === 1) { // Right
+                        e1x = center + offset; e1y = center - offset;
+                        e2x = center + offset; e2y = center + offset;
+                    } else if (dx === -1) { // Left
+                        e1x = center - offset; e1y = center - offset;
+                        e2x = center - offset; e2y = center + offset;
+                    } else if (dy === 1) { // Down
+                        e1x = center - offset; e1y = center + offset;
+                        e2x = center + offset; e2y = center + offset;
+                    } else { // Up
+                        e1x = center - offset; e1y = center - offset;
+                        e2x = center + offset; e2y = center - offset;
+                    }
+
+                    // Sclera (White)
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath(); ctx.arc(segment.x * TILE_SIZE + e1x, segment.y * TILE_SIZE + e1y, eyeSize, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(segment.x * TILE_SIZE + e2x, segment.y * TILE_SIZE + e2y, eyeSize, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+                    // Pupil (Black)
+                    ctx.fillStyle = '#000000';
+                    ctx.beginPath(); ctx.arc(segment.x * TILE_SIZE + e1x + (dx * 0.5), segment.y * TILE_SIZE + e1y + (dy * 0.5), pupilSize, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(segment.x * TILE_SIZE + e2x + (dx * 0.5), segment.y * TILE_SIZE + e2y + (dy * 0.5), pupilSize, 0, Math.PI * 2); ctx.fill();
+                }
+            });
+        }
+
+        function update() {
+            if (isGameOver) return;
+
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+            snake.unshift(head);
+            isDirectionChanged = false;
+
+            // Wall Collision
+            if (head.x < 0 || head.x >= canvas.width / TILE_SIZE || head.y < 0 || head.y >= canvas.height / TILE_SIZE) {
+                endGame(); return;
+            }
+
+            // Self Collision
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) { endGame(); return; }
+            }
+
+            // Obstacle Collision
+            for (let i = 0; i < obstacles.length; i++) {
+                if (head.x === obstacles[i].x && head.y === obstacles[i].y) { endGame(); return; }
+            }
+
+            // Food Logic
+            if (bonusFood && head.x === bonusFood.x && head.y === bonusFood.y) {
+                score += BONUS_FOOD_VALUE;
+                foodEaten++;
+                playSound(bonusSound);
+                bonusFood = null;
+                clearTimeout(bonusFoodTimer);
+                gameSpeed = Math.max(70, gameSpeed - 8);
+                snake.pop(); // Don't grow on bonus
+                generateFood();
+            } else if (head.x === food.x && head.y === food.y) {
+                score += 10 + Math.floor(snake.length / 5) * 5;
+                snakeLength = snake.length;
+                foodEaten++;
+                playSound(eatSound);
+                gameSpeed = Math.max(70, gameSpeed - 2);
+                generateFood();
+            } else {
+                snake.pop();
+            }
+
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('length').textContent = snakeLength;
+
+            const speedEl = document.getElementById('speed');
+            if (gameSpeed > 130) { speedEl.textContent = 'بطيئة'; speedEl.className = 'text-sm font-black text-blue-500 truncate w-full text-center'; }
+            else if (gameSpeed > 100) { speedEl.textContent = 'متوسطة'; speedEl.className = 'text-sm font-black text-green-500 truncate w-full text-center'; }
+            else if (gameSpeed > 80) { speedEl.textContent = 'سريعة'; speedEl.className = 'text-sm font-black text-orange-500 truncate w-full text-center'; }
+            else { speedEl.textContent = 'صاروخ!'; speedEl.className = 'text-sm font-black text-red-500 truncate w-full text-center animate-pulse'; }
+        }
+
+        function endGame() {
+            isGameOver = true;
+            playSound(gameOverSound);
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalLength').textContent = snakeLength;
+
+            updateHighScores(score);
+
+            // Shake effect
+            const bodyContainer = document.getElementById('body-container');
+            bodyContainer.classList.add('shake');
+            setTimeout(() => {
+                bodyContainer.classList.remove('shake');
+                showScreen('gameOverScreen');
+            }, 400);
+        }
+
+        function gameLoop(timestamp) {
+            if (isGameOver) return;
+            const elapsedTime = timestamp - lastRenderTime;
+
+            if (elapsedTime > gameSpeed) {
+                lastRenderTime = timestamp;
+                update();
+                draw();
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        // --- High Scores ---
+        function updateHighScores(newScore) {
+            if (newScore === 0) return;
+            let scores = gameData.highScores;
+            scores.push(newScore);
+            scores.sort((a, b) => b - a);
+            gameData.highScores = scores.slice(0, 5);
+            saveGameData();
+
+            if (newScore > 0 && newScore === gameData.highScores[0]) {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#3b82f6', '#facc15', '#ef4444'] });
+            }
+        }
+
+        function displayHighScores(scores) {
+            const list = document.getElementById('highScoresList');
+            list.innerHTML = '';
+            scores.forEach((score, index) => {
+                let medal = '';
+                let colorClass = 'text-slate-600 dark:text-slate-300';
+                if (index === 0) { medal = '🥇'; colorClass = 'text-yellow-600 dark:text-yellow-400 font-black'; }
+                else if (index === 1) { medal = '🥈'; colorClass = 'text-slate-500 dark:text-slate-300 font-bold'; }
+                else if (index === 2) { medal = '🥉'; colorClass = 'text-orange-500 dark:text-orange-400 font-bold'; }
+
+                list.innerHTML += `
+                    <li class="flex justify-between items-center bg-white/50 dark:bg-black/20 p-2 rounded-lg border border-yellow-200 dark:border-slate-600">
+                        <span class="${colorClass}">${medal} المركز ${index + 1}</span>
+                        <span class="font-black text-panelBorder dark:text-white">${score}</span>
+                    </li>
+                `;
+            });
+        }
+
+        // --- Controls ---
+        function changeDirection(newDx, newDy) {
+            if (isGameOver || isDirectionChanged) return;
+            if ((newDx === -dx && newDx !== 0) || (newDy === -dy && newDy !== 0)) return;
+            dx = newDx; dy = newDy;
+            isDirectionChanged = true;
+        }
+
+        document.getElementById('up').addEventListener('click', () => changeDirection(0, -1));
+        document.getElementById('down').addEventListener('click', () => changeDirection(0, 1));
+        document.getElementById('left').addEventListener('click', () => changeDirection(1, 0)); // reversed for RTL layout feeling logically, but canvas is LTR. Left = right button conceptually?
+        // Wait, physical buttons should match visual direction.
+        // Canvas (0,0) is top-left. dx=1 is Right physically. dx=-1 is Left physically.
+        document.getElementById('right').addEventListener('click', () => changeDirection(-1, 0)); // Visual Right arrow -> moves Left in RTL canvas mapping? No, let's keep it physical.
+        // Let's remap physical buttons to their visual representation.
+        // The HTML D-Pad has physical arrows. 
+        // id="right" has fa-caret-left. So it moves left (dx = -1)
+        // id="left" has fa-caret-right. So it moves right (dx = 1)
+
+        document.addEventListener('keydown', e => {
+            if (isGameOver) return;
+            switch (e.key) {
+                case 'ArrowUp': case 'w': case 'W': changeDirection(0, -1); break;
+                case 'ArrowDown': case 's': case 'S': changeDirection(0, 1); break;
+                case 'ArrowLeft': case 'a': case 'A': changeDirection(-1, 0); break;
+                case 'ArrowRight': case 'd': case 'D': changeDirection(1, 0); break;
+            }
+        });
+
+        // Swipe Controls
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', e => {
+            const diffX = e.changedTouches[0].clientX - touchStartX;
+            const diffY = e.changedTouches[0].clientY - touchStartY;
+            const minSwipe = 20;
+
+            if (Math.abs(diffX) > minSwipe || Math.abs(diffY) > minSwipe) {
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    changeDirection(diffX > 0 ? 1 : -1, 0);
+                } else {
+                    changeDirection(0, diffY > 0 ? 1 : -1);
+                }
+            }
+        });
+
+        // Polyfill for roundRect
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius) {
+                if (width < 2 * radius) radius = width / 2;
+                if (height < 2 * radius) radius = height / 2;
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.arcTo(x + width, y, x + width, y + height, radius);
+                this.arcTo(x + width, y + height, x, y + height, radius);
+                this.arcTo(x, y + height, x, y, radius);
+                this.arcTo(x, y, x + width, y, radius);
+                this.closePath();
+                return this;
+            }
+        }
+
+        // Init on load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadGameData();
+            showStartScreen();
+        });
+    </script>
+</body>
+
+</html>
