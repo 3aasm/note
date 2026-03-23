@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" id="status-bar-color" content="#fef08a">
     <title>تيك تاك تو | عالم المرح</title>
 
     <!-- Tailwind CSS -->
@@ -751,22 +752,44 @@
 
     <!-- JS Logic -->
     <script>
-        // --- Theme Management ---
+        // --- Theme Management & Syncing ---
         function toggleTheme() {
+            const currentTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+            applyTheme(currentTheme);
+        }
+
+        function applyTheme(theme) {
             const html = document.documentElement;
             const icon = document.querySelector('#theme-toggle i');
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                html.classList.add('light');
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            } else {
-                html.classList.remove('light');
+            if (theme === 'dark') {
                 html.classList.add('dark');
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
+                html.classList.remove('light');
+                if (icon) {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            } else {
+                html.classList.add('light');
+                html.classList.remove('dark');
+                if (icon) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
             }
         }
+
+        // الاستماع لرسائل الصفحة الأب ومزامنة الثيم عند التحميل من الرابط
+        (function initThemeSync() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const themeParam = urlParams.get('theme');
+            if (themeParam) applyTheme(themeParam);
+
+            window.addEventListener('message', (event) => {
+                if (event.data.type === 'set_theme') {
+                    applyTheme(event.data.theme);
+                }
+            });
+        })();
 
         // --- Firebase Configuration ---
         const firebaseConfig = {
