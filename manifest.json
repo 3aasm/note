@@ -1,0 +1,16 @@
+{
+  "name": "برو أرينا",
+  "short_name": "برو أرينا",
+  "start_url": "1.html",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#e11d48",
+  "icons": [
+    {
+      "src": "صورة التطبيق.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
