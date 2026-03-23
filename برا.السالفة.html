@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" id="status-bar-color" content="#fef08a">
+    <title>برا السالفة | عالم المرح</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Tajawal:wght@500;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Confetti for winning -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                        heading: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: '#3b82f6', // Bright Blue
+                        accent: '#ef4444', // Bright Red
+                        success: '#22c55e', // Green
+                        bgLight: '#fef08a', // Sunny Yellow
+                        bgDark: '#0f172a', // Slate Dark
+                        panelBorder: '#0f172a', // Very dark blue/black for borders
+                        panelLight: '#ffffff',
+                        panelDark: '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            background-image: radial-gradient(#fbbf24 2px, transparent 2px);
+            background-size: 24px 24px;
+        }
+
+        .dark body {
+            background-image: radial-gradient(#1e293b 2px, transparent 2px);
+        }
+
+        /* أنيميشن دخول الصفحة */
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .page-section {
+            display: none !important;
+        }
+
+        .page-section.active {
+            display: block !important;
+            animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* التصميم الكرتوني (Neobrutalism) */
+        .cartoon-panel {
+            background-color: var(--tw-bg-opacity, #ffffff);
+            border: 3px solid #0f172a;
+            border-radius: 1.25rem;
+            box-shadow: 4px 4px 0px #0f172a;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .dark .cartoon-panel {
+            background-color: #1e293b;
+            border-color: #020617;
+            box-shadow: 4px 4px 0px #020617;
+        }
+
+        .cartoon-btn {
+            border: 2px solid #0f172a;
+            box-shadow: 3px 3px 0px #0f172a;
+            transition: all 0.1s ease-in-out;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .dark .cartoon-btn {
+            border-color: #020617;
+            box-shadow: 3px 3px 0px #020617;
+        }
+
+        .cartoon-btn:active,
+        .cartoon-btn.active-btn {
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #0f172a !important;
+        }
+
+        .dark .cartoon-btn:active,
+        .dark .cartoon-btn.active-btn {
+            box-shadow: 0px 0px 0px #020617 !important;
+        }
+
+        @media (min-width: 768px) {
+            .cartoon-panel {
+                border-width: 4px;
+                box-shadow: 6px 6px 0px #0f172a;
+                border-radius: 1.5rem;
+            }
+
+            .dark .cartoon-panel {
+                box-shadow: 6px 6px 0px #020617;
+            }
+
+            .cartoon-btn {
+                border-width: 3px;
+                box-shadow: 4px 4px 0px #0f172a;
+            }
+
+            .dark .cartoon-btn {
+                box-shadow: 4px 4px 0px #020617;
+            }
+
+            .cartoon-btn:active,
+            .cartoon-btn.active-btn {
+                transform: translate(4px, 4px);
+            }
+        }
+
+        /* Input specific styling */
+        input.cartoon-btn:focus,
+        select.cartoon-btn:focus {
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #0f172a !important;
+            border-color: #3b82f6;
+        }
+
+        .dark input.cartoon-btn:focus,
+        .dark select.cartoon-btn:focus {
+            box-shadow: 0px 0px 0px #020617 !important;
+            border-color: #3b82f6;
+        }
+
+        /* Radio Options for voting */
+        .vote-option {
+            position: relative;
+        }
+
+        .vote-option input[type="radio"] {
+            display: none;
+        }
+
+        .vote-option.selected {
+            background-color: #bfdbfe !important;
+            /* blue-200 */
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #0f172a !important;
+            border-color: #3b82f6;
+        }
+
+        .dark .vote-option.selected {
+            background-color: #1e3a8a !important;
+            /* blue-900 */
+            box-shadow: 0px 0px 0px #020617 !important;
+        }
+
+        @media (min-width: 768px) {
+            .vote-option.selected {
+                transform: translate(4px, 4px);
+            }
+        }
+
+        /* Timer Styling */
+        .timer-circle {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 4px solid #0f172a;
+            box-shadow: 4px 4px 0px #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .dark .timer-circle {
+            background: #1e293b;
+            border-color: #020617;
+            box-shadow: 4px 4px 0px #020617;
+        }
+
+        .timer-circle::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--fill-percentage, 100%);
+            background-color: #93c5fd;
+            /* blue-300 */
+            z-index: 0;
+            transition: height 1s linear, background-color 0.3s ease;
+        }
+
+        .dark .timer-circle::before {
+            background-color: #334155;
+        }
+
+        .timer-circle.warning::before {
+            background-color: #fde047;
+        }
+
+        /* yellow-300 */
+        .dark .timer-circle.warning::before {
+            background-color: #ca8a04;
+        }
+
+        .timer-circle.danger::before {
+            background-color: #fca5a5;
+        }
+
+        /* red-300 */
+        .dark .timer-circle.danger::before {
+            background-color: #991b1b;
+        }
+
+        .timer-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes pulseDanger {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .timer-circle.danger {
+            animation: pulseDanger 1s infinite;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            display: none;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .category-icon-wrapper {
+            transition: transform 0.3s ease;
+        }
+
+        .category-item:hover .category-icon-wrapper {
+            transform: scale(1.2) rotate(5deg);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-bgLight dark:bg-bgDark text-gray-900 dark:text-gray-100 transition-colors duration-300 h-screen flex flex-col overflow-hidden selection:bg-brand selection:text-white">
+
+    <!-- الإشعارات -->
+    <div id="notification"
+        class="notification cartoon-panel bg-white dark:bg-slate-800 px-4 py-3 border-2 flex items-center gap-3 font-bold text-sm max-w-[90vw]">
+        <i id="notif-icon" class="fa-solid fa-bell text-brand"></i>
+        <span id="notif-text">رسالة التنبيه هنا</span>
+    </div>
+
+    <!-- شريط علوي -->
+    <header class="h-16 z-20 flex items-center justify-between px-4 md:px-8 mt-3 md:mt-5 shrink-0">
+        <div class="flex items-center gap-2 flex-1">
+            <!-- زر الرجوع -->
+            <button id="back-btn" onclick="goBackOrHome()"
+                class="hidden w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center text-panelBorder dark:text-white font-bold text-lg md:text-xl shrink-0">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <!-- الشعار / العنوان -->
+            <div class="flex items-center gap-2 cartoon-panel bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border-2 cursor-pointer shrink-0"
+                onclick="restartGameConfirm()">
+                <i class="fa-solid fa-user-secret text-brand text-sm hidden sm:block"></i>
+                <h2 class="font-black font-heading text-lg">برا السالفة</h2>
+            </div>
+
+            <!-- معلومات الجولة (تظهر أثناء اللعب) -->
+            <div id="header-stats" class="hidden items-center gap-2 ml-2">
+                <div
+                    class="cartoon-panel bg-blue-100 dark:bg-slate-800 px-2 py-1 rounded-lg border-2 border-brand shadow-[2px_2px_0px_#3b82f6] text-[10px] md:text-xs font-black">
+                    جولة: <span id="round-number" class="text-brand">1</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <!-- زر الصوت -->
+            <button id="sound-toggle" onclick="toggleSound()"
+                class="w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center text-panelBorder dark:text-white transition-all">
+                <i class="fa-solid fa-volume-up text-lg md:text-xl"></i>
+            </button>
+
+            <!-- زر الثيم -->
+            <button onclick="toggleTheme()"
+                class="w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-yellow-300 dark:bg-indigo-500 rounded-xl flex items-center justify-center text-panelBorder dark:text-white transition-all"
+                id="theme-toggle">
+                <i class="fa-solid fa-sun text-xl md:text-2xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- منطقة المحتوى الرئيسية -->
+    <main id="main-scroll-area"
+        class="flex-1 overflow-y-auto p-4 md:p-6 pb-20 scroll-smooth relative z-10 flex flex-col items-center justify-start">
+        <div class="w-full max-w-[28rem] md:max-w-xl mx-auto">
+
+            <!-- 1. شاشة اختيار الفئة (الرئيسية) -->
+            <div id="category-screen" class="page-section w-full active">
+                <div class="text-center mb-6 md:mb-8">
+                    <h2
+                        class="text-4xl md:text-5xl font-black font-heading mb-2 text-panelBorder dark:text-white drop-shadow-[2px_2px_0px_rgba(15,23,42,0.2)] dark:drop-shadow-none">
+                        اختار <span class="text-brand">الموضوع</span> 🎭
+                    </h2>
+                    <p
+                        class="text-sm md:text-base text-slate-600 dark:text-slate-400 font-bold bg-white/50 dark:bg-slate-800/50 inline-block px-4 py-1.5 rounded-xl border-2 border-panelBorder/10 dark:border-white/10 mt-2">
+                        واحد منكم راح يكون "برا السالفة".. اختر فئة للبدء!
+                    </p>
+                </div>
+
+                <div id="category-options" class="grid grid-cols-2 gap-3 md:gap-4">
+                    <!-- سيتم تعبئتها بالجافاسكريبت -->
+                </div>
+            </div>
+
+            <!-- 2. شاشة الإعداد (عدد اللاعبين) -->
+            <div id="setup-screen" class="page-section w-full">
+                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center max-w-sm mx-auto">
+                    <div
+                        class="w-20 h-20 md:w-24 md:h-24 mx-auto rounded-full bg-blue-100 dark:bg-slate-800 flex items-center justify-center text-4xl md:text-5xl text-brand mb-5 border-2 md:border-4 border-panelBorder dark:border-slate-900 shadow-[3px_3px_0px_#0f172a] transform -rotate-6">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-black font-heading mb-2 text-panelBorder dark:text-white">كم
+                        عددكم؟</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 font-bold">اللعبة تحتاج من 3 إلى 8 لاعبين.
+                    </p>
+
+                    <form id="setup-form" class="space-y-4">
+                        <div class="text-right">
+                            <label class="block text-sm font-black text-panelBorder dark:text-white mb-2">عدد
+                                اللاعبين</label>
+                            <select id="numPlayers"
+                                class="cartoon-btn w-full bg-slate-50 dark:bg-slate-700 px-4 py-3 rounded-xl font-black text-lg text-panelBorder dark:text-white text-center cursor-pointer appearance-none">
+                                <option value="3">3 لاعبين</option>
+                                <option value="4">4 لاعبين</option>
+                                <option value="5" selected>5 لاعبين</option>
+                                <option value="6">6 لاعبين</option>
+                                <option value="7">7 لاعبين</option>
+                                <option value="8">8 لاعبين</option>
+                            </select>
+                        </div>
+
+                        <div
+                            class="bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-400 rounded-lg p-3 text-xs md:text-sm font-bold text-yellow-800 dark:text-yellow-200 text-right">
+                            <i class="fa-solid fa-info-circle mr-1"></i> كلما زاد العدد، زادت الصعوبة والتحدي!
+                        </div>
+
+                        <button type="submit"
+                            class="cartoon-btn w-full bg-brand text-white py-3 md:py-4 rounded-xl font-black text-lg flex items-center justify-center gap-2 hover:bg-blue-600 mt-4">
+                            التالي <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 3. شاشة الأسماء -->
+            <div id="names-screen" class="page-section w-full">
+                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center max-w-sm mx-auto">
+                    <h2 class="text-2xl md:text-3xl font-black font-heading mb-2 text-panelBorder dark:text-white">
+                        عرفونا عليكم ✍️</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 font-bold">سجلوا أسماءكم عشان نعرف مين
+                        الفايز.</p>
+
+                    <form id="names-form" class="space-y-4">
+                        <div id="names-container" class="space-y-3">
+                            <!-- حقول الأسماء ستضاف هنا -->
+                        </div>
+
+                        <button type="submit"
+                            class="cartoon-btn w-full bg-green-500 text-white py-3 md:py-4 rounded-xl font-black text-lg flex items-center justify-center gap-2 hover:bg-green-600 mt-6">
+                            بدء اللعبة <i class="fa-solid fa-play"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 4. شاشة كشف الأدوار -->
+            <div id="role-screen" class="page-section w-full">
+                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center max-w-md mx-auto">
+                    <h2 class="text-2xl md:text-3xl font-black font-heading mb-2 text-panelBorder dark:text-white">دورك
+                        يا <span id="role-player-name" class="text-brand">...</span></h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 font-bold">أعط الجوال للاعب المذكور اسمه،
+                        ولا تخلي أحد يشوف!</p>
+
+                    <div id="role-display-area"
+                        class="w-full h-48 md:h-56 border-4 border-dashed border-slate-300 dark:border-slate-600 rounded-2xl flex items-center justify-center flex-col relative overflow-hidden mb-6 bg-slate-50 dark:bg-slate-800 transition-colors duration-300">
+                        <!-- حالة الإخفاء -->
+                        <div id="role-hidden-content" class="text-center">
+                            <i
+                                class="fa-solid fa-fingerprint text-5xl md:text-6xl text-slate-300 dark:text-slate-600 mb-3 animate-pulse"></i>
+                            <p class="font-bold text-slate-400">السالفة مخفية</p>
+                        </div>
+
+                        <!-- حالة الكشف -->
+                        <div id="role-secret" class="hidden text-center p-4 z-10 w-full">
+                            <!-- سيمتلئ بالجافاسكريبت -->
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3">
+                        <button id="reveal-role-btn" onclick="revealRole()"
+                            class="cartoon-btn w-full bg-brand text-white py-3 md:py-4 rounded-xl font-black text-lg flex items-center justify-center gap-2">
+                            اكشف لي الدور 👁️
+                        </button>
+                        <button id="next-role-btn" onclick="nextRole()"
+                            class="hidden cartoon-btn w-full bg-accent text-white py-3 md:py-4 rounded-xl font-black text-lg items-center justify-center gap-2">
+                            فهمت، اخفي الدور <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button onclick="backToNames()"
+                            class="cartoon-btn w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white py-2 rounded-xl font-bold text-sm mt-2">
+                            إعادة توزيع الأدوار
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. شاشة اللعب (التايمر) -->
+            <div id="game-screen" class="page-section w-full">
+                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center max-w-sm mx-auto">
+                    <h2 class="text-2xl md:text-3xl font-black font-heading mb-2 text-panelBorder dark:text-white">وقت
+                        التحقيق 🔍</h2>
+
+                    <div
+                        class="bg-blue-50 dark:bg-slate-800 border-2 border-brand rounded-xl p-3 mb-6 inline-block mx-auto shadow-[2px_2px_0px_#3b82f6]">
+                        <p id="turn-info" class="font-black text-sm md:text-base text-panelBorder dark:text-white">
+                            <!-- فلان يسأل فلان -->
+                        </p>
+                    </div>
+
+                    <div class="flex justify-center mb-8">
+                        <div id="timer-circle" class="timer-circle">
+                            <span id="timer"
+                                class="timer-text text-3xl md:text-4xl font-black font-heading text-panelBorder dark:text-white tracking-widest">02:00</span>
+                        </div>
+                    </div>
+
+                    <div id="game-controls" class="flex flex-col gap-3">
+                        <button id="next-turn-btn" onclick="nextTurn()"
+                            class="cartoon-btn w-full bg-yellow-300 dark:bg-yellow-500 text-panelBorder py-3 rounded-xl font-black text-lg flex items-center justify-center gap-2">
+                            السؤال التالي <i class="fa-solid fa-forward-step"></i>
+                        </button>
+                        <button id="add-time-btn" onclick="addTime()"
+                            class="cartoon-btn w-full bg-green-200 dark:bg-green-700 text-panelBorder dark:text-white py-2 rounded-xl font-bold text-sm">
+                            وقت إضافي (+30ث) <i class="fa-solid fa-plus"></i>
+                        </button>
+                        <div class="h-px bg-slate-200 dark:bg-slate-700 my-2 w-full"></div>
+                        <button id="go-to-vote-btn" onclick="goToVote()"
+                            class="cartoon-btn w-full bg-accent text-white py-3 rounded-xl font-black text-lg flex items-center justify-center gap-2">
+                            إنهاء وبدء التصويت 🗳️
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. شاشة التصويت -->
+            <div id="vote-collecting-screen" class="page-section w-full">
+                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center max-w-sm mx-auto">
+                    <div
+                        class="w-16 h-16 mx-auto rounded-full bg-accent/20 flex items-center justify-center text-3xl text-accent mb-3 border-2 border-accent">
+                        <i class="fa-solid fa-gavel"></i>
+                    </div>
+                    <h2 class="text-2xl font-black font-heading mb-1 text-panelBorder dark:text-white">من هو المخادع؟ 🤔
+                    </h2>
+                    <p
+                        class="text-sm text-slate-500 dark:text-slate-400 mb-6 font-bold bg-slate-100 dark:bg-slate-800 p-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 inline-block">
+                        دور <span id="voting-player-name" class="text-brand font-black text-base mx-1">...</span> في
+                        التصويت
+                    </p>
+
+                    <form id="voting-form" class="space-y-4 text-right">
+                        <div id="vote-options-collect" class="flex flex-col gap-3">
+                            <!-- سيتم تعبئتها بالجافاسكريبت -->
+                        </div>
+
+                        <button type="submit"
+                            class="cartoon-btn w-full bg-brand text-white py-3 md:py-4 rounded-xl font-black text-lg flex items-center justify-center gap-2 mt-6">
+                            تأكيد التصويت <i class="fa-solid fa-check-circle"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 7. شاشة النتائج -->
+            <div id="result-screen" class="page-section w-full">
+                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center max-w-md mx-auto">
+                    <h2 class="text-3xl font-black font-heading mb-4 text-panelBorder dark:text-white">النتيجة 🏁</h2>
+
+                    <div id="result-message"
+                        class="mb-6 bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-700">
+                        <!-- رسالة الفوز/الخسارة -->
+                    </div>
+
+                    <!-- إحصائيات سريعة -->
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <div
+                            class="cartoon-panel bg-blue-50 dark:bg-slate-800 p-3 flex flex-col items-center justify-center border-2 border-brand shadow-[2px_2px_0px_#3b82f6]">
+                            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">النقاط
+                                الإجمالية</span>
+                            <span id="stats-total-points" class="text-xl font-black text-brand">0</span>
+                        </div>
+                        <div
+                            class="cartoon-panel bg-red-50 dark:bg-slate-800 p-3 flex flex-col items-center justify-center border-2 border-accent shadow-[2px_2px_0px_#ef4444]">
+                            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">فوز المحققين</span>
+                            <span id="stats-wins" class="text-xl font-black text-accent">0</span>
+                        </div>
+                    </div>
+
+                    <!-- لوحة الشرف -->
+                    <div
+                        class="bg-slate-100 dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded-xl p-4 mb-6 text-right">
+                        <h3
+                            class="font-black text-sm text-slate-500 dark:text-slate-300 mb-3 border-b-2 border-slate-200 dark:border-slate-600 pb-2">
+                            لوحة النقاط (جولة <span id="current-round-display">1</span>)</h3>
+                        <div id="score-content" class="space-y-3">
+                            <!-- Score items -->
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3">
+                        <button onclick="nextRound()"
+                            class="cartoon-btn w-full bg-success text-white py-3 md:py-4 rounded-xl font-black text-lg flex items-center justify-center gap-2">
+                            جولة جديدة بنفس اللاعبين 🔄
+                        </button>
+                        <button onclick="restartGameConfirm()"
+                            class="cartoon-btn w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white py-3 rounded-xl font-bold text-base">
+                            إنهاء والعودة للرئيسية <i class="fa-solid fa-house"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- الشريط السفلي الثابت (يظهر داخل اللعبة) -->
+    <div id="bottom-info-bar"
+        class="fixed bottom-0 left-0 w-full bg-white dark:bg-panelDark border-t-4 border-panelBorder dark:border-slate-900 p-3 z-20 flex justify-between items-center transform translate-y-full transition-transform duration-300 shadow-[0_-4px_0px_rgba(0,0,0,0.1)]">
+        <div class="flex items-center gap-2">
+            <span
+                class="w-8 h-8 rounded-lg bg-brand/10 text-brand flex items-center justify-center border-2 border-brand/20"><i
+                    class="fa-solid fa-layer-group"></i></span>
+            <div>
+                <p class="text-[10px] text-slate-500 font-bold leading-none">الفئة الحالية</p>
+                <p id="current-category" class="font-black text-sm text-panelBorder dark:text-white">---</p>
+            </div>
+        </div>
+        <div id="current-liar-container" class="hidden items-center gap-2 text-left">
+            <div>
+                <p class="text-[10px] text-slate-500 font-bold leading-none">المخادع هو</p>
+                <p id="current-liar" class="font-black text-sm text-accent">---</p>
+            </div>
+            <span
+                class="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center border-2 border-accent/20"><i
+                    class="fa-solid fa-user-secret"></i></span>
+        </div>
+    </div>
+
+    <!-- الأصوات -->
+    <audio id="beep-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3"
+        preload="auto"></audio>
+    <audio id="win-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"
+        preload="auto"></audio>
+    <audio id="lose-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3"
+        preload="auto"></audio>
+    <audio id="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3"
+        preload="auto"></audio>
+    <audio id="reveal-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-magic-sparkles-300.mp3"
+        preload="auto"></audio>
+    <audio id="timer-end-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3"
+        preload="auto"></audio>
+
+    <script>
+        // --- Theme Management ---
+        function toggleTheme() {
+            const currentTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+            applyTheme(currentTheme);
+        }
+
+        function applyTheme(theme) {
+            const html = document.documentElement;
+            const icon = document.querySelector('#theme-toggle i');
+            const metaThemeColor = document.getElementById('status-bar-color');
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#0f172a');
+                if (icon) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
+            } else {
+                html.classList.add('light');
+                html.classList.remove('dark');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#fef08a');
+                if (icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+            }
+        }
+        
+        // --- Theme Synchronization ---
+        (function initThemeSync() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const themeParam = urlParams.get('theme');
+            if (themeParam) applyTheme(themeParam);
+
+            window.addEventListener('message', (event) => {
+                if (event.data.type === 'set_theme') {
+                    applyTheme(event.data.theme);
+                }
+            });
+        })();
+
+        // --- Game Logic & State ---
+        let gameData = {
+            numPlayers: 0,
+            chosenItem: "",
+            chosenCategory: "",
+            liarIndex: -1,
+            players: [],
+            scoreboard: {},
+            round: 1,
+            roleIndex: 0,
+            gameTimer: null,
+            timeRemaining: 120,
+            currentTurnIndex: 0,
+            votes: {},
+            votingPlayerIndex: 0,
+            gameStats: { roundsPlayed: 0, detectivesWins: 0, liarWins: 0, totalPoints: 0 },
+            soundsEnabled: true,
+            currentScreen: 'category-screen'
+        };
+
+        const categories = {
+            "أفلام": ["إنترستيلر", "الجوكر", "باراسايت", "العراب", "المصفوفة", "حرب النجوم", "تايتانيك", "الفيل الأزرق", "هاري بوتر", "سبايدرمان"],
+            "أماكن": ["باريس", "الأهرامات", "برج خليفة", "سور الصين", "مكة المكرمة", "الشفق القطبي", "جزر المالديف", "نهر النيل", "طوكيو"],
+            "شخصيات": ["ابن بطوطة", "صلاح الدين", "آينشتاين", "ستيف جوبز", "غاندي", "شكسبير", "كليوباترا", "إيلون ماسك", "ميسي"],
+            "أكلات": ["بيتزا", "سوشي", "شاورما", "برجر", "كبسة", "فلافل", "كشري", "منسف", "باستا", "كنافة"],
+            "حيوانات": ["أسد", "نمر", "فيل", "زرافة", "باندا", "ذئب", "صقر", "بطريق", "دلفين", "قرش"],
+            "ألعاب": ["ماينكرافت", "GTA", "فيفا", "فورتنايت", "كود", "ماريو", "زيلدا", "ببجي", "روكيت ليج"],
+            "مشاهير": ["كريستيانو", "محمد صلاح", "نيمار", "مايكل جوردان", "عمرو دياب", "أصالة", "كاظم الساهر"],
+            "اختراعات": ["الهاتف", "الإنترنت", "الطائرة", "السيارة", "الذكاء الاصطناعي", "الواقع الافتراضي", "البلوتوث"]
+        };
+
+        const categoryStyles = [
+            { bg: "bg-blue-500", text: "text-white", border: "border-blue-700", icon: "fa-film" },
+            { bg: "bg-green-500", text: "text-white", border: "border-green-700", icon: "fa-plane-departure" },
+            { bg: "bg-purple-500", text: "text-white", border: "border-purple-700", icon: "fa-user-tie" },
+            { bg: "bg-orange-500", text: "text-white", border: "border-orange-700", icon: "fa-utensils" },
+            { bg: "bg-yellow-400", text: "text-panelBorder", border: "border-yellow-600", icon: "fa-paw" },
+            { bg: "bg-red-500", text: "text-white", border: "border-red-700", icon: "fa-gamepad" },
+            { bg: "bg-pink-500", text: "text-white", border: "border-pink-700", icon: "fa-star" },
+            { bg: "bg-cyan-500", text: "text-white", border: "border-cyan-700", icon: "fa-lightbulb" }
+        ];
+
+        const sounds = {
+            beep: document.getElementById("beep-sound"),
+            win: document.getElementById("win-sound"),
+            lose: document.getElementById("lose-sound"),
+            click: document.getElementById("click-sound"),
+            reveal: document.getElementById("reveal-sound"),
+            timerEnd: document.getElementById("timer-end-sound")
+        };
+
+        // --- Initialization ---
+        function initGame() {
+            generateCategoryOptions();
+            updateSoundIcon();
+            setupForms();
+        }
+
+        function playSound(sound) {
+            if (!gameData.soundsEnabled) return;
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log('Audio error:', e));
+        }
+
+        function toggleSound() {
+            gameData.soundsEnabled = !gameData.soundsEnabled;
+            updateSoundIcon();
+            showNotification(gameData.soundsEnabled ? 'تم تفعيل الصوت 🔊' : 'تم كتم الصوت 🔇', 'brand');
+        }
+
+        function updateSoundIcon() {
+            const icon = document.querySelector('#sound-toggle i');
+            icon.className = gameData.soundsEnabled ? 'fa-solid fa-volume-up text-lg md:text-xl' : 'fa-solid fa-volume-xmark text-lg md:text-xl text-slate-400';
+        }
+
+        function showNotification(msg, colorType = 'brand') {
+            const notif = document.getElementById('notification');
+            const icon = document.getElementById('notif-icon');
+            document.getElementById('notif-text').textContent = msg;
+
+            notif.classList.remove('border-brand', 'border-accent', 'border-success');
+            icon.classList.remove('text-brand', 'text-accent', 'text-success', 'fa-bell', 'fa-circle-exclamation', 'fa-check-circle');
+
+            if (colorType === 'danger') {
+                notif.classList.add('border-accent');
+                icon.classList.add('text-accent', 'fa-circle-exclamation');
+            } else if (colorType === 'success') {
+                notif.classList.add('border-success');
+                icon.classList.add('text-success', 'fa-check-circle');
+            } else {
+                notif.classList.add('border-brand');
+                icon.classList.add('text-brand', 'fa-bell');
+            }
+
+            notif.style.display = 'flex';
+            setTimeout(() => { notif.style.display = 'none'; }, 3000);
+        }
+
+        // --- Navigation ---
+        function switchScreen(toId) {
+            playSound(sounds.click);
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(toId).classList.add('active');
+            gameData.currentScreen = toId;
+            updateHeaderAndBottomBar();
+        }
+
+        function goBackOrHome() {
+            const current = gameData.currentScreen;
+            if (current === 'setup-screen') switchScreen('category-screen');
+            else if (current === 'names-screen') switchScreen('setup-screen');
+            else if (current === 'role-screen') {
+                if (confirm('الرجوع سيلغي الجولة الحالية، هل أنت متأكد؟')) switchScreen('names-screen');
+            }
+            else restartGameConfirm();
+        }
+
+        function restartGameConfirm() {
+            if (gameData.currentScreen !== 'category-screen' && gameData.currentScreen !== 'result-screen') {
+                if (confirm('هل تريد إنهاء اللعبة والعودة للرئيسية؟')) resetToHome();
+            } else if (gameData.currentScreen === 'result-screen') {
+                resetToHome();
+            }
+        }
+
+        function resetToHome() {
+            gameData.round = 1;
+            gameData.players = [];
+            gameData.scoreboard = {};
+            gameData.gameStats = { roundsPlayed: 0, detectivesWins: 0, liarWins: 0, totalPoints: 0 };
+            document.getElementById('bottom-info-bar').classList.remove('translate-y-0');
+            document.getElementById('bottom-info-bar').classList.add('translate-y-full');
+            switchScreen('category-screen');
+        }
+
+        function updateHeaderAndBottomBar() {
+            const backBtn = document.getElementById('back-btn');
+            const headerStats = document.getElementById('header-stats');
+            const bottomBar = document.getElementById('bottom-info-bar');
+
+            if (gameData.currentScreen === 'category-screen') {
+                backBtn.classList.add('hidden');
+                headerStats.classList.add('hidden'); headerStats.classList.remove('flex');
+                bottomBar.classList.remove('translate-y-0'); bottomBar.classList.add('translate-y-full');
+            } else {
+                backBtn.classList.remove('hidden');
+
+                if (['role-screen', 'game-screen', 'vote-collecting-screen', 'result-screen'].includes(gameData.currentScreen)) {
+                    headerStats.classList.remove('hidden'); headerStats.classList.add('flex');
+                    document.getElementById('round-number').textContent = gameData.round;
+
+                    bottomBar.classList.add('translate-y-0'); bottomBar.classList.remove('translate-y-full');
+                    document.getElementById('current-category').textContent = gameData.chosenCategory || '---';
+
+                    if (gameData.currentScreen === 'result-screen') {
+                        document.getElementById('current-liar-container').classList.remove('hidden');
+                        document.getElementById('current-liar-container').classList.add('flex');
+                        document.getElementById('current-liar').textContent = gameData.players[gameData.liarIndex];
+                    } else {
+                        document.getElementById('current-liar-container').classList.add('hidden');
+                        document.getElementById('current-liar-container').classList.remove('flex');
+                    }
+                } else {
+                    headerStats.classList.add('hidden'); headerStats.classList.remove('flex');
+                    bottomBar.classList.remove('translate-y-0'); bottomBar.classList.add('translate-y-full');
+                }
+            }
+        }
+
+        // --- Categories Setup ---
+        function generateCategoryOptions() {
+            const container = document.getElementById("category-options");
+            container.innerHTML = "";
+            let i = 0;
+            for (let cat in categories) {
+                const style = categoryStyles[i % categoryStyles.length];
+                let div = document.createElement("button");
+                div.className = `category-item cartoon-panel ${style.bg} border-[3px] md:border-4 ${style.border} aspect-square flex flex-col items-center justify-center p-4 cursor-pointer outline-none hover:-translate-y-1 hover:shadow-xl transition-all group overflow-hidden relative`;
+                div.innerHTML = `
+                    <!-- Background Watermark Icon -->
+                    <i class="fa-solid ${style.icon} absolute -right-4 -bottom-4 text-7xl opacity-20 transform -rotate-12 group-hover:scale-110 transition-transform"></i>
+                    
+                    <!-- Main Central Icon -->
+                    <div class="category-icon-wrapper w-16 h-16 md:w-20 md:h-20 flex items-center justify-center text-4xl md:text-5xl ${style.text} mb-2 relative z-10 drop-shadow-lg">
+                        <i class="fa-solid ${style.icon}"></i>
+                    </div>
+                    
+                    <!-- Text Content -->
+                    <div class="relative z-10">
+                        <span class="font-black font-heading text-lg md:text-xl ${style.text} block mb-1 drop-shadow-sm">${cat}</span>
+                        <span class="text-[9px] md:text-xs font-bold ${style.text} opacity-90 border border-current px-2 py-0.5 rounded-full">${categories[cat].length} كلمة</span>
+                    </div>
+                `;
+                div.onclick = () => {
+                    playSound(sounds.click);
+                    let items = categories[cat];
+                    gameData.chosenItem = items[Math.floor(Math.random() * items.length)];
+                    gameData.chosenCategory = cat;
+                    switchScreen("setup-screen");
+                };
+                container.appendChild(div);
+                i++;
+            }
+        }
+
+        // --- Forms Setup ---
+        function setupForms() {
+            document.getElementById("setup-form").addEventListener("submit", function (e) {
+                e.preventDefault();
+                playSound(sounds.click);
+                gameData.numPlayers = parseInt(document.getElementById("numPlayers").value);
+                generateNameInputs();
+                switchScreen("names-screen");
+            });
+
+            document.getElementById("names-form").addEventListener("submit", function (e) {
+                e.preventDefault();
+                playSound(sounds.click);
+                gameData.players = [];
+                for (let i = 0; i < gameData.numPlayers; i++) {
+                    let name = document.getElementById("playerName" + i).value.trim();
+                    if (!name) { showNotification('يرجى إدخال جميع الأسماء!', 'danger'); return; }
+                    gameData.players.push(name);
+                    if (gameData.scoreboard[name] === undefined) gameData.scoreboard[name] = 0;
+                }
+                startRound();
+            });
+
+            document.getElementById("voting-form").addEventListener("submit", submitVote);
+        }
+
+        function generateNameInputs() {
+            const container = document.getElementById("names-container");
+            container.innerHTML = "";
+            for (let i = 0; i < gameData.numPlayers; i++) {
+                let input = document.createElement("input");
+                input.type = "text";
+                input.required = true;
+                input.placeholder = `اسم اللاعب ${i + 1}`;
+                input.id = "playerName" + i;
+                input.className = "cartoon-btn w-full bg-slate-50 dark:bg-slate-700 px-4 py-3 rounded-xl font-black text-lg text-panelBorder dark:text-white outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 text-center focus:bg-white dark:focus:bg-slate-800";
+                if (gameData.players[i]) input.value = gameData.players[i];
+                container.appendChild(input);
+            }
+        }
+
+        // --- Game Flow ---
+        function startRound() {
+            gameData.liarIndex = Math.floor(Math.random() * gameData.numPlayers);
+            gameData.roleIndex = 0;
+            updateRoleScreen();
+            switchScreen("role-screen");
+            showNotification(`بدأت الجولة ${gameData.round}!`, 'brand');
+        }
+
+        function updateRoleScreen() {
+            if (gameData.roleIndex >= gameData.players.length) {
+                switchScreen("game-screen");
+                startGameTimer();
+                return;
+            }
+
+            document.getElementById("role-player-name").innerText = gameData.players[gameData.roleIndex];
+
+            // Reset View
+            const area = document.getElementById("role-display-area");
+            area.className = "w-full h-48 md:h-56 border-4 border-dashed border-slate-300 dark:border-slate-600 rounded-2xl flex items-center justify-center flex-col relative overflow-hidden mb-6 bg-slate-50 dark:bg-slate-800 transition-colors duration-300";
+            document.getElementById("role-hidden-content").classList.remove('hidden');
+            document.getElementById("role-secret").classList.add('hidden');
+            document.getElementById("reveal-role-btn").classList.remove('hidden');
+            document.getElementById("next-role-btn").classList.add('hidden');
+            document.getElementById("next-role-btn").classList.remove('flex');
+        }
+
+        function revealRole() {
+            playSound(sounds.reveal);
+            const area = document.getElementById("role-display-area");
+            const secretDiv = document.getElementById("role-secret");
+
+            document.getElementById("role-hidden-content").classList.add('hidden');
+            secretDiv.classList.remove('hidden');
+
+            if (gameData.roleIndex === gameData.liarIndex) {
+                area.classList.replace('bg-slate-50', 'bg-red-50');
+                area.classList.replace('dark:bg-slate-800', 'dark:bg-red-900/30');
+                area.classList.replace('border-slate-300', 'border-accent');
+                area.classList.replace('dark:border-slate-600', 'dark:border-accent');
+
+                secretDiv.innerHTML = `
+                    <h3 class="text-3xl font-black text-accent mb-2">أنت برا السالفة!</h3>
+                    <p class="font-bold text-panelBorder dark:text-white">حاول تخدعهم وتعرف السالفة 😉</p>
+                    <i class="fa-solid fa-user-ninja text-4xl text-accent/50 mt-4"></i>
+                `;
+            } else {
+                area.classList.replace('bg-slate-50', 'bg-blue-50');
+                area.classList.replace('dark:bg-slate-800', 'dark:bg-blue-900/30');
+                area.classList.replace('border-slate-300', 'border-brand');
+                area.classList.replace('dark:border-slate-600', 'dark:border-brand');
+
+                secretDiv.innerHTML = `
+                    <p class="font-bold text-slate-500 dark:text-slate-400 mb-1">السالفة هي:</p>
+                    <h3 class="text-3xl md:text-4xl font-black text-brand mb-2 bg-white dark:bg-slate-800 py-2 rounded-xl border-2 border-brand shadow-[2px_2px_0px_#3b82f6]">${gameData.chosenItem}</h3>
+                `;
+            }
+
+            document.getElementById("reveal-role-btn").classList.add('hidden');
+            document.getElementById("next-role-btn").classList.remove('hidden');
+            document.getElementById("next-role-btn").classList.add('flex');
+        }
+
+        function nextRole() {
+            playSound(sounds.click);
+            gameData.roleIndex++;
+            updateRoleScreen();
+        }
+
+        function backToNames() {
+            if (confirm("هل أنت متأكد من رغبتك في إعادة توزيع الأدوار؟")) {
+                switchScreen("names-screen");
+            }
+        }
+
+        // --- Timer & Game Turn ---
+        function startGameTimer() {
+            gameData.timeRemaining = 120; // 2 minutes
+            gameData.currentTurnIndex = 0;
+
+            document.getElementById("next-turn-btn").classList.remove('hidden');
+            document.getElementById("next-turn-btn").classList.add('flex');
+            document.getElementById("add-time-btn").classList.remove('hidden');
+
+            updateTurnInfo();
+            clearInterval(gameData.gameTimer);
+            updateTimerDisplay();
+
+            const timerCircle = document.getElementById("timer-circle");
+            timerCircle.className = "timer-circle"; // reset classes
+
+            gameData.gameTimer = setInterval(() => {
+                gameData.timeRemaining--;
+                updateTimerDisplay();
+
+                const percentage = (gameData.timeRemaining / 120) * 100;
+                timerCircle.style.setProperty('--fill-percentage', `${percentage}%`);
+
+                if (gameData.timeRemaining <= 30 && gameData.timeRemaining > 10) {
+                    timerCircle.classList.add("warning");
+                } else if (gameData.timeRemaining <= 10) {
+                    timerCircle.classList.remove("warning");
+                    timerCircle.classList.add("danger");
+                    if (gameData.timeRemaining > 0) playSound(sounds.beep);
+                }
+
+                if (gameData.timeRemaining <= 0) {
+                    clearInterval(gameData.gameTimer);
+                    playSound(sounds.timerEnd);
+                    endGameInterrogation();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            let m = Math.floor(gameData.timeRemaining / 60);
+            let s = gameData.timeRemaining % 60;
+            document.getElementById("timer").innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function updateTurnInfo() {
+            const asker = gameData.players[gameData.currentTurnIndex % gameData.players.length];
+            const target = gameData.players[(gameData.currentTurnIndex + 1) % gameData.players.length];
+            document.getElementById("turn-info").innerHTML = `<span class="text-brand">${asker}</span> يسأل <span class="text-accent">${target}</span>`;
+        }
+
+        function nextTurn() {
+            playSound(sounds.click);
+            gameData.currentTurnIndex++;
+            updateTurnInfo();
+        }
+
+        function addTime() {
+            playSound(sounds.click);
+            gameData.timeRemaining += 30;
+            updateTimerDisplay();
+            document.getElementById("add-time-btn").classList.add('hidden');
+            showNotification('تمت إضافة 30 ثانية ⏱️', 'success');
+
+            // Recalculate percentage base so it doesn't overflow visually (approximate)
+            const timerCircle = document.getElementById("timer-circle");
+            timerCircle.classList.remove("danger", "warning");
+        }
+
+        function endGameInterrogation() {
+            document.getElementById("next-turn-btn").classList.add('hidden');
+            document.getElementById("next-turn-btn").classList.remove('flex');
+            document.getElementById("add-time-btn").classList.add('hidden');
+            document.getElementById("turn-info").innerHTML = '<span class="text-accent">⏰ انتهى الوقت! حان وقت التصويت.</span>';
+        }
+
+        function goToVote() {
+            playSound(sounds.click);
+            clearInterval(gameData.gameTimer);
+            startVotingProcess();
+        }
+
+        // --- Voting ---
+        function startVotingProcess() {
+            gameData.votingPlayerIndex = 0;
+            gameData.votes = {};
+            displayVotingScreen();
+            switchScreen("vote-collecting-screen");
+        }
+
+        function displayVotingScreen() {
+            if (gameData.votingPlayerIndex >= gameData.players.length) {
+                tallyVotes();
+                return;
+            }
+
+            document.getElementById("voting-player-name").innerText = gameData.players[gameData.votingPlayerIndex];
+
+            let voteDiv = document.getElementById("vote-options-collect");
+            voteDiv.innerHTML = "";
+
+            gameData.players.forEach((player, index) => {
+                if (index !== gameData.votingPlayerIndex) {
+                    let label = document.createElement("label");
+                    label.className = "vote-option cartoon-panel bg-slate-50 dark:bg-slate-700 p-4 flex items-center justify-between cursor-pointer transition-transform w-full";
+                    label.innerHTML = `
+                        <span class="font-black text-lg text-panelBorder dark:text-white">${player}</span> 
+                        <div class="w-6 h-6 rounded-full border-2 border-slate-400 flex items-center justify-center radio-indicator">
+                            <div class="w-3 h-3 bg-brand rounded-full hidden inner-dot"></div>
+                        </div>
+                        <input type="radio" name="vote" value="${index}">
+                    `;
+
+                    label.onclick = () => {
+                        playSound(sounds.click);
+                        document.querySelectorAll('.vote-option').forEach(el => {
+                            el.classList.remove('selected');
+                            el.querySelector('.inner-dot').classList.add('hidden');
+                            el.querySelector('.radio-indicator').classList.replace('border-brand', 'border-slate-400');
+                        });
+                        label.classList.add('selected');
+                        label.querySelector('.inner-dot').classList.remove('hidden');
+                        label.querySelector('.radio-indicator').classList.replace('border-slate-400', 'border-brand');
+                        label.querySelector('input').checked = true;
+                    };
+
+                    voteDiv.appendChild(label);
+                }
+            });
+        }
+
+        function submitVote(e) {
+            e.preventDefault();
+            let voteInput = document.querySelector('#vote-options-collect input[name="vote"]:checked');
+            if (!voteInput) { showNotification("يجب اختيار لاعب للتصويت!", 'danger'); return; }
+
+            playSound(sounds.click);
+            let votedPlayerName = gameData.players[parseInt(voteInput.value)];
+            gameData.votes[votedPlayerName] = (gameData.votes[votedPlayerName] || 0) + 1;
+
+            gameData.votingPlayerIndex++;
+            displayVotingScreen();
+        }
+
+        // --- Results ---
+        function tallyVotes() {
+            let maxVotes = 0, mostVotedPlayer = null, tie = false;
+
+            for (const player in gameData.votes) {
+                if (gameData.votes[player] > maxVotes) {
+                    maxVotes = gameData.votes[player];
+                    mostVotedPlayer = player;
+                    tie = false;
+                } else if (gameData.votes[player] === maxVotes) {
+                    tie = true;
+                }
+            }
+
+            gameData.gameStats.roundsPlayed++;
+            const liarName = gameData.players[gameData.liarIndex];
+            const msgDiv = document.getElementById("result-message");
+            let detectivesWin = false;
+
+            if (mostVotedPlayer === liarName && !tie) {
+                detectivesWin = true;
+                gameData.players.forEach((p, i) => { if (i !== gameData.liarIndex) { gameData.scoreboard[p] += 100; gameData.gameStats.totalPoints += 100; } });
+                gameData.gameStats.detectivesWins++;
+
+                msgDiv.className = "mb-6 bg-green-50 dark:bg-green-900/20 border-4 border-success rounded-xl p-5 shadow-[4px_4px_0px_#22c55e]";
+                msgDiv.innerHTML = `
+                    <div class="text-5xl mb-3">🕵️‍♂️✅</div>
+                    <h3 class="text-2xl font-black text-success mb-2 leading-tight">كفو عليكم! كشفتوا المخادع</h3>
+                    <p class="font-bold text-panelBorder dark:text-white bg-white/50 dark:bg-black/20 p-2 rounded-lg inline-block">كان المخادع هو: <span class="text-accent font-black">${liarName}</span></p>
+                `;
+                playSound(sounds.win);
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#22c55e', '#ffffff', '#3b82f6'] });
+            } else {
+                gameData.scoreboard[liarName] += 200;
+                gameData.gameStats.totalPoints += 200;
+                for (const voter in gameData.votes) {
+                    if (gameData.votes[voter] && voter === liarName) {
+                        gameData.scoreboard[voter] += 50; gameData.gameStats.totalPoints += 50;
+                    }
+                }
+                gameData.gameStats.liarWins++;
+
+                msgDiv.className = "mb-6 bg-red-50 dark:bg-red-900/20 border-4 border-accent rounded-xl p-5 shadow-[4px_4px_0px_#ef4444]";
+                msgDiv.innerHTML = `
+                    <div class="text-5xl mb-3">😎🏆</div>
+                    <h3 class="text-2xl font-black text-accent mb-2 leading-tight">أفاا.. ضحك عليكم المخادع وفاز!</h3>
+                    <p class="font-bold text-panelBorder dark:text-white bg-white/50 dark:bg-black/20 p-2 rounded-lg inline-block">كان المخادع هو: <span class="text-accent font-black">${liarName}</span></p>
+                `;
+                playSound(sounds.lose);
+            }
+
+            document.getElementById("stats-total-points").textContent = gameData.gameStats.totalPoints;
+            document.getElementById("stats-wins").textContent = gameData.gameStats.detectivesWins;
+            document.getElementById("current-round-display").textContent = gameData.round;
+
+            updateScoreboardUI();
+            switchScreen("result-screen");
+        }
+
+        function updateScoreboardUI() {
+            let boardContent = document.getElementById("score-content");
+            boardContent.innerHTML = "";
+            let sortedPlayers = Object.keys(gameData.scoreboard).sort((a, b) => gameData.scoreboard[b] - gameData.scoreboard[a]);
+            let maxScore = Math.max(...Object.values(gameData.scoreboard)) || 1; // avoid div by zero
+
+            sortedPlayers.forEach((name, index) => {
+                let pct = (gameData.scoreboard[name] / maxScore) * 100;
+                let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+
+                boardContent.innerHTML += `
+                    <div class="flex items-center gap-3 bg-white dark:bg-slate-800 p-2 rounded-lg border-2 border-slate-200 dark:border-slate-700">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-600 flex items-center justify-center font-black text-panelBorder dark:text-white shrink-0">${name.charAt(0)}</div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-sm text-panelBorder dark:text-white">${name} ${medal}</span>
+                                <span class="font-black text-sm text-brand">${gameData.scoreboard[name]}</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                                <div class="h-full bg-brand rounded-full transition-all duration-1000" style="width: ${pct}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function nextRound() {
+            playSound(sounds.click);
+            gameData.round++;
+            let categoriesKeys = Object.keys(categories);
+            let randomCategory = categoriesKeys[Math.floor(Math.random() * categoriesKeys.length)];
+            let items = categories[randomCategory];
+            gameData.chosenItem = items[Math.floor(Math.random() * items.length)];
+            gameData.chosenCategory = randomCategory;
+            startRound();
+        }
+
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+
+</html>
