@@ -23,6 +23,11 @@
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Tajawal:wght@400;500;700&display=swap"
         rel="stylesheet">
 
+    <!-- Firebase SDK (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
     <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
@@ -103,7 +108,7 @@
 
         .page-section.exiting {
             display: block;
-            animation: fadeOutDown 0.15s ease-in forwards;
+            animation: fadeOutDown 0.25s ease-in forwards;
         }
 
         /* أنيميشن متدرج للعناصر داخل الصفحات (Staggered Items) */
@@ -172,20 +177,21 @@
             height: 100%;
             background: var(--panel-bg);
             z-index: 101;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-            border-top-left-radius: 2rem;
-            border-top-right-radius: 2rem;
-            box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.3);
+            transform: translateY(100%) scale(0.95); /* Start scaled down */
+            opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, border-radius 0.4s ease;
+            border-top-left-radius: 2.5rem;
+            border-top-right-radius: 2.5rem;
+            box-shadow: 0 -15px 50px rgba(0, 0, 0, 0.4);
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
         #game-sheet.active {
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
+            opacity: 1;
             border-radius: 0;
-            /* Cover full screen without radius when active */
         }
 
         #game-sheet-header {
@@ -250,10 +256,34 @@
         /* Full Width Cartoon Line */
         .cartoon-separator {
             height: 4px;
-            width: 100%;
             background: #0f172a;
+            width: 100%;
             position: relative;
             z-index: 10;
+        }
+
+        .glass-play-overlay {
+            background: rgba(225, 29, 72, 0.05); /* Softer background */
+            backdrop-filter: blur(4px); /* Calmer blur */
+            opacity: 0;
+            transition: all 0.5s ease; /* Slightly slower transition */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(225, 29, 72, 0.1);
+        }
+
+        .group:hover .glass-play-overlay {
+            opacity: 1;
+        }
+
+        .game-card-hover {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .game-card-hover:hover {
+            transform: translateY(-4px); /* Subtle lift */
+            box-shadow: 0 12px 20px -5px rgba(225, 29, 72, 0.05); /* Softer shadow */
         }
 
         .dark .cartoon-separator {
@@ -449,17 +479,16 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <button onclick="toggleTheme()"
-                    class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-brand transition-all hover:scale-110 active:scale-90"
-                    id="theme-toggle">
-                    <i class="fa-solid fa-moon text-lg"></i>
-                </button>
+                <div class="flex items-center gap-2 px-3 py-1 bg-brand/10 border border-brand/20 clip-angled-btn">
+                    <i class="fa-solid fa-trophy text-brand text-xs"></i>
+                    <span id="header-points" class="font-bold text-xs font-mono">0</span>
+                </div>
                 <div class="w-px h-6 bg-borderLight dark:bg-borderDark"></div>
-                <button
+                <button onclick="switchPage('notifications')"
                     class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-brand transition-all hover:scale-110 active:scale-90 hover:rotate-12 relative">
                     <i class="fa-solid fa-bell text-lg"></i>
-                    <span
-                        class="absolute top-1 right-1 w-2 h-2 bg-brand rounded-full border border-panelLight dark:border-panelDark"></span>
+                    <span id="notification-badge"
+                        class="hidden absolute top-1 right-1 w-2 h-2 bg-brand rounded-full border border-panelLight dark:border-panelDark"></span>
                 </button>
             </div>
         </header>
@@ -471,17 +500,20 @@
             <div id="home-page" class="page-section active max-w-6xl mx-auto space-y-8">
                 <!-- بانر البطولة (تم تقليل الارتفاع وتعديل النصوص للجوال) -->
                 <div class="stagger-item relative h-56 md:h-72 bg-black clip-angled overflow-hidden group">
-                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop"
-                        class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
-                    <div class="absolute inset-0 bg-brand/20 mix-blend-overlay"></div>
+                    <div class="absolute inset-0 flex items-center justify-around opacity-20 pointer-events-none">
+                        <i class="fa-solid fa-xmarks-lines text-9xl text-brand group-hover:scale-110 transition-transform duration-[2s]"></i>
+                        <i class="fa-solid fa-users-viewfinder text-8xl text-yellow-500 group-hover:scale-125 transition-transform duration-[3s]"></i>
+                        <i class="fa-solid fa-worm text-9xl text-green-500 group-hover:scale-110 transition-transform duration-[2.5s]"></i>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    <div class="absolute inset-0 bg-brand/10 mix-blend-overlay"></div>
 
                     <div
                         class="absolute bottom-0 left-0 w-full p-4 md:p-8 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
                         <div class="transform transition-transform duration-500 group-hover:translate-x-2">
                             <span
-                                class="bg-brand text-white text-[10px] md:text-xs font-bold px-3 py-1 uppercase tracking-wider mb-2 md:mb-3 inline-block clip-angled-btn animate-pulse">بث
-                                مباشر</span>
+                                class="bg-gray-600 text-white text-[10px] md:text-xs font-bold px-3 py-1 uppercase tracking-wider mb-2 md:mb-3 inline-block clip-angled-btn">البث
+                                متوقف</span>
                             <h1
                                 class="text-2xl md:text-4xl font-black font-heading text-white mb-1 md:mb-2 uppercase drop-shadow-lg leading-tight">
                                 بطولة
@@ -490,8 +522,8 @@
                                 أساطير الويب</p>
                         </div>
                         <button
-                            class="bg-brand hover:bg-brandHover text-white font-bold py-2 md:py-3 px-6 md:px-8 clip-angled-btn transition-all active:scale-95 flex items-center gap-2 uppercase tracking-wider group/btn text-sm md:text-base self-end md:self-auto w-full md:w-auto justify-center">
-                            <i class="fa-solid fa-play group-hover/btn:scale-125 transition-transform"></i> شاهد الآن
+                            class="bg-gray-700/50 cursor-not-allowed text-gray-400 font-bold py-2 md:py-3 px-6 md:px-8 clip-angled-btn transition-all flex items-center gap-2 uppercase tracking-wider group/btn text-sm md:text-base self-end md:self-auto w-full md:w-auto justify-center">
+                            <i class="fa-solid fa-lock group-hover/btn:scale-125 transition-transform"></i> مغلق حالياً
                         </button>
                     </div>
                 </div>
@@ -525,44 +557,12 @@
                             قائمة
                             الشرف</h3>
 
-                        <div
+                        <div id="leaderboard-items"
                             class="stagger-item bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark transition-colors">
-                            <!-- المركز الأول -->
-                            <div
-                                class="flex items-center gap-3 p-4 border-b border-borderLight dark:border-borderDark bg-brand/5 relative overflow-hidden group hover:bg-brand/10 transition-colors cursor-default">
-                                <div class="absolute left-0 top-0 h-full w-1 bg-brand"></div>
-                                <div class="font-black font-heading text-xl text-brand w-6 text-center">1</div>
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=King"
-                                    class="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-none border border-brand group-hover:scale-110 transition-transform">
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-sm">DarkKnight</h4>
-                                    <p class="text-xs text-gray-500">98,450 نقطة</p>
-                                </div>
-                                <i class="fa-solid fa-crown text-yellow-500 animate-bounce"></i>
-                            </div>
-
-                            <!-- المركز الثاني -->
-                            <div
-                                class="flex items-center gap-3 p-4 border-b border-borderLight dark:border-borderDark hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group cursor-default">
-                                <div class="font-black font-heading text-lg text-gray-400 w-6 text-center">2</div>
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Pro"
-                                    class="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-none group-hover:scale-110 transition-transform">
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-sm">SilentSniper</h4>
-                                    <p class="text-xs text-gray-500">95,120 نقطة</p>
-                                </div>
-                            </div>
-
-                            <!-- المركز الثالث -->
-                            <div
-                                class="flex items-center gap-3 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group cursor-default">
-                                <div class="font-black font-heading text-lg text-orange-400 w-6 text-center">3</div>
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Gamer"
-                                    class="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-none group-hover:scale-110 transition-transform">
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-sm">ArabHawk</h4>
-                                    <p class="text-xs text-gray-500">92,000 نقطة</p>
-                                </div>
+                            <!-- سيتم تحميل المتصدرين هنا بواسطة JS -->
+                            <div class="p-8 text-center text-gray-400">
+                                <i class="fa-solid fa-spinner fa-spin mb-2"></i>
+                                <p class="text-xs">جاري تحميل الأبطال...</p>
                             </div>
                         </div>
 
@@ -606,147 +606,144 @@
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-                    <!-- لعبة XO (Redesigned - Compact) -->
-                    <div
-                        class="stagger-item col-span-2 md:col-span-3 lg:col-span-4 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-brand/30 transition-all duration-500 group flex overflow-hidden relative min-h-[140px]">
+                    <!-- لعبة XO (Redesigned - New UI) -->
+                    <div onclick="openGameSheet('XO.html')"
+                        class="stagger-item game-card-hover cursor-pointer col-span-2 md:col-span-3 lg:col-span-4 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-brand/30 group flex overflow-hidden relative min-h-[160px]">
 
-                        <!-- الزينة الخلفية (faint Icons) -->
+                        <!-- الزينة الخلفية -->
                         <div
                             class="absolute right-0 top-0 bottom-0 w-1/4 sm:w-1/3 bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center pointer-events-none overflow-hidden">
-                            <div class="flex flex-col gap-2 opacity-10 dark:opacity-5 transform rotate-12 scale-150">
-                                <i class="fa-solid fa-xmarks-lines text-6xl text-gray-400 dark:text-white"></i>
-                                <i class="fa-solid fa-xmarks-lines text-6xl text-gray-400 dark:text-white"></i>
-                            </div>
-                            <!-- الأيقونة الرئيسية البارزة -->
                             <i
-                                class="fa-solid fa-xmarks-lines text-7xl text-brand opacity-20 dark:opacity-10 absolute group-hover:scale-110 transition-transform duration-700 drop-shadow-sm"></i>
+                                class="fa-solid fa-xmarks-lines text-7xl text-brand opacity-20 dark:opacity-10 absolute group-hover:scale-125 transition-transform duration-700"></i>
                         </div>
 
-                        <!-- المحتوى النصي -->
-                        <div class="flex-1 p-4 sm:p-6 flex flex-col relative z-10">
-                            <!-- البادج (Classic) -->
+                        <!-- المحتوى -->
+                        <div class="flex-1 p-6 flex flex-col relative z-10 text-right">
+                            <div class="absolute top-4 left-4 flex flex-col items-start gap-2">
+                                <span class="bg-brand text-white text-[9px] font-black px-2.5 py-1 uppercase tracking-widest clip-angled-btn">كلاسيك</span>
+                                <div class="hidden group-hover:block transition-all duration-300">
+                                    <span class="text-[10px] text-brand font-bold uppercase"><i class="fa-solid fa-play mr-1"></i> اضغط للبدء</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 flex-1">
+                                <h3 class="font-black font-heading text-2xl text-gray-900 dark:text-white mb-1 uppercase group-hover:text-brand transition-colors">لعبة XO</h3>
+                                <p class="text-xs text-gray-600 dark:text-gray-500 max-w-sm leading-relaxed line-clamp-2 ml-auto">تحدى ذكاء خصمك في معركة سريعة وممتعة!</p>
+                            </div>
+                        </div>
+
+                        <!-- Overlay الاحترافي -->
+                        <div class="glass-play-overlay absolute inset-0 z-20">
+                            <div class="flex flex-col items-center gap-3 transition-all duration-500">
+                                <div class="w-16 h-16 rounded-full bg-brand flex items-center justify-center text-white shadow-xl shadow-brand/40">
+                                    <i class="fa-solid fa-play text-2xl ml-1"></i>
+                                </div>
+                                <span class="font-black font-heading text-white uppercase tracking-widest text-sm drop-shadow-lg">العب الآن</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- لعبة 2 (برا السالفة) -->
+                    <div onclick="openGameSheet('برا.السالفة.html')"
+                        class="stagger-item game-card-hover cursor-pointer col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-blue-500/30 group flex flex-col overflow-hidden relative min-h-[180px]">
+                        
+                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-user-secret text-8xl text-blue-500 group-hover:scale-125 transition-transform duration-700"></i>
+                        </div>
+                        
+                        <div class="p-4 mt-auto relative z-10 text-right">
                             <div class="absolute top-4 left-4">
-                                <span
-                                    class="bg-brand text-white text-[9px] font-black px-2.5 py-1 uppercase tracking-widest clip-angled-btn">كلاسيك</span>
+                                <span class="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">جماعية</span>
                             </div>
+                            <h3 class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-blue-500 transition-colors">برا السالفة</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 line-clamp-2">من هو الجاسوس؟</p>
+                        </div>
 
-                            <div class="mt-6 sm:mt-0 text-right">
-                                <h3
-                                    class="font-black font-heading text-xl sm:text-2xl text-gray-900 dark:text-white mb-1 uppercase group-hover:text-brand transition-colors">
-                                    لعبة XO
-                                </h3>
-                                <p
-                                    class="text-[10px] sm:text-xs text-gray-600 dark:text-gray-500 max-w-md leading-relaxed mb-3 mr-0 ml-auto line-clamp-2">
-                                    لعبة التكتيك الكلاسيكية. العب الآن وتحدى خصمك في معركة سريعة وممتعة تعتمد على الذكاء
-                                    وسرعة البديهة!
-                                </p>
-                            </div>
-
-                            <div class="mt-auto">
-                                <button onclick="openGameSheet('XO.html')"
-                                    class="w-full py-2.5 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black font-heading uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white dark:hover:text-white transition-all active:scale-95 text-xs relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
-                                    <span class="relative z-10">العب الآن</span>
-                                    <div
-                                        class="absolute inset-0 bg-brandHover translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
-                                    </div>
-                                </button>
+                        <div class="glass-play-overlay absolute inset-0 z-20" style="background: rgba(37, 99, 235, 0.15); border-color: rgba(37, 99, 235, 0.3);">
+                            <div class="flex flex-col items-center gap-2 transition-all duration-500">
+                                <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/40">
+                                    <i class="fa-solid fa-play text-lg ml-1"></i>
+                                </div>
+                                <span class="font-black font-heading text-white uppercase tracking-widest text-[10px]">العب الآن</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- لعبة 2 (برا السالفة - Redesigned) -->
-                    <div
-                        class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-blue-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div
-                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i
-                                class="fa-solid fa-user-secret text-8xl text-blue-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
+                    <!-- لعبة 3 (خمن اللاعب) -->
+                    <div onclick="openGameSheet('خمن.الاعب.html')"
+                        class="stagger-item game-card-hover cursor-pointer col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-yellow-500/30 group flex flex-col overflow-hidden relative min-h-[180px]">
+                        
+                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-users-viewfinder text-8xl text-yellow-500 group-hover:scale-125 transition-transform duration-700"></i>
                         </div>
+                        
                         <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3
-                                class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-blue-500 transition-colors">
-                                برا السالفة</h3>
-                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">اكتشف من هو
-                                الجاسوس بينكم!</p>
-                            <button onclick="openGameSheet('برا.السالفة.html')"
-                                class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white dark:hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
-                                <span class="relative z-10">العب الآن</span>
-                                <div
-                                    class="absolute inset-0 bg-brandHover translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-yellow-500 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">1 ضد 1</span>
+                            </div>
+                            <h3 class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-yellow-500 transition-colors">خمن اللاعب</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 line-clamp-2">تحدى أصدقاءك!</p>
+                        </div>
+
+                        <div class="glass-play-overlay absolute inset-0 z-20" style="background: rgba(234, 179, 8, 0.15); border-color: rgba(234, 179, 8, 0.3);">
+                            <div class="flex flex-col items-center gap-2 transition-all duration-500">
+                                <div class="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center text-white shadow-xl shadow-yellow-500/40">
+                                    <i class="fa-solid fa-play text-lg ml-1"></i>
                                 </div>
-                            </button>
+                                <span class="font-black font-heading text-white uppercase tracking-widest text-[10px]">العب الآن</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- لعبة 3 (خمن اللاعب - Redesigned) -->
+                    <!-- لعبة 4 (الألغاز) -->
                     <div
-                        class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-yellow-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div
-                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i
-                                class="fa-solid fa-users-viewfinder text-8xl text-yellow-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
+                        class="stagger-item game-card-hover cursor-pointer col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-purple-500/30 group flex flex-col overflow-hidden relative min-h-[180px]">
+                        
+                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-puzzle-piece text-8xl text-purple-500 group-hover:scale-125 transition-transform duration-700"></i>
                         </div>
+                        
                         <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3
-                                class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-yellow-500 transition-colors">
-                                خمن اللاعب</h3>
-                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">تحدى صديقك في 1 ضد
-                                1.</p>
-                            <button onclick="openGameSheet('خمن.الاعب.html')"
-                                class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white dark:hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
-                                <span class="relative z-10">العب الآن</span>
-                                <div
-                                    class="absolute inset-0 bg-brandHover translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-purple-600 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">قريباً</span>
+                            </div>
+                            <h3 class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-purple-500 transition-colors">الألغاز</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 line-clamp-2">حل أصعب الألغاز.</p>
+                        </div>
+
+                        <div class="glass-play-overlay absolute inset-0 z-20" style="background: rgba(147, 51, 234, 0.15); border-color: rgba(147, 51, 234, 0.3);">
+                            <div class="flex flex-col items-center gap-2 transition-all duration-500">
+                                <div class="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white shadow-xl shadow-purple-600/40">
+                                    <i class="fa-solid fa-lock text-lg"></i>
                                 </div>
-                            </button>
+                                <span class="font-black font-heading text-white uppercase tracking-widest text-[10px]">قيد التطوير</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- لعبة 4 (الألغاز - Redesigned) -->
-                    <div
-                        class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-purple-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div
-                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i
-                                class="fa-solid fa-puzzle-piece text-8xl text-purple-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
+                    <!-- لعبة 5 (لعبة الثعبان) -->
+                    <div onclick="openGameSheet('لعبة.الثعبان.html')"
+                        class="stagger-item game-card-hover cursor-pointer col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-green-500/30 group flex flex-col overflow-hidden relative min-h-[180px]">
+                        
+                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-worm text-8xl text-green-500 group-hover:scale-125 transition-transform duration-700"></i>
                         </div>
+                        
                         <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3
-                                class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-purple-500 transition-colors">
-                                الألغاز</h3>
-                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">حل أصعب الألغاز.
-                            </p>
-                            <button
-                                class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white dark:hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
-                                <span class="relative z-10">العب الآن</span>
-                                <div
-                                    class="absolute inset-0 bg-brandHover translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
-                                </div>
-                            </button>
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-green-600 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">منفرد</span>
+                            </div>
+                            <h3 class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-green-500 transition-colors">لعبة الثعبان</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 line-clamp-2">كلاسيكيات الزمن الجميل!</p>
                         </div>
-                    </div>
 
-                    <!-- لعبة 5 (لعبة الثعبان - Redesigned) -->
-                    <div
-                        class="stagger-item col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-green-500/30 transition-all duration-500 group flex flex-col overflow-hidden relative min-h-[160px]">
-                        <div
-                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i
-                                class="fa-solid fa-worm text-8xl text-green-500 group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"></i>
-                        </div>
-                        <div class="p-4 mt-auto relative z-10 text-right">
-                            <h3
-                                class="font-black font-heading text-base sm:text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-green-500 transition-colors">
-                                لعبة الثعبان</h3>
-                            <p class="text-[10px] text-gray-600 dark:text-gray-500 mb-3 line-clamp-2">تحدى نفسك في جمع
-                                الطعام وتجنب العقبات.</p>
-                            <button onclick="openGameSheet('لعبة.الثعبان.html')"
-                                class="w-full py-2 bg-brand dark:bg-transparent text-white dark:text-brand border-2 border-brand font-black text-[10px] uppercase tracking-widest hover:bg-brandHover dark:hover:bg-brand hover:text-white dark:hover:text-white transition-all active:scale-95 relative group/btn overflow-hidden shadow-lg shadow-brand/10 dark:shadow-none">
-                                <span class="relative z-10">العب الآن</span>
-                                <div
-                                    class="absolute inset-0 bg-brandHover translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300">
+                        <div class="glass-play-overlay absolute inset-0 z-20" style="background: rgba(22, 163, 74, 0.15); border-color: rgba(22, 163, 74, 0.3);">
+                            <div class="flex flex-col items-center gap-2 transition-all duration-500">
+                                <div class="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center text-white shadow-xl shadow-green-600/40">
+                                    <i class="fa-solid fa-play text-lg ml-1"></i>
                                 </div>
-                            </button>
+                                <span class="font-black font-heading text-white uppercase tracking-widest text-[10px]">العب الآن</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -755,102 +752,107 @@
             <!-- 3. التحالفات (الرسائل) -->
             <div id="messages-page" class="page-section max-w-4xl mx-auto">
                 <div
-                    class="stagger-item flex items-center justify-end mb-6 border-b border-borderLight dark:border-borderDark pb-4">
-                    <button
-                        class="bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:border-brand hover:text-brand text-sm font-bold px-4 py-2 transition-all active:scale-95 flex items-center gap-2">
-                        <i class="fa-solid fa-plus"></i> قناة جديدة
-                    </button>
+                    class="stagger-item flex items-center justify-between mb-6 border-b border-borderLight dark:border-borderDark pb-4">
+                    <h3 class="text-2xl font-black font-heading border-r-4 border-brand pr-3 uppercase">قائمة الأصدقاء
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <!-- زر الإضافات (الطلبات الواردة) -->
+                        <button onclick="toggleFriendRequestsModal()"
+                            class="bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:border-brand hover:text-brand text-sm font-bold px-4 py-2 transition-all active:scale-95 flex items-center gap-2 relative">
+                            <i class="fa-solid fa-user-plus"></i> الإضافات
+                            <span id="friend-requests-count"
+                                class="hidden absolute -top-2 -right-2 bg-brand text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-white dark:border-panelDark animate-bounce">0</span>
+                        </button>
+                        <!-- زر إضافة صديق -->
+                        <button onclick="toggleAddFriendModal()"
+                            class="bg-brand text-white text-sm font-bold px-4 py-2 hover:bg-brandHover transition-all active:scale-95 flex items-center gap-2 clip-angled-btn shadow-lg shadow-brand/20">
+                            <i class="fa-solid fa-plus"></i> إضافة صديق
+                        </button>
+                    </div>
                 </div>
 
-                <div class="bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark">
-                    <!-- رسالة نشطة -->
+                <!-- قائمة المحادثات / الأصدقاء -->
+                <div id="friends-list-view"
+                    class="bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark min-h-[400px]">
+                    <div id="friends-list-container" class="divide-y divide-borderLight dark:divide-borderDark">
+                        <div class="flex flex-col items-center justify-center py-20 text-gray-500">
+                            <i class="fa-solid fa-user-group text-5xl mb-4 opacity-20"></i>
+                            <p class="font-bold">لا يوجد أصدقاء بعد</p>
+                            <p class="text-xs">ابدأ بإضافة الأبطال من خلال الـ ID الخاص بهم</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- واجهة الدردشة (مخفية افتراضياً) -->
+                <div id="chat-view"
+                    class="hidden bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark h-[500px] flex flex-col relative overflow-hidden">
+                    <!-- رأس الدردشة -->
                     <div
-                        class="stagger-item flex items-center gap-4 p-4 border-b border-borderLight dark:border-borderDark bg-brand/5 cursor-pointer relative hover:bg-brand/10 transition-colors group">
-                        <div class="absolute right-0 top-0 h-full w-1 bg-brand"></div>
-                        <div
-                            class="w-12 h-12 bg-red-900 border border-brand flex items-center justify-center text-brand group-hover:scale-105 transition-transform">
-                            <i class="fa-solid fa-users-crosshairs text-xl"></i>
+                        class="p-4 border-b border-borderLight dark:border-borderDark flex items-center gap-4 bg-gray-50/50 dark:bg-white/5">
+                        <button onclick="closeChat()" class="text-gray-500 hover:text-brand transition-colors">
+                            <i class="fa-solid fa-arrow-right text-lg"></i>
+                        </button>
+                        <div class="w-10 h-10 border border-brand clip-angled-btn p-0.5">
+                            <img id="chat-friend-avatar" src="" class="w-full h-full object-cover">
                         </div>
                         <div class="flex-1">
-                            <div class="flex justify-between items-start mb-1">
-                                <h4 class="font-bold font-heading text-lg group-hover:text-brand transition-colors">فريق
-                                    المهام الخاصة</h4>
-                                <span
-                                    class="text-xs font-bold text-brand bg-brand/10 px-2 py-0.5 animate-pulse">الآن</span>
+                            <h4 id="chat-friend-name" class="font-bold font-heading">اسم الصديق</h4>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span class="text-[10px] text-gray-500">متصل الآن</span>
                             </div>
-                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200 truncate">الكابتن: تجمعوا في
-                                السيرفر 4، المباراة تبدأ بعد 5 دقائق!</p>
-                        </div>
-                        <div
-                            class="w-6 h-6 bg-brand text-white text-xs font-bold flex items-center justify-center transform group-hover:scale-110 transition-transform">
-                            3
                         </div>
                     </div>
 
-                    <!-- رسالة عادية -->
-                    <div
-                        class="stagger-item flex items-center gap-4 p-4 border-b border-borderLight dark:border-borderDark hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors group">
-                        <div
-                            class="w-12 h-12 bg-gray-200 dark:bg-gray-800 border border-borderLight dark:border-gray-600 flex items-center justify-center text-gray-500 overflow-hidden group-hover:border-gray-400 transition-colors">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Ghost"
-                                class="w-full h-full group-hover:scale-110 transition-transform">
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start mb-1">
-                                <h4 class="font-bold font-heading text-lg text-gray-600 dark:text-gray-300">Ghost_Rider
-                                </h4>
-                                <span class="text-xs text-gray-500">منذ ساعة</span>
-                            </div>
-                            <p class="text-sm text-gray-500 truncate">هل قمت بتجربة السلاح الجديد؟ مستوى الضرر مجنون.
-                            </p>
-                        </div>
+                    <!-- منطقة الرسائل -->
+                    <div id="chat-messages"
+                        class="flex-1 p-4 overflow-y-auto space-y-4 custom-scrollbar flex flex-col-reverse bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+                        <!-- الرسائل ستظهر هنا بشكل عكسي -->
                     </div>
 
-                    <!-- إشعار نظام -->
-                    <div
-                        class="stagger-item flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors group">
-                        <div
-                            class="w-12 h-12 bg-gray-100 dark:bg-gray-900 border border-borderLight dark:border-borderDark flex items-center justify-center text-gray-400 group-hover:text-brand transition-colors">
-                            <i class="fa-solid fa-server text-xl group-hover:scale-110 transition-transform"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start mb-1">
-                                <h4
-                                    class="font-bold font-heading text-lg text-gray-500 group-hover:text-brand transition-colors">
-                                    إشعارات النظام</h4>
-                                <span class="text-xs text-gray-500">أمس</span>
-                            </div>
-                            <p class="text-sm text-gray-500 truncate">تمت صيانة السيرفرات بنجاح. العب الآن!</p>
-                        </div>
+                    <!-- منطقة الإدخال -->
+                    <div class="p-4 border-t border-borderLight dark:border-borderDark bg-gray-50/50 dark:bg-white/5">
+                        <form onsubmit="handleChatSubmit(event)" class="flex gap-2">
+                            <input type="text" id="chat-input" placeholder="اكتب رسالتك العسكرية..."
+                                class="flex-1 bg-white dark:bg-black/40 border border-borderLight dark:border-borderDark px-4 py-2 focus:outline-none focus:border-brand transition-all">
+                            <button type="submit"
+                                class="bg-brand text-white w-10 h-10 flex items-center justify-center hover:bg-brandHover transition-all active:scale-95 clip-angled-btn">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 4. صفحة الإشعارات (جديد) -->
+            <div id="notifications-page" class="page-section max-w-2xl mx-auto space-y-6">
+                <div class="stagger-item flex items-center justify-between mb-2">
+                    <h3 class="text-2xl font-black font-heading border-r-4 border-brand pr-3 uppercase text-gray-900 dark:text-white transition-colors duration-300">
+                        صندوق الوارد</h3>
+                    <button onclick="clearAllNotifications()" class="text-xs font-bold text-gray-400 hover:text-brand transition-colors">مسح الكل</button>
+                </div>
+
+                <div id="notifications-list" class="space-y-3">
+                    <!-- سيتم تحميل الإشعارات هنا -->
+                    <div class="p-12 text-center text-gray-400 stagger-item">
+                        <i class="fa-solid fa-bell-slash text-4xl mb-4 opacity-20"></i>
+                        <p class="text-sm font-bold">لا توجد إشعارات جديدة</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 4. الترسانة (الإعدادات) -->
+            <!-- 5. الترسانة (الإعدادات) -->
             <div id="settings-page" class="page-section max-w-4xl mx-auto space-y-6">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                    <!-- ملف اللاعب -->
-                    <div
-                        class="stagger-item bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark p-6 hover:border-brand/50 transition-colors">
-                        <h3 class="font-bold text-gray-500 text-xs uppercase tracking-widest mb-4">بطاقة اللاعب</h3>
-                        <div class="flex items-center gap-4 mb-6">
-                            <div
-                                class="w-20 h-20 border-2 border-brand clip-angled-btn bg-black p-1 hover:scale-105 transition-transform cursor-pointer">
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sniper&backgroundColor=e11d48"
-                                    class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <h4 class="font-black font-heading text-xl">القناص العربي</h4>
-                                <p class="text-xs text-gray-500 font-mono mb-2">ID: #9842-PRO</p>
-                                <span
-                                    class="bg-borderLight dark:bg-borderDark text-xs font-bold px-2 py-1 border border-borderDark/20">المنطقة:
-                                    الشرق الأوسط</span>
-                            </div>
+                    <!-- ملف اللاعب / لوحة تسجيل الدخول -->
+                    <div id="auth-container"
+                        class="stagger-item bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark p-6 hover:border-brand/50 transition-colors min-h-[250px] flex flex-col justify-center">
+                        <!-- سيتم تحميل المحتوى ديناميكياً بواسطة JavaScript (بطاقة اللاعب أو نموذج التسجيل) -->
+                        <div class="flex items-center justify-center p-8">
+                            <i class="fas fa-circle-notch fa-spin text-brand text-2xl"></i>
                         </div>
-                        <button
-                            class="w-full py-2 bg-borderLight dark:bg-borderDark hover:bg-brand hover:text-white font-bold transition-all active:scale-95 text-sm uppercase">تعديل
-                            الملف</button>
                     </div>
 
                     <!-- تبديلات ميكانيكية -->
@@ -892,19 +894,139 @@
                                 <i class="fa-solid fa-circle-half-stroke"></i>
                             </button>
                         </div>
+
+                        <!-- زر التعليمات الجديد -->
+                        <div
+                            class="flex justify-between items-center py-4 border-t border-borderLight dark:border-borderDark hover:bg-gray-50 dark:hover:bg-white/5 p-2 -mx-2 rounded transition-colors cursor-pointer group"
+                            onclick="switchPage('instructions')">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-brand/10 text-brand flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                </div>
+                                <span class="font-bold font-heading">التعليمات ودليل النقاط</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-left text-gray-400 text-xs"></i>
+                        </div>
                     </div>
                 </div>
 
-                <!-- زر خطير -->
-                <div
-                    class="stagger-item bg-red-500/10 border border-red-500/30 p-4 flex justify-between items-center mt-6 group hover:bg-red-500/20 transition-colors">
-                    <div>
-                        <h4 class="font-bold text-red-600 dark:text-red-500">تسجيل الخروج</h4>
-                        <p class="text-xs text-red-600/70 dark:text-red-500/70">سيتم قطع الاتصال بالسيرفر</p>
+                <!-- زر تسجيل الخروج (يظهر فقط عند تسجيل الدخول) -->
+                <div id="logout-button-container" class="stagger-item hidden">
+                    <div
+                        class="bg-red-500/10 border border-red-500/30 p-4 flex justify-between items-center mt-6 group hover:bg-red-500/20 transition-colors">
+                        <div>
+                            <h4 class="font-bold text-red-600 dark:text-red-500">تسجيل الخروج</h4>
+                            <p class="text-xs text-red-600/70 dark:text-red-500/70">سيتم قطع الاتصال بالسيرفر</p>
+                        </div>
+                        <button onclick="logout()"
+                            class="bg-red-600 text-white px-6 py-2 font-bold hover:bg-red-700 transition-all active:scale-95 clip-angled-btn flex items-center gap-2">
+                            <i class="fa-solid fa-power-off group-hover:animate-pulse"></i> خروج
+                        </button>
                     </div>
-                    <button
-                        class="bg-red-600 text-white px-6 py-2 font-bold hover:bg-red-700 transition-all active:scale-95 clip-angled-btn flex items-center gap-2">
-                        <i class="fa-solid fa-power-off group-hover:animate-pulse"></i> خروج
+
+                    <!-- خيار حذف الحساب -->
+                    <div class="mt-4 pt-4 border-t border-red-500/20">
+                        <button onclick="toggleDeleteAccountModal()" class="text-[10px] font-bold text-red-500/50 hover:text-red-500 transition-colors uppercase tracking-widest flex items-center gap-2 mx-auto">
+                            <i class="fa-solid fa-trash-can"></i> حذف الحساب نهائياً
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. تعديل الملف الشخصي -->
+            <div id="edit-profile-page" class="page-section max-w-2xl mx-auto space-y-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <button onclick="switchPage('settings')"
+                        class="w-10 h-10 flex items-center justify-center bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:text-brand transition-all active:scale-90">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    <h3 class="text-2xl font-black font-heading uppercase">تعديل الملف الشخصي</h3>
+                </div>
+
+                <div
+                    class="stagger-item bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark p-6 space-y-8">
+                    <!-- تعديل الصورة -->
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="relative group">
+                            <div id="profile-edit-avatar"
+                                class="w-32 h-32 border-4 border-brand p-1 clip-angled-btn bg-black overflow-hidden shadow-2xl">
+                                <img id="edit-avatar-img"
+                                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sniper&backgroundColor=e11d48"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <button onclick="generateRandomAvatar()"
+                                class="absolute -bottom-2 -left-2 w-10 h-10 bg-brand text-white flex items-center justify-center clip-angled-btn hover:scale-110 active:scale-95 transition-transform shadow-lg">
+                                <i class="fa-solid fa-sync"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">انقر على الأيقونة لتغيير
+                            الشخصية</p>
+                    </div>
+
+                    <!-- حقول البيانات -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2 mr-1">إسم المحارب</label>
+                            <input type="text" id="edit-username" placeholder="مثال: القناص العربي"
+                                class="w-full bg-gray-50 dark:bg-black/20 border border-borderLight dark:border-borderDark px-4 py-3 focus:outline-none focus:border-brand transition-colors font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2 mr-1">المنطقة</label>
+                            <select id="edit-region"
+                                class="w-full bg-gray-50 dark:bg-black/20 border border-borderLight dark:border-borderDark px-4 py-3 focus:outline-none focus:border-brand transition-colors font-bold appearance-none">
+                                <option value="الشرق الأوسط">الشرق الأوسط</option>
+                                <option value="أوروبا">أوروبا</option>
+                                <option value="أمريكا">أمريكا</option>
+                                <option value="آسيا">آسيا</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button onclick="saveProfile()"
+                        class="w-full py-4 bg-brand hover:bg-brandHover text-white font-black font-heading uppercase tracking-widest clip-angled-btn transition-all active:scale-[0.98] shadow-lg shadow-brand/20 flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-save"></i> حفظ التغييرات
+                    </button>
+                </div>
+            </div>
+
+            <!-- 6. صفحة التعليمات -->
+            <div id="instructions-page" class="page-section max-w-2xl mx-auto space-y-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <button onclick="switchPage('settings')"
+                        class="w-10 h-10 flex items-center justify-center bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark hover:text-brand transition-all active:scale-90">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    <h3 class="text-2xl font-black font-heading uppercase">دليل الأبطال</h3>
+                </div>
+
+                <div class="stagger-item bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark p-8 space-y-12 text-center">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-black font-heading text-brand mb-4">طريقة تجميع النقاط</h2>
+                        <div class="w-20 h-1.5 bg-brand mx-auto mb-8 clip-angled-btn"></div>
+                    </div>
+
+                    <div class="space-y-6 text-gray-600 dark:text-gray-300">
+                        <p class="text-lg font-medium leading-relaxed">
+                            مرحباً بك في <span class="text-brand font-black">برو أرينا</span>، المنصة الأقوى للمنافسة! نحن هنا نُقدر وقتك وجهدك، لذا جعلنا كل ثانية تقضيها في تدريباتك وألعابك ذات قيمة حقيقية في مسيرتك الاحترافية.
+                        </p>
+                        
+                        <div class="py-6 border-y border-borderLight dark:border-borderDark space-y-4">
+                            <h4 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-wider">كيف أحصل على النقاط؟</h4>
+                            <p class="text-base">
+                                النظام بسيط وشفاف للغاية: كلما قضيت وقتاً أطول داخل "ساحة المعركة" في أي لعبة، زاد رصيدك من النقاط.
+                            </p>
+                            <div class="bg-brand/10 p-4 border-r-4 border-brand inline-block text-brand font-black text-xl">
+                                1 دقيقة لعب = 1 نقطة خبرة
+                            </div>
+                            <p class="text-sm opacity-70">
+                                تضاف النقاط تلقائياً إلى رصيدك كل دقيقة مستمرة تقضيها داخل واجهة اللعبة.
+                            </p>
+                        </div>
+                    </div>
+
+                    <button onclick="switchPage('games')"
+                        class="w-full py-5 bg-transparent border-2 border-brand text-brand hover:bg-brand hover:text-white font-black font-heading uppercase tracking-[0.2em] clip-angled-btn transition-all active:scale-95 shadow-lg hover:shadow-brand/20">
+                        ابدأ اللعب الآن واستحوذ على القمة
                     </button>
                 </div>
             </div>
@@ -1003,36 +1125,41 @@
     <!-- سكربت التحكم بالواجهة -->
     <script>
         // دالة تبديل الوضع (الفاتح/الداكن) مع أنيميشن بسيط للأيقونة
-        function toggleTheme() {
+        // دالة موحدة لضبط المظهر
+        function setAppTheme(theme, saveToDb = false) {
             const html = document.documentElement;
-            const icon = document.querySelector('#theme-toggle i');
+            const metaThemeColor = document.getElementById('status-bar-color');
+            const iframe = document.getElementById('game-iframe');
 
-            let newTheme = 'light';
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                html.classList.add('light');
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-                newTheme = 'light';
-            } else {
+            if (theme === 'dark') {
                 html.classList.remove('light');
                 html.classList.add('dark');
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-                newTheme = 'dark';
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#0a0a0a');
+            } else {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#f4f4f5');
             }
 
-            // مزامنة مع اللعبة المفتوحة حالياً إن وجدت
-            const iframe = document.getElementById('game-iframe');
+            // مزامنة مع اللعبة المفتوحة
             if (iframe && iframe.src) {
-                iframe.contentWindow.postMessage({ type: 'set_theme', theme: newTheme }, '*');
+                iframe.contentWindow.postMessage({ type: 'set_theme', theme: theme }, '*');
             }
 
-            // تحديث لون شريط الحالة (Mobile Status Bar)
-            const metaThemeColor = document.getElementById('status-bar-color');
-            if (metaThemeColor) {
-                metaThemeColor.setAttribute('content', newTheme === 'dark' ? '#0a0a0a' : '#f4f4f5');
+            // حفظ في لقاعدة البيانات إذا طُلب ذلك وكان المستخدم مسجلاً
+            if (saveToDb && auth.currentUser) {
+                db.collection('users').doc(auth.currentUser.uid).update({ theme: theme })
+                    .catch(err => console.error("Error saving theme:", err));
             }
+            
+            // البديل المحلي للمتصفح (للضيوف)
+            localStorage.setItem('app-theme', theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setAppTheme(newTheme, true);
         }
 
         let isAnimating = false;
@@ -1042,7 +1169,8 @@
             'home': 'مقر القيادة',
             'games': 'ترسانة الألعاب',
             'messages': 'قنوات الاتصال',
-            'settings': 'إعدادات النظام'
+            'settings': 'إعدادات النظام',
+            'instructions': 'دليل الأبطال'
         };
 
         // دالة تبديل الصفحات المطورة (مع الأنيميشن)
@@ -1084,8 +1212,15 @@
                 // التمرير السلس لأعلى منطقة المحتوى
                 document.getElementById('main-scroll-area').scrollTo({ top: 0, behavior: 'smooth' });
 
-                // 4. تشغيل الأنيميشن المتدرج (Staggered Items) للعناصر داخل الصفحة الجديدة
+                // تشغيل الأنيميشن المتدرج (Staggered Items) للعناصر داخل الصفحة الجديدة
                 playStaggerAnimation(targetPage);
+
+                // تحديث البيانات حسب الصفحة
+                if (pageId === 'home') fetchLeaderboard();
+                if (pageId === 'notifications') {
+                    fetchNotifications();
+                    markAllNotificationsAsRead();
+                }
 
                 // فك قفل الأنيميشن بعد انتهاء الدخول
                 setTimeout(() => {
@@ -1095,11 +1230,174 @@
             }, currentPage ? 150 : 0); // 150ms تتطابق مع مدة أنيميشن fadeOutDown
         }
 
-        // وظائف النافذة المنزلقة (Game Sheet)
+        // --- نظام تتبع النقاط ووقت اللعب ---
+        let playTimer = null;
+        let playStartTime = null;
+
+        function startPlayTimer() {
+            if (playTimer) clearInterval(playTimer);
+            playStartTime = Date.now();
+            
+            // إضافة نقطة كل دقيقة (60000ms)
+            playTimer = setInterval(() => {
+                awardPoint();
+            }, 60000);
+        }
+
+        function stopPlayTimer() {
+            if (playTimer) {
+                clearInterval(playTimer);
+                playTimer = null;
+            }
+            playStartTime = null;
+        }
+
+        function awardPoint() {
+            if (!auth.currentUser) return;
+            
+            const userRef = db.collection('users').doc(auth.currentUser.uid);
+            userRef.update({
+                points: firebase.firestore.FieldValue.increment(1)
+            }).then(() => {
+                console.log("تمت إضافة نقطة مقابل دقيقة من اللعب");
+                addNotification("زيادة في النقاط", "مبروك! حصلت على نقطة إضافية مقابل دقيقة من اللعب.", "points");
+            }).catch(err => console.error("Error awarding points:", err));
+        }
+
+        // --- نظام الإشعارات ---
+        function addNotification(title, message, type = 'info') {
+            if (!auth.currentUser) return;
+            
+            db.collection('users').doc(auth.currentUser.uid).collection('notifications').add({
+                title: title,
+                message: message,
+                type: type,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                read: false
+            }).catch(err => console.error("Error adding notification:", err));
+        }
+
+        function fetchNotifications() {
+            if (!auth.currentUser) return;
+            const list = document.getElementById('notifications-list');
+            if (!list) return;
+
+            db.collection('users').doc(auth.currentUser.uid).collection('notifications')
+                .orderBy('timestamp', 'desc').limit(20)
+                .onSnapshot(snapshot => {
+                    if (snapshot.empty) {
+                        list.innerHTML = `
+                            <div class="p-12 text-center text-gray-400 stagger-item">
+                                <i class="fa-solid fa-bell-slash text-4xl mb-4 opacity-20"></i>
+                                <p class="text-sm font-bold">لا توجد إشعارات جديدة</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    list.innerHTML = '';
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const time = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
+                        
+                        const itemHtml = `
+                            <div class="stagger-item p-4 bg-white dark:bg-panelDark border border-borderLight dark:border-borderDark hover:border-brand/30 transition-all flex gap-4 relative group">
+                                <div class="w-10 h-10 flex items-center justify-center ${data.type === 'points' ? 'bg-brand/10 text-brand' : 'bg-gray-100 dark:bg-white/5 text-gray-400'} shrink-0">
+                                    <i class="fa-solid ${data.type === 'points' ? 'fa-trophy' : 'fa-bell'}"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-sm text-gray-900 dark:text-white">${data.title}</h4>
+                                    <p class="text-xs text-gray-500 mt-1">${data.message}</p>
+                                    <span class="text-[9px] text-gray-400 mt-2 block">${time}</span>
+                                </div>
+                                <button onclick="deleteNotification('${doc.id}')" class="absolute top-4 left-4 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all">
+                                    <i class="fa-solid fa-trash-can text-sm"></i>
+                                </button>
+                            </div>
+                        `;
+                        list.insertAdjacentHTML('beforeend', itemHtml);
+                    });
+                });
+        }
+
+        async function deleteNotification(id) {
+            if (!auth.currentUser) return;
+            try {
+                await db.collection('users').doc(auth.currentUser.uid).collection('notifications').doc(id).delete();
+            } catch (err) {
+                console.error("Error deleting notification:", err);
+            }
+        }
+
+        async function clearAllNotifications() {
+            if (!auth.currentUser || !confirm("هل تريد مسح كافة الإشعارات؟")) return;
+            const batch = db.batch();
+            const snapshots = await db.collection('users').doc(auth.currentUser.uid).collection('notifications').get();
+            snapshots.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+        }
+
+        async function markAllNotificationsAsRead() {
+            if (!auth.currentUser) return;
+            const batch = db.batch();
+            const snapshots = await db.collection('users').doc(auth.currentUser.uid).collection('notifications')
+                .where('read', '==', false).get();
+            snapshots.forEach(doc => batch.update(doc.ref, {read: true}));
+            await batch.commit();
+        }
+
+        // --- نظام قائمة الشرف (Leaderboard) ---
+        function fetchLeaderboard() {
+            const container = document.getElementById('leaderboard-items');
+            if (!container) return;
+
+            // جلب أفضل 5 لاعبين حسب النقاط
+            db.collection('users').orderBy('points', 'desc').limit(5).get()
+                .then(querySnapshot => {
+                    container.innerHTML = '';
+                    let rank = 1;
+                    
+                    if (querySnapshot.empty) {
+                        container.innerHTML = '<div class="p-8 text-center text-gray-400 text-xs">لا يوجد لاعبين بعد</div>';
+                        return;
+                    }
+
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const isFirst = rank === 1;
+                        const avatarSeed = data.avatarSeed || "Gamer";
+                        
+                        const itemHtml = `
+                            <div class="flex items-center gap-3 p-4 ${rank < 5 ? 'border-b' : ''} border-borderLight dark:border-borderDark ${isFirst ? 'bg-brand/5' : ''} relative overflow-hidden group hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-default">
+                                ${isFirst ? '<div class="absolute left-0 top-0 h-full w-1 bg-brand"></div>' : ''}
+                                <div class="font-black font-heading text-${isFirst ? 'xl text-brand' : 'lg text-gray-400'} w-6 text-center">${rank}</div>
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}&backgroundColor=e11d48"
+                                    class="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-none ${isFirst ? 'border border-brand' : ''} group-hover:scale-110 transition-transform">
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-sm">${data.username || 'لاعب مجهول'}</h4>
+                                    <p class="text-xs text-gray-500">${(data.points || 0).toLocaleString()} نقطة</p>
+                                </div>
+                                ${isFirst ? '<i class="fa-solid fa-crown text-yellow-500 animate-bounce"></i>' : ''}
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', itemHtml);
+                        rank++;
+                    });
+                })
+                .catch(err => {
+                    console.error("Error fetching leaderboard:", err);
+                    container.innerHTML = '<div class="p-8 text-center text-red-500 text-xs">فشل تحميل القائمة</div>';
+                });
+        }
+
+        // --- وظائف النافذة المنزلقة (Game Sheet) ---
         function openGameSheet(url) {
             const sheet = document.getElementById('game-sheet');
             const overlay = document.getElementById('game-sheet-overlay');
             const iframe = document.getElementById('game-iframe');
+
+            // بدء تتبع الوقت
+            startPlayTimer();
 
             // إضافة الوضع الحالي للرابط لضمان التناسق
             const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
@@ -1129,6 +1427,9 @@
 
                 sheet.classList.remove('active');
                 overlay.classList.remove('active');
+
+                // إيقاف تتبع الوقت
+                stopPlayTimer();
 
                 // Clear iframe after animation
                 setTimeout(() => {
@@ -1187,6 +1488,10 @@
 
         // تهيئة مبدئية عند تحميل الصفحة
         document.addEventListener('DOMContentLoaded', () => {
+            // استرجاع الثيم المفضل من localStorage للزوار
+            const savedTheme = localStorage.getItem('app-theme') || 'dark';
+            setAppTheme(savedTheme);
+
             const homePage = document.getElementById('home-page');
             homePage.classList.add('active');
             updateNavigationUI('home');
@@ -1196,6 +1501,7 @@
             setTimeout(() => {
                 playStaggerAnimation(homePage);
                 startMatchesCarousel(); // تشغيل الكاروسيل عند تحميل الصفحة
+                fetchLeaderboard(); // تحميل قائمة الشرف
             }, 100);
         });
 
@@ -1235,6 +1541,579 @@
             console.log("Filtering by:", category);
         }
 
+        // --- تهيئة Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxIfNqb8Jdq-DyCLV5AqN7_4BK9PILYII",
+            authDomain: "myplay-5d574.firebaseapp.com",
+            projectId: "myplay-5d574",
+            storageBucket: "myplay-5d574.firebasestorage.app",
+            messagingSenderId: "937385025400",
+            appId: "1:937385025400:web:43bc15a49750601814b28d",
+            measurementId: "G-M98WPSMHFZ"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUserData = null;
+        let currentAvatarSeed = "Sniper";
+        let unsubscribeUser = null;
+        let friendRequestsUnsubscribe = null;
+        let friendsListUnsubscribe = null;
+        let notificationsUnsubscribe = null;
+        let currentChatId = null;
+        let messagesUnsubscribe = null;
+        let isDeletingAccount = false; // Flag to prevent re-creation during deletion
+
+        // دالة توليد ID مخصص (مثلاً 6 أرقام)
+        function generateCustomId() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        // مراقبة حالة تسجيل الدخول
+        auth.onAuthStateChanged(async (user) => {
+            const authContainer = document.getElementById('auth-container');
+            const logoutContainer = document.getElementById('logout-button-container');
+
+            if (unsubscribeUser) unsubscribeUser();
+            if (friendRequestsUnsubscribe) { friendRequestsUnsubscribe(); friendRequestsUnsubscribe = null; }
+            if (friendsListUnsubscribe) { friendsListUnsubscribe(); friendsListUnsubscribe = null; }
+            if (notificationsUnsubscribe) { notificationsUnsubscribe(); notificationsUnsubscribe = null; }
+
+            if (user) {
+                // المستخدم مسجل دخول
+                logoutContainer.classList.remove('hidden');
+
+                // استخدام onSnapshot للمزامنة الفورية
+                unsubscribeUser = db.collection('users').doc(user.uid).onSnapshot(async (doc) => {
+                    if (doc.exists) {
+                        currentUserData = doc.data();
+                        
+                        // تحديث النقاط في الهيدر
+                        const pointsDisplay = document.getElementById('header-points');
+                        if (pointsDisplay) pointsDisplay.textContent = (currentUserData.points || 0).toLocaleString();
+
+                        // تطبيق الثيم المحفوظ
+                        if (currentUserData.theme) {
+                            setAppTheme(currentUserData.theme);
+                        }
+
+                        if (!currentUserData.customId) {
+                            currentUserData.customId = generateCustomId();
+                            await db.collection('users').doc(user.uid).update({ customId: currentUserData.customId });
+                        }
+                    } else if (!isDeletingAccount) {
+                        // إنشاء ملف افتراضي إذا لم يوجد (فقط إذا لم نكن في مرحلة الحذف)
+                        currentUserData = {
+                            username: user.displayName || "لاعب جديد",
+                            region: "الشرق الأوسط",
+                            avatarSeed: user.uid.substring(0, 5),
+                            points: 0,
+                            customId: generateCustomId(),
+                            theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+                        };
+                        await db.collection('users').doc(user.uid).set(currentUserData);
+                    }
+
+                    // مراقبة الإشعارات غير المقروءة للبادج (للكل)
+                    if (!notificationsUnsubscribe) {
+                        notificationsUnsubscribe = db.collection('users').doc(user.uid).collection('notifications')
+                            .where('read', '==', false)
+                            .onSnapshot(snap => {
+                                const badge = document.getElementById('notification-badge');
+                                if (badge) {
+                                    if (snap.empty) {
+                                        badge.classList.add('hidden');
+                                    } else {
+                                        badge.classList.remove('hidden');
+                                    }
+                                }
+                            });
+                    }
+
+                    showProfileCard(currentUserData, user.uid);
+                    updateSidebarUser(currentUserData);
+                }, (error) => {
+                    console.error("Firestore Error:", error);
+                    if (error.code === 'permission-denied') {
+                        // صمت الخطأ هنا لأنه سيظهر في المحاولات اللاحقة أو عند التسجيل
+                    } else {
+                        console.warn("حدث خطأ في مزامنة البيانات: " + error.message);
+                    }
+                });
+            } else {
+                // المستخدم غير مسجل دخول
+                currentUserData = null;
+                logoutContainer.classList.add('hidden');
+                showLoginForm();
+                updateSidebarUser(null);
+            }
+        });
+
+        function showLoginForm() {
+            const container = document.getElementById('auth-container');
+            container.innerHTML = `
+                <h3 class="font-bold text-gray-500 text-xs uppercase tracking-widest mb-4">تسجيل الدخول للمحترفين</h3>
+                <div class="space-y-4">
+                    <input type="email" id="login-email" placeholder="البريد الإلكتروني" class="w-full bg-gray-50 dark:bg-black/20 border border-borderLight dark:border-borderDark px-4 py-2 focus:outline-none focus:border-brand transition-colors">
+                    <input type="password" id="login-password" placeholder="كلمة المرور" class="w-full bg-gray-50 dark:bg-black/20 border border-borderLight dark:border-borderDark px-4 py-2 focus:outline-none focus:border-brand transition-colors">
+                    <button onclick="login()" class="w-full py-2 bg-brand text-white font-bold clip-angled-btn hover:bg-brandHover transition-all active:scale-95 text-sm uppercase">تسجيل الدخول</button>
+                    <p class="text-center text-xs text-gray-500 mt-2">ليس لديك حساب؟ <a href="javascript:showSignupForm()" class="text-brand font-bold">انضم إلينا الآن</a></p>
+                </div>
+            `;
+        }
+
+        function showSignupForm() {
+            const container = document.getElementById('auth-container');
+            container.innerHTML = `
+                <h3 class="font-bold text-gray-500 text-xs uppercase tracking-widest mb-4">إنشاء حساب جديد</h3>
+                <div class="space-y-4">
+                    <input type="text" id="signup-username" placeholder="اسم المحارب" class="w-full bg-gray-50 dark:bg-black/20 border border-borderLight dark:border-borderDark px-4 py-2 focus:outline-none focus:border-brand transition-colors">
+                    <input type="email" id="signup-email" placeholder="البريد الإلكتروني" class="w-full bg-gray-50 dark:bg-black/20 border border-borderLight dark:border-borderDark px-4 py-2 focus:outline-none focus:border-brand transition-colors">
+                    <input type="password" id="signup-password" placeholder="كلمة المرور" class="w-full bg-gray-50 dark:bg-black/20 border border-borderLight dark:border-borderDark px-4 py-2 focus:outline-none focus:border-brand transition-colors">
+                    <button onclick="signup()" class="w-full py-2 bg-brand text-white font-bold clip-angled-btn hover:bg-brandHover transition-all active:scale-95 text-sm uppercase">إنشاء الحساب</button>
+                    <p class="text-center text-xs text-gray-500 mt-2">لديك حساب بالفعل؟ <a href="javascript:showLoginForm()" class="text-brand font-bold">سجل دخولك</a></p>
+                </div>
+            `;
+        }
+
+        function showProfileCard(data, uid) {
+            const container = document.getElementById('auth-container');
+            const displayId = data.customId || (uid ? uid.substring(0, 8).toUpperCase() : "PRO-GUEST");
+            container.innerHTML = `
+                <h3 class="font-bold text-gray-500 text-xs uppercase tracking-widest mb-4">بطاقة اللاعب</h3>
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-20 h-20 border-2 border-brand clip-angled-btn bg-black p-1 hover:scale-105 transition-transform cursor-pointer">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${data.avatarSeed}&backgroundColor=e11d48" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h4 class="font-black font-heading text-xl">${data.username}</h4>
+                        <p class="text-xs text-gray-500 font-mono mb-2">ID: #${displayId}</p>
+                        <span class="bg-borderLight dark:bg-borderDark text-xs font-bold px-2 py-1 border border-borderDark/20">المنطقة: ${data.region}</span>
+                    </div>
+                </div>
+                <button onclick="switchPage('edit-profile')" class="w-full py-2 bg-borderLight dark:bg-borderDark hover:bg-brand hover:text-white font-bold transition-all active:scale-95 text-sm uppercase">تعديل الملف</button>
+            `;
+        }
+
+        function updateSidebarUser(data) {
+            const sidebarUser = document.querySelector('aside .p-4.border-t');
+            if (!sidebarUser) return;
+
+            if (data) {
+                sidebarUser.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 border-2 border-brand clip-angled-btn overflow-hidden group-hover:scale-105 transition-transform">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${data.avatarSeed}&backgroundColor=e11d48" alt="User" class="w-full h-full bg-panelDark">
+                            </div>
+                            <div>
+                                <h4 class="font-bold font-heading text-sm group-hover:text-brand transition-colors">${data.username}</h4>
+                                <div class="text-xs text-brand font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-trophy"></i> التصنيف: ${data.points > 1000 ? 'النخبة' : 'مبتدئ'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                sidebarUser.innerHTML = `
+                    <div onclick="switchPage('settings')" class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-200 dark:bg-white/10 flex items-center justify-center clip-angled-btn">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold font-heading text-sm">ضيف</h4>
+                            <p class="text-[10px] text-brand font-bold">سجل دخولك الآن</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            if (!email || !pass) return alert("يرجى ملء الحقول");
+
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+            } catch (error) {
+                alert("خطأ في تسجيل الدخول: " + error.message);
+            }
+        }
+
+        async function signup() {
+            const username = document.getElementById('signup-username').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const pass = document.getElementById('signup-password').value;
+            
+            if (!username || !email || !pass) return alert("يرجى ملء كافة الحقول");
+            if (username.length < 3) return alert("يجب أن يكون الاسم 3 أحرف على الأقل");
+
+            const btn = document.querySelector('button[onclick="signup()"]');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "جاري التحقق...";
+
+            try {
+                // التحقق من تكرار الاسم
+                const nameCheck = await db.collection('users').where('username', '==', username).get();
+                if (!nameCheck.empty) {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    return alert("عذراً، هذا الاسم محجوز بالفعل. يرجى اختيار اسم آخر.");
+                }
+
+                const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                await db.collection('users').doc(cred.user.uid).set({
+                    username: username,
+                    region: "الشرق الأوسط",
+                    avatarSeed: Math.random().toString(36).substring(7),
+                    points: 0,
+                    customId: generateCustomId(),
+                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+                });
+            } catch (error) {
+                alert("خطأ في إنشاء الحساب: " + error.message);
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+
+        async function logout() {
+            if (confirm("هل أنت متأكد من تسجيل الخروج؟")) {
+                await auth.signOut();
+            }
+        }
+
+        // منطق صفحة تعديل الملف
+        function generateRandomAvatar() {
+            currentAvatarSeed = Math.random().toString(36).substring(7);
+            document.getElementById('edit-avatar-img').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentAvatarSeed}&backgroundColor=e11d48`;
+        }
+
+        async function saveProfile() {
+            if (!currentUserData) return;
+            const newName = document.getElementById('edit-username').value.trim();
+            const newRegion = document.getElementById('edit-region').value;
+
+            if (!newName) return alert("يرجى إدخال اسم");
+
+            const btn = document.querySelector('button[onclick="saveProfile()"]');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "جاري الحفظ...";
+
+            try {
+                // إذا تغير الاسم، نتحقق من التكرار
+                if (newName !== currentUserData.username) {
+                    const nameCheck = await db.collection('users').where('username', '==', newName).get();
+                    if (!nameCheck.empty) {
+                        btn.disabled = false;
+                        btn.innerText = originalText;
+                        return alert("عذراً، هذا الاسم محجوز بالفعل لمستخدم آخر.");
+                    }
+                }
+
+                await db.collection('users').doc(auth.currentUser.uid).update({
+                    username: newName,
+                    region: newRegion,
+                    avatarSeed: currentAvatarSeed
+                });
+                alert("تم حفظ التغييرات بنجاح");
+                switchPage('settings');
+            } catch (error) {
+                alert("خطأ في الحفظ: " + error.message);
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+
+        pageTitles['notifications'] = 'صندوق الوارد';
+        pageTitles['edit-profile'] = 'تعديل الملف الشخصي';
+        pageTitles['messages'] = 'التحالفات';
+
+        // ربط تعبئة بيانات تعديل الملف عند فتح الصفحة
+        const originalSwitchPage = switchPage;
+        switchPage = function (pageId) {
+            if (pageId === 'edit-profile') {
+                if (!auth.currentUser) {
+                    alert("يجب تسجيل الدخول أولاً");
+                    return originalSwitchPage('settings');
+                }
+                document.getElementById('edit-username').value = currentUserData.username;
+                document.getElementById('edit-region').value = currentUserData.region;
+                currentAvatarSeed = currentUserData.avatarSeed;
+                document.getElementById('edit-avatar-img').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentAvatarSeed}&backgroundColor=e11d48`;
+            }
+            if (pageId === 'messages') {
+                if (!auth.currentUser) {
+                    alert("يجب تسجيل الدخول أولاً للوصول إلى التحالفات");
+                    return originalSwitchPage('settings');
+                }
+                startFriendsListeners();
+            }
+            return originalSwitchPage(pageId);
+        };
+
+        // --- نظام إدارة الأصدقاء ---
+
+        function toggleAddFriendModal() {
+            const modal = document.getElementById('add-friend-modal');
+            const isActive = modal.classList.contains('opacity-100');
+            modal.classList.toggle('opacity-0', isActive);
+            modal.classList.toggle('pointer-events-none', isActive);
+            modal.classList.toggle('opacity-100', !isActive);
+            modal.classList.toggle('pointer-events-auto', !isActive);
+            modal.querySelector('div').classList.toggle('scale-90', isActive);
+            modal.querySelector('div').classList.toggle('scale-100', !isActive);
+        }
+
+        function toggleFriendRequestsModal() {
+            const modal = document.getElementById('friend-requests-modal');
+            const isActive = modal.classList.contains('opacity-100');
+            modal.classList.toggle('opacity-0', isActive);
+            modal.classList.toggle('pointer-events-none', isActive);
+            modal.classList.toggle('opacity-100', !isActive);
+            modal.classList.toggle('pointer-events-auto', !isActive);
+            modal.querySelector('div').classList.toggle('scale-90', isActive);
+            modal.querySelector('div').classList.toggle('scale-100', !isActive);
+        }
+
+        async function sendFriendRequest() {
+            const targetId = document.getElementById('friend-id-input').value;
+            if (!targetId || targetId.length < 6) return alert("يرجى إدخال ID صحيح مكون من 6 أرقام");
+            if (targetId === currentUserData.customId) return alert("لا يمكنك إضافة نفسك كصديق!");
+
+            const btn = document.getElementById('send-request-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البحث...';
+
+            try {
+                const userQuery = await db.collection('users').where('customId', '==', targetId).get();
+                if (userQuery.empty) {
+                    alert("عذراً، لم يتم العثور على لاعب بهذا الـ ID");
+                } else {
+                    const targetUser = userQuery.docs[0].data();
+                    const targetUid = userQuery.docs[0].id;
+
+                    // التحقق إذا كان صديقاً بالفعل
+                    const isFriend = await db.collection('users').doc(auth.currentUser.uid).collection('friends').doc(targetUid).get();
+                    if (isFriend.exists) {
+                        alert("هذا اللاعب موجود بالفعل في قائمة أصدقائك");
+                    } else {
+                        // إرسال الطلب
+                        await db.collection('users').doc(targetUid).collection('friendRequests').doc(auth.currentUser.uid).set({
+                            fromUid: auth.currentUser.uid,
+                            fromName: currentUserData.username,
+                            fromAvatarSeed: currentUserData.avatarSeed,
+                            fromId: currentUserData.customId,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        alert("تم إرسال طلب الصداقة بنجاح إلى " + targetUser.username);
+                        toggleAddFriendModal();
+                        document.getElementById('friend-id-input').value = "";
+                    }
+                }
+            } catch (error) {
+                alert("خطأ: " + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'إرسال طلب صداقة';
+            }
+        }
+
+        function startFriendsListeners() {
+            if (!auth.currentUser) return;
+
+            // 1. الاستماع لطلبات الصداقة
+            if (friendRequestsUnsubscribe) friendRequestsUnsubscribe();
+            friendRequestsUnsubscribe = db.collection('users').doc(auth.currentUser.uid).collection('friendRequests')
+                .onSnapshot(snapshot => {
+                    const countBadge = document.getElementById('friend-requests-count');
+                    const requestsList = document.getElementById('friend-requests-list');
+
+                    if (snapshot.empty) {
+                        countBadge.classList.add('hidden');
+                        requestsList.innerHTML = '<p class="text-center text-gray-500 py-10">لا توجد طلبات معلقة</p>';
+                    } else {
+                        countBadge.classList.remove('hidden');
+                        countBadge.textContent = snapshot.size;
+
+                        requestsList.innerHTML = snapshot.docs.map(doc => {
+                            const data = doc.data();
+                            return `
+                                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/5 border border-borderLight dark:border-borderDark">
+                                    <div class="w-10 h-10 border border-brand clip-angled-btn p-0.5">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${data.fromAvatarSeed}&backgroundColor=e11d48" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1">
+                                        <h5 class="font-bold text-sm">${data.fromName}</h5>
+                                        <p class="text-[10px] text-gray-500">ID: #${data.fromId}</p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button onclick="acceptFriendRequest('${doc.id}', ${JSON.stringify(data).replace(/"/g, '&quot;')})" class="w-8 h-8 bg-green-500 text-white rounded flex items-center justify-center hover:bg-green-600 transition-colors"><i class="fas fa-check"></i></button>
+                                        <button onclick="rejectFriendRequest('${doc.id}')" class="w-8 h-8 bg-red-500 text-white rounded flex items-center justify-center hover:bg-red-600 transition-colors"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                });
+
+            // 2. الاستماع لقائمة الأصدقاء
+            if (friendsListUnsubscribe) friendsListUnsubscribe();
+            friendsListUnsubscribe = db.collection('users').doc(auth.currentUser.uid).collection('friends')
+                .orderBy('username', 'asc')
+                .onSnapshot(snapshot => {
+                    const friendsContainer = document.getElementById('friends-list-container');
+
+                    if (snapshot.empty) {
+                        friendsContainer.innerHTML = `
+                            <div class="flex flex-col items-center justify-center py-20 text-gray-500">
+                                <i class="fa-solid fa-user-group text-5xl mb-4 opacity-20"></i>
+                                <p class="font-bold">لا يوجد أصدقاء بعد</p>
+                                <p class="text-xs">ابدأ بإضافة الأبطال من خلال الـ ID الخاص بهم</p>
+                            </div>
+                        `;
+                    } else {
+                        friendsContainer.innerHTML = snapshot.docs.map(doc => {
+                            const friend = doc.data();
+                            return `
+                                <div onclick='openChat(${JSON.stringify(friend).replace(/'/g, "&apos;")})' class="flex items-center gap-4 p-4 border-b border-borderLight dark:border-borderDark hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors group">
+                                    <div class="w-12 h-12 border-2 border-brand clip-angled-btn p-0.5 group-hover:scale-105 transition-transform">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${friend.avatarSeed}&backgroundColor=e11d48" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-center">
+                                            <h4 class="font-bold font-heading text-lg group-hover:text-brand transition-colors">${friend.username}</h4>
+                                            <span class="text-[10px] font-mono text-gray-500">#${friend.customId}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                            <span class="text-xs text-gray-500">متصل الآن</span>
+                                        </div>
+                                    </div>
+                                    <button class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-brand transition-colors">
+                                        <i class="fa-solid fa-comment-alt"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                });
+        }
+
+        // --- نظام الدردشة الخاصة ---
+
+        function openChat(friend) {
+            const listView = document.getElementById('friends-list-view');
+            const chatView = document.getElementById('chat-view');
+
+            listView.classList.add('hidden');
+            chatView.classList.remove('hidden');
+
+            document.getElementById('chat-friend-name').textContent = friend.username;
+            document.getElementById('chat-friend-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${friend.avatarSeed}&backgroundColor=e11d48`;
+
+            // توليد معرف الدردشة الموحد
+            const myUid = auth.currentUser.uid;
+            const friendUid = friend.uid;
+            currentChatId = myUid < friendUid ? `${myUid}_${friendUid}` : `${friendUid}_${myUid}`;
+
+            listenForMessages(currentChatId);
+        }
+
+        function closeChat() {
+            document.getElementById('friends-list-view').classList.remove('hidden');
+            document.getElementById('chat-view').classList.add('hidden');
+            if (messagesUnsubscribe) {
+                messagesUnsubscribe();
+                messagesUnsubscribe = null;
+            }
+            currentChatId = null;
+        }
+
+        function listenForMessages(chatId) {
+            if (messagesUnsubscribe) messagesUnsubscribe();
+
+            messagesUnsubscribe = db.collection('chats').doc(chatId).collection('messages')
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .onSnapshot(snapshot => {
+                    const container = document.getElementById('chat-messages');
+                    container.innerHTML = snapshot.docs.map(doc => {
+                        const msg = doc.data();
+                        const isMe = msg.senderUid === auth.currentUser.uid;
+                        return `
+                            <div class="flex ${isMe ? 'justify-start' : 'justify-end'}">
+                                <div class="${isMe ? 'bg-brand text-white clip-angled-btn ml-12' : 'bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark mr-12'} p-3 max-w-[85%] shadow-sm relative">
+                                    <p class="text-sm leading-relaxed">${msg.text}</p>
+                                    <span class="text-[8px] opacity-60 mt-1 block text-left">${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                });
+        }
+
+        async function handleChatSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text || !currentChatId) return;
+
+            input.value = "";
+            try {
+                await db.collection('chats').doc(currentChatId).collection('messages').add({
+                    text: text,
+                    senderUid: auth.currentUser.uid,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                await db.collection('chats').doc(currentChatId).set({
+                    lastMessage: text,
+                    lastUpdate: firebase.firestore.FieldValue.serverTimestamp(),
+                    users: currentChatId.split('_')
+                }, { merge: true });
+            } catch (error) {
+                console.error("Error sending message:", error);
+                alert("فشل إرسال الرسالة");
+            }
+        }
+
+        async function acceptFriendRequest(requestId, fromData) {
+            try {
+                await db.collection('users').doc(auth.currentUser.uid).collection('friends').doc(requestId).set({
+                    username: fromData.fromName,
+                    avatarSeed: fromData.fromAvatarSeed,
+                    customId: fromData.fromId,
+                    uid: requestId
+                });
+                await db.collection('users').doc(requestId).collection('friends').doc(auth.currentUser.uid).set({
+                    username: currentUserData.username,
+                    avatarSeed: currentUserData.avatarSeed,
+                    customId: currentUserData.customId,
+                    uid: auth.currentUser.uid
+                });
+                await db.collection('users').doc(auth.currentUser.uid).collection('friendRequests').doc(requestId).delete();
+                alert("تم قبول طلب الصداقة!");
+            } catch (error) {
+                alert("خطأ: " + error.message);
+            }
+        }
+
+        async function rejectFriendRequest(requestId) {
+            if (confirm("هل أنت متأكد من رفض هذا الطلب؟")) {
+                try {
+                    await db.collection('users').doc(auth.currentUser.uid).collection('friendRequests').doc(requestId).delete();
+                } catch (error) {
+                    alert("خطأ: " + error.message);
+                }
+            }
+        }
+
         // --- نظام الكاروسيل لأبرز المواجهات ---
         const matchesData = [
             [
@@ -1258,6 +2137,7 @@
                 currentMatchSet = (currentMatchSet + 1) % matchesData.length;
 
                 const container = document.getElementById('matches-container');
+                if (!container) return;
                 container.classList.add('opacity-0', 'translate-x-4');
 
                 setTimeout(() => {
@@ -1291,7 +2171,7 @@
                             <h4 class="font-bold text-sm mb-1 group-hover:text-brand transition-colors">${match.title}</h4>
                             <p class="text-[10px] text-gray-500">انضم للمتعة الآن</p>
                         </div>
-                        <button class="bg-brand text-white text-[10px] font-bold px-4 py-2 clip-angled-btn hover:bg-brandHover transition-colors active:scale-95">العب الآن</button>
+                        <button onclick="switchPage('games')" class="bg-brand text-white text-[10px] font-bold px-4 py-2 clip-angled-btn hover:bg-brandHover transition-colors active:scale-95">المزيد</button>
                     </div>
                 </div>
             `).join('');
@@ -1309,7 +2189,151 @@
                 progress.style.width = '0%';
             }, 50);
         }
+
+        // --- ميزة حذف الحساب نهائياً ---
+        function toggleDeleteAccountModal() {
+            const modal = document.getElementById('delete-account-modal');
+            const isActive = modal.classList.contains('opacity-100');
+            modal.classList.toggle('opacity-0', isActive);
+            modal.classList.toggle('pointer-events-none', isActive);
+            modal.classList.toggle('opacity-100', !isActive);
+            modal.classList.toggle('pointer-events-auto', !isActive);
+            modal.querySelector('div').classList.toggle('scale-90', isActive);
+            modal.querySelector('div').classList.toggle('scale-100', !isActive);
+            document.getElementById('delete-confirm-password').value = "";
+        }
+
+        async function confirmDeleteAccount() {
+            const password = document.getElementById('delete-confirm-password').value;
+            if (!password) return alert("يرجى إدخال كلمة المرور للتأكيد");
+
+            const btn = document.getElementById('delete-account-btn');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "جاري الحذف النهائي...";
+
+            try {
+                isDeletingAccount = true; // منع نظام المزامنة من إعادة إنشاء الملف فور حذفه
+                const user = auth.currentUser;
+                const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+                
+                // 1. إعادة التحقق من كلمة المرور
+                await user.reauthenticateWithCredential(credential);
+
+                const userUid = user.uid;
+                const batch = db.batch();
+
+                // 2. معالجة وحذف الارتباطات مع الأصدقاء
+                const friendsSnap = await db.collection('users').doc(userUid).collection('friends').get();
+                friendsSnap.forEach(doc => {
+                    const friendUid = doc.id;
+                    // حذف اسمي من قائمة أصدقاء صديقي
+                    batch.delete(db.collection('users').doc(friendUid).collection('friends').doc(userUid));
+                    // حذف صديقي من قائمتي
+                    batch.delete(doc.ref);
+                });
+
+                // 3. حذف الإشعارات وطلبات الصداقة الخاصة بالمستخدم
+                const notifsSnap = await db.collection('users').doc(userUid).collection('notifications').get();
+                notifsSnap.forEach(doc => batch.delete(doc.ref));
+
+                const reqsSnap = await db.collection('users').doc(userUid).collection('friendRequests').get();
+                reqsSnap.forEach(doc => batch.delete(doc.ref));
+
+                // 4. حذف بيانات Firestore (المستند الرئيسي)
+                batch.delete(db.collection('users').doc(userUid));
+
+                // تنفيذ كافة عمليات الحذف في Firestore دفعة واحدة
+                await batch.commit();
+
+                // 5. حذف الحساب من نظام المصادقة (Auth)
+                await user.delete();
+
+                alert("تم حذف حسابك وكافة بياناتك بنجاح. نآسف لرحيلك!");
+                location.reload(); 
+            } catch (error) {
+                console.error("Error deleting account:", error);
+                let msg = "فشل الحذف: ";
+                if (error.code === 'auth/wrong-password') msg += "كلمة المرور غير صحيحة";
+                else msg += error.message;
+                alert(msg);
+                isDeletingAccount = false; // إعادة السماح بالمزامنة في حال فشل الحذف
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
     </script>
+    <!-- مودال إضافة صديق -->
+    <div id="add-friend-modal"
+        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300 p-4">
+        <div
+            class="bg-panelLight dark:bg-panelDark w-full max-w-md p-6 clip-angled border-2 border-brand/20 shadow-2xl transform scale-90 transition-transform duration-300">
+            <div class="flex justify-between items-center mb-6">
+                <h4 class="text-xl font-black font-heading uppercase">إضافة صديق جديد</h4>
+                <button onclick="toggleAddFriendModal()" class="text-gray-400 hover:text-brand"><i
+                        class="fa-solid fa-times text-xl"></i></button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-sm text-gray-500 font-medium">أدخل الـ ID المكون من 6 أرقام للصديق الذي تريد إضافته:</p>
+                <div class="relative">
+                    <input type="number" id="friend-id-input" placeholder="مثلاً: 123456"
+                        class="w-full bg-gray-50 dark:bg-black/20 border-2 border-borderLight dark:border-borderDark px-4 py-4 text-center text-2xl font-black tracking-[0.5em] focus:outline-none focus:border-brand transition-colors">
+                </div>
+                <button onclick="sendFriendRequest()" id="send-request-btn"
+                    class="w-full py-4 bg-brand hover:bg-brandHover text-white font-black font-heading uppercase tracking-widest clip-angled-btn transition-all active:scale-[0.98] shadow-lg shadow-brand/20">
+                    إرسال طلب صداقة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال طلبات الصداقة -->
+    <div id="friend-requests-modal"
+        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300 p-4">
+        <div
+            class="bg-panelLight dark:bg-panelDark w-full max-w-md p-6 clip-angled border-2 border-brand/20 shadow-2xl transform scale-90 transition-transform duration-300 flex flex-col max-h-[80vh]">
+            <div class="flex justify-between items-center mb-6">
+                <h4 class="text-xl font-black font-heading uppercase">طلبات الصداقة</h4>
+                <button onclick="toggleFriendRequestsModal()" class="text-gray-400 hover:text-brand"><i
+                        class="fa-solid fa-times text-xl"></i></button>
+            </div>
+            <div id="friend-requests-list" class="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2 mr-[-8px]">
+                <!-- سيتم تعبئة الطلبات ديناميكياً -->
+                <p class="text-center text-gray-500 py-10">لا توجد طلبات معلقة</p>
+            </div>
+        </div>
+    </div>
+    <!-- مودال حذف الحساب -->
+    <div id="delete-account-modal"
+        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 p-4 font-sans">
+        <div
+            class="bg-panelLight dark:bg-panelDark w-full max-w-md p-8 clip-angled border-2 border-red-500/30 shadow-2xl transform scale-90 transition-transform duration-300">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h4 class="text-xl font-black font-heading uppercase text-red-500">حذف الحساب نهائياً</h4>
+                <p class="text-sm text-gray-500 mt-2">هذا الإجراء لا يمكن التراجع عنه. سيتم مسح كافة نقاطك وإنجازاتك.</p>
+            </div>
+            <div class="space-y-4">
+                <p class="text-xs font-bold text-gray-400 uppercase text-center">أدخل كلمة المرور لتأكيد الحذف</p>
+                <div class="relative">
+                    <input type="password" id="delete-confirm-password" placeholder="كلمة المرور"
+                        class="w-full bg-gray-50 dark:bg-black/20 border-2 border-borderLight dark:border-borderDark px-4 py-3 text-center focus:outline-none focus:border-red-500 transition-colors font-bold">
+                </div>
+                <div class="flex flex-col gap-3 pt-2">
+                    <button onclick="confirmDeleteAccount()" id="delete-account-btn"
+                        class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black font-heading uppercase tracking-widest clip-angled-btn transition-all active:scale-95 shadow-lg shadow-red-500/20">
+                        تأكيد الحذف النهائي
+                    </button>
+                    <button onclick="toggleDeleteAccountModal()"
+                        class="w-full py-3 bg-gray-100 dark:bg-white/5 text-gray-500 font-bold uppercase tracking-widest clip-angled-btn hover:bg-gray-200 dark:hover:bg-white/10 transition-all">
+                        تراجع
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
