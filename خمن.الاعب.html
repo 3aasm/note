@@ -3,10 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" id="status-bar-color" content="#0f172a">
     <meta name="referrer" content="no-referrer">
     <title>خمن اللاعب | 1vs1</title>
+    <link rel="apple-touch-icon" href="صورة التطبيق.png">
+    <link rel="manifest" href="manifest.json">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -386,6 +389,47 @@
             border-color: #020617;
         }
 
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .animate-shake {
+            animation: shake 0.2s ease-in-out 0s 3;
+        }
+
+        @keyframes swapIn {
+            0% {
+                transform: scale(0.8) rotate(-10deg);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.1) rotate(5deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1) rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .animate-swap {
+            animation: swapIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
         .ribbon-active {
             max-height: 300px;
             padding: 1rem;
@@ -420,6 +464,26 @@
                     class="cartoon-btn bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white w-full py-2.5 rounded-xl font-black hover:bg-slate-300 text-sm">
                     لا، استخدم صور بديلة <i class="fa-solid fa-user-astronaut ml-1"></i>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تنبيه مخصصة (جديدة) -->
+    <div id="custom-alert-modal"
+        class="fixed inset-0 z-[500] hidden items-center justify-center bg-black/70 backdrop-blur-md p-4">
+        <div class="cartoon-panel bg-white dark:bg-slate-800 p-6 max-w-sm w-full text-center animate-popIn">
+            <div id="alert-icon-container"
+                class="w-16 h-16 mx-auto bg-blue-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-blue-500 text-3xl mb-4 border-2 border-panelBorder shadow-[3px_3px_0px_#0f172a]">
+                <i id="alert-icon" class="fa-solid fa-circle-info"></i>
+            </div>
+            <h3 id="alert-title" class="text-xl font-black font-heading mb-2">تنبيه</h3>
+            <p id="alert-message" class="text-sm font-bold text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">...
+            </p>
+            <div id="alert-buttons" class="flex gap-3">
+                <button id="alert-ok-btn"
+                    class="cartoon-btn bg-brand text-white flex-1 py-2.5 rounded-xl font-black hover:bg-green-600">حسناً</button>
+                <button id="alert-cancel-btn"
+                    class="cartoon-btn bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white flex-1 py-2.5 rounded-xl font-black hover:bg-slate-300 hidden">إلغاء</button>
             </div>
         </div>
     </div>
@@ -675,9 +739,9 @@
                         اختر طريقة عرض الشاشة</p>
                 </div>
 
-                <div class="flex flex-col gap-4">
+                <div id="position-options" class="flex flex-col gap-4">
                     <!-- خيار اللعب من خلف الهاتف -->
-                    <div onclick="selectPosition('behind')"
+                    <div id="btn-pos-behind" onclick="selectPosition('behind')"
                         class="cartoon-panel bg-white dark:bg-slate-800 p-4 flex items-center justify-between hover:-translate-y-1 transition-transform cursor-pointer group w-full">
                         <div class="flex items-center gap-3">
                             <div
@@ -698,7 +762,7 @@
                     </div>
 
                     <!-- خيار اللعب من أمام الهاتف -->
-                    <div onclick="selectPosition('front')"
+                    <div id="btn-pos-front" onclick="selectPosition('front')"
                         class="cartoon-panel bg-white dark:bg-slate-800 p-4 flex items-center justify-between hover:-translate-y-1 transition-transform cursor-pointer group w-full">
                         <div class="flex items-center gap-3">
                             <div
@@ -717,6 +781,14 @@
                             class="cartoon-btn bg-cyan-500 text-white font-black text-sm px-3 py-2 rounded-lg shrink-0 flex items-center gap-2 group-hover:bg-cyan-600">اختيار
                             <i class="fa-solid fa-check text-[10px]"></i></button>
                     </div>
+                </div>
+
+                <!-- رسالة انتظار للضيف -->
+                <div id="wait-host-mode"
+                    class="hidden cartoon-panel bg-white dark:bg-slate-800 p-8 text-center animate-pulse">
+                    <i class="fa-solid fa-hourglass-half text-brand text-4xl mb-4"></i>
+                    <p class="font-black text-slate-600 dark:text-slate-300">بانتظار منشئ الغرفة لاختيار طريقة اللعب...
+                    </p>
                 </div>
             </div>
 
@@ -771,10 +843,20 @@
                     <div id="input-container" class="w-full relative stagger-item">
                         <div class="flex flex-col gap-3">
                             <div class="flex gap-2 relative">
-                                <div class="relative flex-1">
+                                <div id="guess-input-wrapper" class="relative flex-1">
                                     <input type="text" id="player-input" autocomplete="off"
                                         placeholder="اكتب سؤالاً أو خمن اللاعب..."
                                         class="cartoon-btn w-full bg-white dark:bg-slate-700 px-3 py-3 rounded-xl font-bold text-sm text-panelBorder dark:text-white outline-none focus:border-brand">
+
+                                    <!-- أيقونات تغيير اللاعب -->
+                                    <div id="action-cards"
+                                        class="hidden absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 z-20">
+                                        <button onclick="useChangePlayerCard()" title="تغيير لاعب الخصم"
+                                            class="w-10 h-10 rounded-lg bg-red-500 text-white border-2 border-panelBorder shadow-[2px_2px_0px_#0f172a] flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+                                            <i class="fa-solid fa-arrows-rotate text-lg"></i>
+                                        </button>
+                                    </div>
+
                                     <div id="autocomplete-wrapper"
                                         class="autocomplete-list hidden cartoon-panel bg-white dark:bg-slate-800 border-2 mt-1">
                                     </div>
@@ -847,8 +929,30 @@
                                 </div>
                             </div>
 
-                            <!-- زر تم المعرفة تحت الصورة -->
-                            <button id="done-guess-btn" onclick="declareDone()"
+                            <!-- صندوق التخمين النهائي -->
+                            <div id="final-guess-container"
+                                class="mt-4 flex flex-col items-center gap-2 hidden z-10 relative w-full px-4 max-w-xs">
+                                <div class="relative w-full">
+                                    <input type="text" id="final-player-guess" autocomplete="off"
+                                        placeholder="اكتب اسم اللاعب للتخمين..."
+                                        class="cartoon-btn w-full bg-white dark:bg-slate-700 px-3 py-3 rounded-xl font-bold text-sm text-panelBorder dark:text-white outline-none border-2 border-yellow-400">
+                                    <div id="final-autocomplete"
+                                        class="autocomplete-list hidden cartoon-panel bg-white dark:bg-slate-800 border-2 mt-1">
+                                    </div>
+                                </div>
+                                <div class="flex gap-2 w-full">
+                                    <button onclick="checkFinalGuess()"
+                                        class="cartoon-btn bg-yellow-400 text-panelBorder flex-1 py-2 rounded-xl font-black hover:bg-yellow-500 shadow-[3px_3px_0px_#0f172a] text-sm">
+                                        تأكيد التخمين <i class="fa-solid fa-check ml-1"></i>
+                                    </button>
+                                    <button onclick="toggleFinalGuess(false)"
+                                        class="cartoon-btn bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-white px-4 py-2 rounded-xl font-black text-sm">
+                                        إلغاء
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button id="done-guess-btn" onclick="toggleFinalGuess(true)"
                                 class="mt-4 cartoon-btn bg-yellow-400 text-panelBorder px-6 py-2 rounded-xl font-black hover:bg-yellow-500 shadow-[3px_3px_0px_#0f172a] text-sm hidden z-10 relative">
                                 تم معرفة اللاعب! <i class="fa-solid fa-check-double ml-1"></i>
                             </button>
@@ -1027,6 +1131,8 @@
         const autocompleteWrap = document.getElementById('autocomplete-wrapper');
         const setupInputEl = document.getElementById('setup-player-input');
         const setupAutocompleteWrap = document.getElementById('setup-autocomplete');
+        const finalInputEl = document.getElementById('final-player-guess');
+        const finalAutocompleteWrap = document.getElementById('final-autocomplete');
 
         // ميزة النقر المزدوج لإنزال الستارة
         document.addEventListener('touchstart', handleDoubleTap, { passive: false });
@@ -1121,7 +1227,77 @@
             }
         }
 
-        // --- Autocomplete Logic ---
+        // --- Custom Dialogs ---
+        function showCustomAlert(message, title = "تنبيه", icon = "fa-circle-info", color = "blue") {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-alert-modal');
+                const titleEl = document.getElementById('alert-title');
+                const msgEl = document.getElementById('alert-message');
+                const iconContainer = document.getElementById('alert-icon-container');
+                const iconEl = document.getElementById('alert-icon');
+                const okBtn = document.getElementById('alert-ok-btn');
+                const cancelBtn = document.getElementById('alert-cancel-btn');
+
+                titleEl.textContent = title;
+                msgEl.textContent = message;
+                iconEl.className = `fa-solid ${icon}`;
+
+                // Colors
+                iconContainer.className = `w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-4 border-2 border-panelBorder shadow-[3px_3px_0px_#0f172a] bg-${color}-100 text-${color}-500 dark:bg-slate-700`;
+                if (color === 'brand' || color === 'green') {
+                    okBtn.className = "cartoon-btn bg-brand text-white flex-1 py-2.5 rounded-xl font-black hover:bg-green-600";
+                } else if (color === 'red') {
+                    okBtn.className = "cartoon-btn bg-red-500 text-white flex-1 py-2.5 rounded-xl font-black hover:bg-red-600";
+                } else {
+                    okBtn.className = "cartoon-btn bg-teamO text-white flex-1 py-2.5 rounded-xl font-black hover:bg-blue-600";
+                }
+
+                cancelBtn.classList.add('hidden');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                okBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    resolve(true);
+                };
+            });
+        }
+
+        function showCustomConfirm(message, title = "تأكيد", icon = "fa-question-circle", color = "blue") {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-alert-modal');
+                const titleEl = document.getElementById('alert-title');
+                const msgEl = document.getElementById('alert-message');
+                const iconContainer = document.getElementById('alert-icon-container');
+                const iconEl = document.getElementById('alert-icon');
+                const okBtn = document.getElementById('alert-ok-btn');
+                const cancelBtn = document.getElementById('alert-cancel-btn');
+
+                titleEl.textContent = title;
+                msgEl.textContent = message;
+                iconEl.className = `fa-solid ${icon}`;
+
+                iconContainer.className = `w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-4 border-2 border-panelBorder shadow-[3px_3px_0px_#0f172a] bg-${color}-100 text-${color}-500 dark:bg-slate-700`;
+
+                okBtn.textContent = "نعم، متأكد";
+                cancelBtn.textContent = "تراجع";
+                cancelBtn.classList.remove('hidden');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                okBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    resolve(true);
+                };
+                cancelBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    resolve(false);
+                };
+            });
+        }
         function setupAutocomplete(inpEl, wrapEl, onSelect) {
             inpEl.addEventListener('input', function () {
                 const val = this.value.trim().toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه');
@@ -1155,6 +1331,7 @@
 
         setupAutocomplete(inputEl, autocompleteWrap);
         setupAutocomplete(setupInputEl, setupAutocompleteWrap);
+        setupAutocomplete(finalInputEl, finalAutocompleteWrap);
 
         function getPlayerByName(name) {
             const nName = name.trim().toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه');
@@ -1189,6 +1366,7 @@
                     hint.classList.remove('hidden');
                     setTimeout(() => hint.classList.add('hidden'), 5000);
                 }
+                updateTurnUI(); // تحديث الاسم أيضاً
             }
 
             inputEl.value = ''; inputEl.disabled = false; document.getElementById('submit-guess-btn').disabled = false;
@@ -1227,13 +1405,78 @@
                     if (dispP) {
                         largeImg.onerror = function () { handlePlayerImgError(this, dispP); };
                         largeImg.src = dispP.image;
-                        largeImg.classList.remove('blur-[15px]', 'scale-125');
-                        largeImg.classList.add('blur-0', 'scale-100');
+                        largeImg.classList.remove('blur-[15px]', 'scale-125', 'animate-swap');
+                        void largeImg.offsetWidth; // Force reflow for animation
+                        largeImg.classList.add('blur-0', 'scale-100', 'animate-swap');
                     }
                 }
                 document.getElementById('large-mystery-q').classList.add('hidden');
                 document.getElementById('done-guess-btn').classList.remove('hidden');
+                document.getElementById('action-cards').classList.remove('hidden');
+                document.getElementById('final-guess-container').classList.add('hidden');
             }
+        }
+
+        // إظهار/إخفاء صندوق التخمين بالاسم
+        function toggleFinalGuess(show) {
+            const btn = document.getElementById('done-guess-btn');
+            const container = document.getElementById('final-guess-container');
+            if (show) {
+                btn.classList.add('hidden');
+                container.classList.remove('hidden');
+                finalInputEl.focus();
+            } else {
+                btn.classList.remove('hidden');
+                container.classList.add('hidden');
+                finalInputEl.value = '';
+            }
+        }
+
+        function checkFinalGuess() {
+            const val = finalInputEl.value.trim();
+            if (!val || !targetPlayer) return;
+
+            const normalize = (s) => s.toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/\s+/g, '');
+            if (normalize(val) === normalize(targetPlayer.name)) {
+                declareDone();
+            } else {
+                finalInputEl.classList.add('border-red-500', 'animate-shake');
+                setTimeout(() => {
+                    finalInputEl.classList.remove('border-red-500', 'animate-shake');
+                    toggleFinalGuess(false); // إخفاء التخمين إذا أخطأ
+                    showCustomAlert("تخمين خاطئ! استمر في اللعب.", "خطأ", "fa-circle-xmark", "red");
+                }, 800);
+            }
+        }
+
+        // --- ميزات البطاقات الخاصة ---
+        async function useChangePlayerCard() {
+            if (isGameOver || !currentRoomId) return;
+            const confirmed = await showCustomConfirm("هل أنت متأكد من تغيير لاعب الخصم؟ سيتم تغيير اللاعب الحالي للاعب آخر عشوائي.", "استخدام البطاقة", "fa-arrows-rotate", "red");
+            if (!confirmed) return;
+
+            // اختيار لاعب جديد مختلف عن الحالي
+            let newPlayer;
+            do {
+                newPlayer = playersDB[Math.floor(Math.random() * playersDB.length)];
+            } while (targetPlayer && newPlayer.id === targetPlayer.id);
+
+            const oppRole = myRole === 'p1' ? 'p2' : 'p1';
+
+            // تحديث لاعب الخصم في Firebase
+            db.ref('football_rooms/' + currentRoomId).update({
+                [oppRole + '_target']: newPlayer.id,
+                system_notify: {
+                    type: 'player_changed',
+                    to: oppRole,
+                    timestamp: Date.now()
+                }
+            });
+
+            // تعطيل الزر
+            const btn = document.querySelector('button[title="تغيير لاعب الخصم"]');
+            btn.disabled = true;
+            btn.classList.add('opacity-30', 'grayscale');
         }
 
         function updateTurnUI() {
@@ -1346,7 +1589,23 @@
             isGameOver = true;
             document.getElementById('input-container').classList.add('hidden');
             if (document.getElementById('done-guess-btn')) document.getElementById('done-guess-btn').classList.add('hidden');
-            document.getElementById('next-round-controls').classList.remove('hidden');
+
+            // إظهار زر الجولة القادمة فقط للهوست أو في اللعب المحلي
+            const nextRoundControls = document.getElementById('next-round-controls');
+            if (gameMode === 'local' || isHost) {
+                nextRoundControls.innerHTML = `
+                    <button onclick="startNextRound()"
+                        class="cartoon-btn bg-white dark:bg-slate-700 text-panelBorder dark:text-white w-full py-2 rounded-xl font-black hover:bg-slate-100 shadow-lg">
+                        بدء جولة جديدة <i class="fa-solid fa-rotate-right ml-1"></i>
+                    </button>`;
+                nextRoundControls.classList.remove('hidden');
+            } else if (gameMode === 'online') {
+                nextRoundControls.innerHTML = `
+                    <div class="cartoon-panel bg-slate-100 dark:bg-slate-700 p-3 text-center animate-pulse w-full rounded-xl border-2 border-panelBorder">
+                        <p class="font-black text-xs text-slate-500">بانتظار منشئ الغرفة لبدء جولة جديدة...</p>
+                    </div>`;
+                nextRoundControls.classList.remove('hidden');
+            }
 
             // فتح الستارة إذا كانت مغلقة لحظة الفوز
             isCurtainClosed = false;
@@ -1429,11 +1688,8 @@
 
         // --- اختيار عرض الأونلاين ---
         function selectPosition(pos) {
-            playPosition = pos;
-            switchTab('game');
-            resetGameBoardUI();
-            updateTurnUI();
-            playStartAnimation();
+            if (!isHost) return; // الضيف لا يستطيع الاختيار
+            db.ref('football_rooms/' + currentRoomId).update({ play_mode: pos });
         }
 
         // --- Online Logic ---
@@ -1442,7 +1698,7 @@
             isHost = true; myRole = 'p1'; currentRoomId = code; gameMode = 'online'; scores = { p1: 0, p2: 0 }; playPosition = null;
             document.getElementById('header-code-val').textContent = code;
             document.getElementById('header-online-status').classList.remove('hidden'); document.getElementById('header-online-status').classList.add('flex');
-            db.ref('football_rooms/' + currentRoomId).set({ state: "waiting", p1_score: 0, p2_score: 0, p1_ready: false, p2_ready: false, p1_target: null, p2_target: null, winner: null });
+            db.ref('football_rooms/' + currentRoomId).set({ state: "waiting", p1_score: 0, p2_score: 0, p1_ready: false, p2_ready: false, p1_target: null, p2_target: null, winner: null, play_mode: null });
             setupOnlineListener();
             document.getElementById('setup-wait-msg').classList.remove('hidden'); document.getElementById('setup-wait-msg').classList.add('flex');
             document.getElementById('setup-wait-text').textContent = "بانتظار دخول الخصم..."; switchTab('setup');
@@ -1470,6 +1726,14 @@
                 if (document.getElementById('score-p1')) { document.getElementById('score-p1').textContent = scores.p1; document.getElementById('score-p2').textContent = scores.p2; }
 
                 if (data.state === "setup") {
+                    // تصفير الحالة المحلية عند العودة للـ Setup
+                    if (targetPlayer || isGameOver) {
+                        targetPlayer = null;
+                        myChosenPlayer = null;
+                        isGameOver = false;
+                        playPosition = null;
+                    }
+
                     if (!data[myRole + '_ready']) {
                         document.getElementById('setup-wait-msg').classList.add('hidden');
                         if (currentTab !== 'setup') switchTab('setup');
@@ -1480,24 +1744,64 @@
                     if (isHost && data.p1_ready && data.p2_ready) db.ref('football_rooms/' + currentRoomId).update({ state: "playing" });
                 } else if (data.state === "playing") {
                     document.getElementById('setup-wait-msg').classList.add('hidden');
-                    const myTargetId = myRole === 'p1' ? data.p2_target : data.p1_target;
 
+                    const myTargetId = myRole === 'p1' ? data.p2_target : data.p1_target;
+                    const myChoiceId = myRole === 'p1' ? data.p1_target : data.p2_target;
+
+                    let changed = false;
                     if (!targetPlayer || targetPlayer.id !== myTargetId || isGameOver) {
                         targetPlayer = playersDB.find(p => p.id === myTargetId);
-                        const myChoiceId = myRole === 'p1' ? data.p1_target : data.p2_target;
+                        changed = true;
+                    }
+                    if (!myChosenPlayer || myChosenPlayer.id !== myChoiceId || isGameOver) {
                         myChosenPlayer = playersDB.find(p => p.id === myChoiceId);
+                        changed = true;
+                    }
+
+                    // تحديث الواجهة إذا تغير أي من اللاعبين أثناء اللعب
+                    if (changed && currentTab === 'game') {
+                        resetGameBoardUI();
                     }
 
                     // هنا يظهر قائمة الاختيار (خلف/أمام الهاتف) بدلاً من الدخول مباشرة للعبة
-                    if (!playPosition) {
+                    if (!data.play_mode) {
                         if (currentTab !== 'position') switchTab('position');
+
+                        // تحديث واجهة الاختيار بناءً على من هو المضيف
+                        const posOptions = document.getElementById('position-options');
+                        const waitMsg = document.getElementById('wait-host-mode');
+                        if (isHost) {
+                            posOptions.classList.remove('hidden');
+                            waitMsg.classList.add('hidden');
+                        } else {
+                            posOptions.classList.add('hidden');
+                            waitMsg.classList.remove('hidden');
+                        }
                     } else {
+                        const isNewMode = playPosition !== data.play_mode;
+                        playPosition = data.play_mode;
                         if (currentTab !== 'game') switchTab('game');
+
+                        if (isNewMode) {
+                            resetGameBoardUI();
+                            playStartAnimation();
+                        }
 
                         inputEl.disabled = false; document.getElementById('submit-guess-btn').disabled = false;
 
                         if (!isListeningToProposals) {
                             isListeningToProposals = true;
+
+                            let lastNotifyTime = 0;
+                            // الاستماع لإشعارات النظام (تغيير اللاعب)
+                            db.ref('football_rooms/' + currentRoomId + '/system_notify').on('value', nSnap => {
+                                const nData = nSnap.val();
+                                if (!nData || nData.to !== myRole || nData.timestamp <= lastNotifyTime) return;
+
+                                lastNotifyTime = nData.timestamp;
+                                showCustomAlert("عذراً! الخصم استخدم بطاقة تغيير اللاعب. لقد تم تغيير اللاعب الذي عليك تخمينه!", "تغيير اللاعب", "fa-arrows-rotate", "red");
+                            });
+
                             db.ref('football_rooms/' + currentRoomId + '/proposals').on('value', pSnap => {
                                 const pData = pSnap.val();
                                 if (!pData || pData.sender === myRole) return;
@@ -1536,8 +1840,20 @@
         function startNextRound() {
             if (gameMode === 'local') initGameMode('local');
             else if (gameMode === 'online') {
-                playPosition = null; // إعادة تعيين لتظهر الشاشة مرة أخرى
-                db.ref('football_rooms/' + currentRoomId).update({ state: "setup", p1_target: null, p2_target: null, p1_ready: false, p2_ready: false, winner: null });
+                playPosition = null;
+                targetPlayer = null;
+                myChosenPlayer = null;
+                isGameOver = false;
+                db.ref('football_rooms/' + currentRoomId).update({
+                    state: "setup",
+                    p1_target: null,
+                    p2_target: null,
+                    p1_ready: false,
+                    p2_ready: false,
+                    winner: null,
+                    play_mode: null,
+                    system_notify: null // مسح الإشعارات السابقة
+                });
             }
         }
 
