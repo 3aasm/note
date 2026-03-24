@@ -6,7 +6,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" id="status-bar-color" content="#0a0a0a">
-    <title>برو أرينا | منصة المحترفين</title>
+    <title>برو أرينا</title>
     <link rel="icon" type="image/png" href="صورة التطبيق.png">
     <link rel="apple-touch-icon" href="صورة التطبيق.png">
     <link rel="manifest" href="manifest.json">
@@ -386,7 +386,7 @@
 </head>
 
 <body
-    class="bg-surfaceLight dark:bg-surfaceDark text-gray-900 dark:text-gray-100 transition-colors duration-200 h-screen flex overflow-hidden selection:bg-brand selection:text-white">
+    class="bg-surfaceLight dark:bg-surfaceDark text-gray-900 dark:text-gray-100 transition-colors duration-200 h-screen flex overflow-hidden selection:bg-brand selection:text-white overscroll-none">
 
     <!-- شريط جانبي ثابت (للشاشات الكبيرة) - تصميم لوحة تحكم -->
     <aside
@@ -469,7 +469,7 @@
 
         <!-- شريط علوي أدوات -->
         <header
-            class="h-16 border-b border-borderLight dark:border-borderDark bg-panelLight/90 dark:bg-panelDark/90 backdrop-blur-sm z-10 flex items-center justify-between px-6 transition-colors duration-300">
+            class="h-16 fixed top-0 left-0 right-0 md:relative md:right-0 border-b border-borderLight dark:border-borderDark bg-panelLight/90 dark:bg-panelDark/90 backdrop-blur-sm z-50 flex items-center justify-between px-6 transition-colors duration-300">
 
             <!-- العنوان الديناميكي للصفحة -->
             <div class="flex items-center gap-2">
@@ -494,7 +494,7 @@
         </header>
 
         <!-- منطقة الصفحات -->
-        <div id="main-scroll-area" class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 scroll-smooth">
+        <div id="main-scroll-area" class="flex-1 overflow-y-auto p-4 md:p-8 pt-20 md:pt-8 pb-24 md:pb-8 scroll-smooth">
 
             <!-- 1. مقر القيادة (الرئيسية) -->
             <div id="home-page" class="page-section active max-w-6xl mx-auto space-y-8">
@@ -907,6 +907,19 @@
                             </div>
                             <i class="fa-solid fa-chevron-left text-gray-400 text-xs"></i>
                         </div>
+
+                        <!-- زر الإبلاغ عن مستخدم -->
+                        <div
+                            class="flex justify-between items-center py-4 border-t border-borderLight dark:border-borderDark hover:bg-red-50 dark:hover:bg-red-900/10 p-2 -mx-2 rounded transition-colors cursor-pointer group"
+                            onclick="toggleReportUserModal(true)">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-red-500/10 text-red-500 flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-flag"></i>
+                                </div>
+                                <span class="font-bold font-heading">إبلاغ عن مستخدم</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-left text-gray-400 text-xs"></i>
+                        </div>
                     </div>
                 </div>
 
@@ -1300,12 +1313,26 @@
                         const data = doc.data();
                         const time = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
                         
+                        let iconClass = 'fa-bell';
+                        let bgColor = 'bg-gray-100 dark:bg-white/5 text-gray-400';
+                        
+                        if (data.type === 'points') {
+                            iconClass = 'fa-trophy';
+                            bgColor = 'bg-brand/10 text-brand';
+                        } else if (data.type === 'broadcast') {
+                            iconClass = 'fa-tower-broadcast';
+                            bgColor = 'bg-blue-500/10 text-blue-500';
+                        } else if (data.type === 'admin') {
+                            iconClass = 'fa-user-shield';
+                            bgColor = 'bg-purple-500/10 text-purple-500';
+                        }
+                        
                         const itemHtml = `
                             <div class="stagger-item p-4 bg-white dark:bg-panelDark border border-borderLight dark:border-borderDark hover:border-brand/30 transition-all flex gap-4 relative group">
-                                <div class="w-10 h-10 flex items-center justify-center ${data.type === 'points' ? 'bg-brand/10 text-brand' : 'bg-gray-100 dark:bg-white/5 text-gray-400'} shrink-0">
-                                    <i class="fa-solid ${data.type === 'points' ? 'fa-trophy' : 'fa-bell'}"></i>
+                                <div class="w-10 h-10 flex items-center justify-center ${bgColor} shrink-0">
+                                    <i class="fa-solid ${iconClass}"></i>
                                 </div>
-                                <div class="flex-1">
+                                <div class="flex-1 text-right">
                                     <h4 class="font-bold text-sm text-gray-900 dark:text-white">${data.title}</h4>
                                     <p class="text-xs text-gray-500 mt-1">${data.message}</p>
                                     <span class="text-[9px] text-gray-400 mt-2 block">${time}</span>
@@ -1351,8 +1378,8 @@
             const container = document.getElementById('leaderboard-items');
             if (!container) return;
 
-            // جلب أفضل 5 لاعبين حسب النقاط
-            db.collection('users').orderBy('points', 'desc').limit(5).get()
+            // جلب أفضل 5 لاعبين لديهم نقاط (أكبر من 0)
+            db.collection('users').where('points', '>', 0).orderBy('points', 'desc').limit(5).get()
                 .then(querySnapshot => {
                     container.innerHTML = '';
                     let rank = 1;
@@ -1388,6 +1415,110 @@
                     console.error("Error fetching leaderboard:", err);
                     container.innerHTML = '<div class="p-8 text-center text-red-500 text-xs">فشل تحميل القائمة</div>';
                 });
+        }
+
+        // --- نظام التنبيهات المنبثقة (Toasts) ---
+        function showToastNotification(title, message, type = 'info') {
+            const toast = document.getElementById('global-toast');
+            if (!toast) return;
+
+            const titleEl = toast.querySelector('#toast-title');
+            const msgEl = toast.querySelector('#toast-message');
+            const iconEl = toast.querySelector('#toast-icon');
+            
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+            
+            // تعيين الأيقونة حسب النوع
+            iconEl.className = 'fa-solid';
+            if (type === 'points') iconEl.classList.add('fa-trophy', 'text-brand');
+            else if (type === 'broadcast') iconEl.classList.add('fa-tower-broadcast', 'text-blue-500');
+            else if (type === 'admin') iconEl.classList.add('fa-user-shield', 'text-purple-500');
+            else iconEl.classList.add('fa-bell', 'text-gray-400');
+
+            toast.classList.remove('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-x-0', 'opacity-100');
+
+            // إخفاء بعد 6 ثوانٍ
+            setTimeout(() => {
+                toast.classList.add('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
+                toast.classList.remove('translate-x-0', 'opacity-100');
+            }, 6000);
+        }
+
+        // --- نظام التنبيهات الإدارية الكبيرة ---
+        function toggleAdminAlert(show, data = {}) {
+            const modal = document.getElementById('admin-alert-modal');
+            if (!modal) return;
+            
+            if (show) {
+                document.getElementById('admin-alert-title').textContent = data.title;
+                document.getElementById('admin-alert-message').textContent = data.message;
+                const icon = document.getElementById('admin-alert-icon');
+                icon.className = 'fa-solid animate-pulse';
+                if (data.type === 'broadcast') icon.classList.add('fa-tower-broadcast');
+                else icon.classList.add('fa-user-shield');
+                
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.children[0].classList.remove('scale-90');
+                modal.children[0].classList.add('scale-100');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                modal.children[0].classList.remove('scale-100');
+                modal.children[0].classList.add('scale-90');
+            }
+        }
+
+        // --- نظام الإبلاغ عن المستخدمين ---
+        function toggleReportUserModal(show) {
+            const modal = document.getElementById('report-user-modal');
+            if (!modal) return;
+            if (show) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.children[0].classList.remove('scale-90');
+                modal.children[0].classList.add('scale-100');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                modal.children[0].classList.remove('scale-100');
+                modal.children[0].classList.add('scale-90');
+            }
+        }
+
+        async function submitReport() {
+            const targetName = document.getElementById('report-target-name').value.trim();
+            const reason = document.getElementById('report-reason').value.trim();
+            const btn = document.getElementById('submit-report-btn');
+
+            if (!targetName || !reason) {
+                alert("يرجى ملء كافة الخانات المطلوبة.");
+                return;
+            }
+
+            btn.disabled = true;
+            const originalText = btn.innerText;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جاري الإرسال...';
+
+            try {
+                await db.collection('reports').add({
+                    reporterId: auth.currentUser.uid,
+                    reporterName: currentUserData.username,
+                    targetName: targetName,
+                    reason: reason,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'pending'
+                });
+
+                alert("تم إرسال بلاغك بنجاح. سنقوم بمراجعته واتخاذ الإجراء اللازم.");
+                toggleReportUserModal(false);
+                document.getElementById('report-target-name').value = '';
+                document.getElementById('report-reason').value = '';
+            } catch (error) {
+                console.error("Report Error:", error);
+                alert("فشل إرسال البلاغ: " + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
         }
 
         // --- وظائف النافذة المنزلقة (Game Sheet) ---
@@ -1590,6 +1721,14 @@
                     if (doc.exists) {
                         currentUserData = doc.data();
                         
+                        // التحقق من الحظر
+                        if (currentUserData.isBanned) {
+                            alert("عذراً، تم حظر حسابك من قبل الإدارة لمخالفة القوانين.");
+                            auth.signOut();
+                            location.reload();
+                            return;
+                        }
+                        
                         // تحديث النقاط في الهيدر
                         const pointsDisplay = document.getElementById('header-points');
                         if (pointsDisplay) pointsDisplay.textContent = (currentUserData.points || 0).toLocaleString();
@@ -1627,6 +1766,22 @@
                                         badge.classList.add('hidden');
                                     } else {
                                         badge.classList.remove('hidden');
+                                        
+                                        // عرض إشعار منبثق (Toast) للإشعارات الجديدة فقط
+                                        snap.docChanges().forEach(change => {
+                                            if (change.type === "added") {
+                                                const data = change.doc.data();
+                                                // نتجنب عرض التنبيه إذا كان التايم ستامب قديماً جداً (شحن الكاش)
+                                                const isNew = data.timestamp && (Date.now() - data.timestamp.toMillis() < 5000);
+                                                if (isNew) {
+                                                    if (data.type === 'broadcast' || data.type === 'admin') {
+                                                        toggleAdminAlert(true, data);
+                                                    } else {
+                                                        showToastNotification(data.title, data.message, data.type);
+                                                    }
+                                                }
+                                            }
+                                        });
                                     }
                                 }
                             });
@@ -1758,15 +1913,20 @@
             btn.innerText = "جاري التحقق...";
 
             try {
-                // التحقق من تكرار الاسم
+                // 1. إنشاء حساب المصادقة أولاً للحصول على تصريح القراءة (بعض القواعد تمنع الضيوف من البحث في المستخدمين)
+                const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                
+                // 2. الآن بعد تسجيل الدخول، نتحقق من تكرار الاسم
                 const nameCheck = await db.collection('users').where('username', '==', username).get();
                 if (!nameCheck.empty) {
+                    // إذا كان الاسم محجوزاً، نمسح حساب المصادقة فوراً ليتسنى للمستخدم المحاولة مرة أخرى بنفس البريد
+                    await cred.user.delete();
                     btn.disabled = false;
                     btn.innerText = originalText;
-                    return alert("عذراً، هذا الاسم محجوز بالفعل. يرجى اختيار اسم آخر.");
+                    return alert("عذراً، هذا الاسم محجوز بالفعل لمستخدم آخر. يرجى اختيار اسم محارب مختلف.");
                 }
 
-                const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                // 3. إنشاء ملف المستخدم بنجاح
                 await db.collection('users').doc(cred.user.uid).set({
                     username: username,
                     region: "الشرق الأوسط",
@@ -1776,7 +1936,12 @@
                     theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
                 });
             } catch (error) {
-                alert("خطأ في إنشاء الحساب: " + error.message);
+                // معالجة الخطأ
+                let errorMsg = error.message;
+                if (error.code === 'permission-denied') {
+                    errorMsg = "صلاحيات الوصول مرفوضة. يرجى التأكد من إعدادات قاعدة البيانات أو المحاولة لاحقاً.";
+                }
+                alert("خطأ في إنشاء الحساب: " + errorMsg);
                 btn.disabled = false;
                 btn.innerText = originalText;
             }
@@ -2262,6 +2427,48 @@
                 btn.innerText = originalText;
             }
         }
+        // --- نظام إدارة الصيانة والألعاب ---
+        function initMaintenanceListener() {
+            db.collection('config').doc('games').onSnapshot(doc => {
+                const maintenanceData = doc.data() || {};
+                
+                // قائمة تعريفات الألعاب (تطابق IDs في admin.html)
+                const gameMappings = [
+                    { id: 'xo', selector: "div[onclick*='XO.html']" },
+                    { id: 'snake', selector: "div[onclick*='لعبة.الثعبان.html']" },
+                    { id: 'guess_player', selector: "div[onclick*='خمن.الاعب.html']" },
+                    { id: 'sallat', selector: "div[onclick*='برا.السالفة.html']" }
+                ];
+
+                gameMappings.forEach(game => {
+                    const card = document.querySelector(game.selector);
+                    if (!card) return;
+
+                    const isUnderMaintenance = maintenanceData[game.id]?.maintenance;
+                    
+                    // إزالة أي أوفرلاي صيانة قديم
+                    const oldOverlay = card.querySelector('.maintenance-overlay');
+                    if (oldOverlay) oldOverlay.remove();
+
+                    if (isUnderMaintenance) {
+                        card.classList.add('pointer-events-none', 'opacity-80', 'grayscale-[0.5]');
+                        const overlayHtml = `
+                            <div class="maintenance-overlay absolute inset-0 z-50 bg-black/80 flex flex-col items-center justify-center text-center p-4">
+                                <i class="fa-solid fa-screwdriver-wrench text-brand text-3xl mb-3 animate-bounce"></i>
+                                <span class="text-white font-black font-heading text-sm uppercase tracking-widest">مغلق للصيانة</span>
+                                <p class="text-[10px] text-gray-400 mt-1">نعمل على تحسين التجربة، سنعود قريباً!</p>
+                            </div>
+                        `;
+                        card.insertAdjacentHTML('beforeend', overlayHtml);
+                    } else {
+                        card.classList.remove('pointer-events-none', 'opacity-80', 'grayscale-[0.5]');
+                    }
+                });
+            });
+        }
+
+        // تشغيل نظام المراقبة عند التحميل
+        initMaintenanceListener();
     </script>
     <!-- مودال إضافة صديق -->
     <div id="add-friend-modal"
@@ -2328,6 +2535,90 @@
                     </button>
                     <button onclick="toggleDeleteAccountModal()"
                         class="w-full py-3 bg-gray-100 dark:bg-white/5 text-gray-500 font-bold uppercase tracking-widest clip-angled-btn hover:bg-gray-200 dark:hover:bg-white/10 transition-all">
+                        تراجع
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- تنبيه منبثق عالمي (Toast) -->
+    <div id="global-toast" class="fixed top-24 right-6 z-[2000] w-80 bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/10 p-4 clip-angled shadow-2xl transition-all duration-500 transform translate-x-[150%] opacity-0 pointer-events-none">
+        <div class="flex gap-4">
+            <div class="w-12 h-12 bg-white/5 flex items-center justify-center rounded-xl shrink-0">
+                <i id="toast-icon" class="fa-solid fa-bell text-xl"></i>
+            </div>
+            <div class="flex-1 text-right">
+                <h5 id="toast-title" class="font-black text-xs uppercase tracking-wider text-brand mb-1">تنبيه جديد</h5>
+                <p id="toast-message" class="text-xs text-gray-500 dark:text-gray-300 font-bold leading-relaxed line-clamp-2">لديك إشعار غير مقروء في صندوق الوارد.</p>
+            </div>
+        </div>
+        <div class="absolute bottom-0 right-0 h-1 bg-brand/30 w-full animate-[toast-progress_6s_linear_infinite]"></div>
+    </div>
+
+    <style>
+        @keyframes toast-progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+    </style>
+    <!-- مودال التنبيه الإداري (Centered & Persistent & Vertical) -->
+    <div id="admin-alert-modal" class="fixed inset-0 z-[3000] flex items-center justify-center bg-black/95 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-500 p-4">
+        <div class="bg-panelLight dark:bg-panelDark w-full max-w-sm p-8 md:p-10 clip-angled border-[3px] border-brand shadow-[0_0_50px_rgba(225,29,72,0.3)] transform scale-90 transition-transform duration-500 flex flex-col items-center text-center relative overflow-hidden">
+            <!-- زخرفة خلفية -->
+            <div class="absolute top-0 left-0 w-full h-2 bg-brand"></div>
+            
+            <div class="w-16 h-16 bg-brand text-white clip-angled-btn flex items-center justify-center mb-8 text-3xl shadow-lg shadow-brand/40">
+                <i id="admin-alert-icon" class="fa-solid fa-tower-broadcast animate-[pulse_1.5s_infinite]"></i>
+            </div>
+            
+            <h3 id="admin-alert-title" class="text-2xl font-black font-heading text-brand uppercase tracking-widest mb-2">إشعار إداري عاجل</h3>
+            <span class="text-[9px] font-bold text-gray-500 uppercase tracking-[0.3em] mb-6">PRO ARENA SYSTEM</span>
+            
+            <div class="w-full bg-gray-50 dark:bg-white/5 p-6 border-x-2 border-brand/20 min-h-[150px] flex items-center justify-center">
+                <p id="admin-alert-message" class="text-base md:text-lg text-gray-800 dark:text-gray-100 font-bold leading-relaxed">نص الرسالة الإدارية يظهر هنا بشكل واضح وكبير للجميع.</p>
+            </div>
+            
+            <div class="mt-8 w-full">
+                <button onclick="toggleAdminAlert(false)" class="w-full py-4 bg-brand hover:bg-brandHover text-white font-black font-heading uppercase tracking-widest clip-angled-btn transition-all active:scale-95 shadow-xl shadow-brand/20">
+                    استلمت، إغلاق
+                </button>
+            </div>
+            
+            <div class="mt-4 text-[8px] font-bold text-gray-500 uppercase opacity-50">لا يمكن إخفاء هذا التنبيه حتى يتم تأكيد الاستلام</div>
+        </div>
+    </div>
+
+    <!-- مودال الإبلاغ عن مستخدم -->
+    <div id="report-user-modal" class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 p-4 font-sans">
+        <div class="bg-panelLight dark:bg-panelDark w-full max-w-md p-8 clip-angled border-2 border-brand/20 shadow-2xl transform scale-90 transition-transform duration-300">
+            <div class="text-center mb-6 text-right">
+                <div class="w-16 h-16 bg-brand/10 text-brand rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    <i class="fa-solid fa-flag"></i>
+                </div>
+                <h4 class="text-xl font-black font-heading uppercase text-gray-900 dark:text-white">إرسال بلاغ</h4>
+                <p class="text-[10px] text-gray-500 mt-2">ساعدنا في الحفاظ على مجتمع برو أرينا آمناً وممتعاً عبر الإبلاغ عن السلوكيات المخالفة.</p>
+            </div>
+            
+            <div class="space-y-4 text-right">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-1">إسم المستخدم المُبلغ عنه</label>
+                    <input type="text" id="report-target-name" placeholder="مثال: القناص_007" 
+                        class="w-full bg-gray-50 dark:bg-black/20 border-2 border-borderLight dark:border-borderDark px-4 py-3 focus:outline-none focus:border-brand transition-colors font-bold text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-1">سبب الإبلاغ</label>
+                    <textarea id="report-reason" rows="3" placeholder="اشرح لنا ما حدث بالتفصيل..." 
+                        class="w-full bg-gray-50 dark:bg-black/20 border-2 border-borderLight dark:border-borderDark px-4 py-3 focus:outline-none focus:border-brand transition-colors font-bold text-sm resize-none"></textarea>
+                </div>
+
+                <div class="flex flex-col gap-3 pt-4">
+                    <button onclick="submitReport()" id="submit-report-btn"
+                        class="w-full py-4 bg-brand hover:bg-brandHover text-white font-black font-heading uppercase tracking-widest clip-angled-btn transition-all active:scale-95 shadow-lg shadow-brand/20">
+                        إرسال البلاغ فوراً
+                    </button>
+                    <button onclick="toggleReportUserModal(false)"
+                        class="w-full py-3 bg-gray-100 dark:bg-white/5 text-gray-500 font-bold uppercase tracking-widest clip-angled-btn hover:bg-gray-200 dark:hover:bg-white/10 transition-all text-xs">
                         تراجع
                     </button>
                 </div>
