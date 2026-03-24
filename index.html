@@ -979,22 +979,8 @@
                             <i class="fa-solid fa-chevron-left text-gray-400 text-xs"></i>
                         </div>
 
-                        <!-- أزرار الحساب (مدمجة في القائمة) -->
-                        <div id="logout-button-container" class="hidden">
-                            <!-- تسجيل الخروج -->
-                            <div class="flex justify-between items-center py-4 border-t border-borderLight dark:border-borderDark hover:bg-red-50 dark:hover:bg-red-900/10 p-2 -mx-2 rounded transition-colors cursor-pointer group"
-                                onclick="logout()">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 bg-red-500/10 text-red-500 flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform">
-                                        <i class="fa-solid fa-power-off"></i>
-                                    </div>
-                                    <span class="font-bold font-heading">تسجيل الخروج</span>
-                                </div>
-                                <i class="fa-solid fa-chevron-left text-gray-400 text-xs"></i>
-                            </div>
-
-                            <!-- حذف الحساب -->
+                        <!-- خيار حذف الحساب (مدمج في القائمة) -->
+                        <div id="delete-account-list-item" class="hidden">
                             <div class="flex justify-between items-center py-4 border-t border-borderLight dark:border-borderDark hover:bg-red-50 dark:hover:bg-red-900/10 p-2 -mx-2 rounded transition-colors cursor-pointer group"
                                 onclick="toggleDeleteAccountModal()">
                                 <div class="flex items-center gap-3">
@@ -1007,6 +993,21 @@
                                 <i class="fa-solid fa-trash-can text-red-400 text-xs text-opacity-30"></i>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- زر تسجيل الخروج (إرجاع للمكان السابق) -->
+                <div id="logout-button-box" class="stagger-item hidden">
+                    <div
+                        class="bg-red-500/10 border border-red-500/30 p-4 flex justify-between items-center mt-6 group hover:bg-red-500/20 transition-colors">
+                        <div>
+                            <h4 class="font-bold text-red-600 dark:text-red-500">تسجيل الخروج</h4>
+                            <p class="text-xs text-red-600/70 dark:text-red-500/70">سيتم قطع الاتصال بالسيرفر</p>
+                        </div>
+                        <button onclick="logout()"
+                            class="bg-red-600 text-white px-6 py-2 font-bold hover:bg-red-700 transition-all active:scale-95 clip-angled-btn flex items-center gap-2">
+                            <i class="fa-solid fa-power-off group-hover:animate-pulse"></i> خروج
+                        </button>
                     </div>
                 </div>
 
@@ -1841,7 +1842,8 @@
         // مراقبة حالة تسجيل الدخول
         auth.onAuthStateChanged(async (user) => {
             const authContainer = document.getElementById('auth-container');
-            const logoutContainer = document.getElementById('logout-button-container');
+            const logoutBox = document.getElementById('logout-button-box');
+            const deleteItem = document.getElementById('delete-account-list-item');
 
             if (unsubscribeUser) unsubscribeUser();
             if (friendRequestsUnsubscribe) { friendRequestsUnsubscribe(); friendRequestsUnsubscribe = null; }
@@ -1849,8 +1851,8 @@
             if (notificationsUnsubscribe) { notificationsUnsubscribe(); notificationsUnsubscribe = null; }
 
             if (user) {
-                // المستخدم مسجل دخول
-                logoutContainer.classList.remove('hidden');
+                if (logoutBox) logoutBox.classList.remove('hidden');
+                if (deleteItem) deleteItem.classList.remove('hidden');
 
                 // استخدام onSnapshot للمزامنة الفورية
                 unsubscribeUser = db.collection('users').doc(user.uid).onSnapshot(async (doc) => {
@@ -2023,6 +2025,8 @@
                     </div>
                 `;
             } else {
+                if (logoutBox) logoutBox.classList.add('hidden');
+                if (deleteItem) deleteItem.classList.add('hidden');
                 sidebarUser.innerHTML = `
                     <div onclick="switchPage('settings')" class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-gray-200 dark:bg-white/10 flex items-center justify-center clip-angled-btn">
