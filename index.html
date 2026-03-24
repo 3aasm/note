@@ -1707,6 +1707,7 @@
             if (cachedProfile) {
                 try {
                     const data = JSON.parse(cachedProfile);
+                    currentUserData = data; // تعيين البيانات محلياً فوراً
                     updateSidebarUser(data);
                     showProfileCard(data, null);
                     // تحديث النقاط في الهيدر فوراً
@@ -1782,6 +1783,15 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // تفعيل وضع الأوفلاين (Persistence) لسرعة البرق في التحميل
+        db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
+            if (err.code == 'failed-precondition') {
+                console.warn("Multiple tabs open, persistence can only be enabled in one tab at a time.");
+            } else if (err.code == 'unimplemented') {
+                console.warn("The current browser does not support all of the features required to enable persistence");
+            }
+        });
+
         let currentUserData = null;
         let currentAvatarSeed = "Sniper";
         let unsubscribeUser = null;
@@ -1808,10 +1818,11 @@
                 for (const url in gameUrlToId) {
                     const gameId = gameUrlToId[url];
                     const isMaintenance = data[gameId]?.maintenance || false;
-                    gameMaintenanceStatus[url] = isMaintenance;
-
                     const card = document.querySelector(`div[onclick*="openGameSheet('${url}')"]`);
                     if (!card) continue;
+
+                    // تحديث الحالة محلياً أولاً
+                    gameMaintenanceStatus[url] = isMaintenance;
 
                     // إزالة أي أوفرلاي صيانة قديم
                     const oldOverlay = card.querySelector('.maintenance-overlay');
@@ -1894,7 +1905,10 @@
                     }
 
                     // تحديث الكاش المحلي للمزامنة الفورية في المرة القادمة
-                    localStorage.setItem('pro-arena-profile', JSON.stringify(currentUserData));
+                    const newDataStr = JSON.stringify(currentUserData);
+                    if (localStorage.getItem('pro-arena-profile') !== newDataStr) {
+                        localStorage.setItem('pro-arena-profile', newDataStr);
+                    }
 
                     // مراقبة الإشعارات غير المقروءة للبادج (للكل)
                     if (!notificationsUnsubscribe) {
