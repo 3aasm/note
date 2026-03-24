@@ -6,7 +6,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" id="status-bar-color" content="#0a0a0a">
-    <title>برو أرينا</title>
+    <title>برو أرينا | منصة المحترفين</title>
     <link rel="icon" type="image/png" href="صورة التطبيق.png">
     <link rel="apple-touch-icon" href="صورة التطبيق.png">
     <link rel="manifest" href="manifest.json">
@@ -177,7 +177,8 @@
             height: 100%;
             background: var(--panel-bg);
             z-index: 101;
-            transform: translateY(100%) scale(0.95); /* Start scaled down */
+            transform: translateY(100%) scale(0.95);
+            /* Start scaled down */
             opacity: 0;
             transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, border-radius 0.4s ease;
             border-top-left-radius: 2.5rem;
@@ -263,10 +264,13 @@
         }
 
         .glass-play-overlay {
-            background: rgba(225, 29, 72, 0.05); /* Softer background */
-            backdrop-filter: blur(4px); /* Calmer blur */
+            background: rgba(225, 29, 72, 0.05);
+            /* Softer background */
+            backdrop-filter: blur(4px);
+            /* Calmer blur */
             opacity: 0;
-            transition: all 0.5s ease; /* Slightly slower transition */
+            transition: all 0.5s ease;
+            /* Slightly slower transition */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -282,8 +286,10 @@
         }
 
         .game-card-hover:hover {
-            transform: translateY(-4px); /* Subtle lift */
-            box-shadow: 0 12px 20px -5px rgba(225, 29, 72, 0.05); /* Softer shadow */
+            transform: translateY(-4px);
+            /* Subtle lift */
+            box-shadow: 0 12px 20px -5px rgba(225, 29, 72, 0.05);
+            /* Softer shadow */
         }
 
         .dark .cartoon-separator {
@@ -501,9 +507,12 @@
                 <!-- بانر البطولة (تم تقليل الارتفاع وتعديل النصوص للجوال) -->
                 <div class="stagger-item relative h-56 md:h-72 bg-black clip-angled overflow-hidden group">
                     <div class="absolute inset-0 flex items-center justify-around opacity-20 pointer-events-none">
-                        <i class="fa-solid fa-xmarks-lines text-9xl text-brand group-hover:scale-110 transition-transform duration-[2s]"></i>
-                        <i class="fa-solid fa-users-viewfinder text-8xl text-yellow-500 group-hover:scale-125 transition-transform duration-[3s]"></i>
-                        <i class="fa-solid fa-worm text-9xl text-green-500 group-hover:scale-110 transition-transform duration-[2.5s]"></i>
+                        <i
+                            class="fa-solid fa-xmarks-lines text-9xl text-brand group-hover:scale-110 transition-transform duration-[2s]"></i>
+                        <i
+                            class="fa-solid fa-users-viewfinder text-8xl text-yellow-500 group-hover:scale-125 transition-transform duration-[3s]"></i>
+                        <i
+                            class="fa-solid fa-worm text-9xl text-green-500 group-hover:scale-110 transition-transform duration-[2.5s]"></i>
                     </div>
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
                     <div class="absolute inset-0 bg-brand/10 mix-blend-overlay"></div>
@@ -620,25 +629,34 @@
                         <!-- المحتوى -->
                         <div class="flex-1 p-6 flex flex-col relative z-10 text-right">
                             <div class="absolute top-4 left-4 flex flex-col items-start gap-2">
-                                <span class="bg-brand text-white text-[9px] font-black px-2.5 py-1 uppercase tracking-widest clip-angled-btn">كلاسيك</span>
+                                <span
+                                    class="bg-brand text-white text-[9px] font-black px-2.5 py-1 uppercase tracking-widest clip-angled-btn">كلاسيك</span>
                                 <div class="hidden group-hover:block transition-all duration-300">
-                                    <span class="text-[10px] text-brand font-bold uppercase"><i class="fa-solid fa-play mr-1"></i> اضغط للبدء</span>
+                                    <span class="text-[10px] text-brand font-bold uppercase"><i
+                                            class="fa-solid fa-play mr-1"></i> اضغط للبدء</span>
                                 </div>
                             </div>
 
                             <div class="mt-8 flex-1">
-                                <h3 class="font-black font-heading text-2xl text-gray-900 dark:text-white mb-1 uppercase group-hover:text-brand transition-colors">لعبة XO</h3>
-                                <p class="text-xs text-gray-600 dark:text-gray-500 max-w-sm leading-relaxed line-clamp-2 ml-auto">تحدى ذكاء خصمك في معركة سريعة وممتعة!</p>
+                                <h3
+                                    class="font-black font-heading text-2xl text-gray-900 dark:text-white mb-1 uppercase group-hover:text-brand transition-colors">
+                                    لعبة XO</h3>
+                                <p
+                                    class="text-xs text-gray-600 dark:text-gray-500 max-w-sm leading-relaxed line-clamp-2 ml-auto">
+                                    تحدى ذكاء خصمك في معركة سريعة وممتعة!</p>
                             </div>
                         </div>
 
                         <!-- Overlay الاحترافي -->
                         <div class="glass-play-overlay absolute inset-0 z-20">
                             <div class="flex flex-col items-center gap-3 transition-all duration-500">
-                                <div class="w-16 h-16 rounded-full bg-brand flex items-center justify-center text-white shadow-xl shadow-brand/40">
+                                <div
+                                    class="w-16 h-16 rounded-full bg-brand flex items-center justify-center text-white shadow-xl shadow-brand/40">
                                     <i class="fa-solid fa-play text-2xl ml-1"></i>
                                 </div>
-                                <span class="font-black font-heading text-white uppercase tracking-widest text-sm drop-shadow-lg">العب الآن</span>
+                                <span
+                                    class="font-black font-heading text-white uppercase tracking-widest text-sm drop-shadow-lg">العب
+                                    الآن</span>
                             </div>
                         </div>
                     </div>
@@ -646,25 +664,34 @@
                     <!-- لعبة 2 (برا السالفة) -->
                     <div onclick="openGameSheet('برا.السالفة.html')"
                         class="stagger-item game-card-hover cursor-pointer col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-blue-500/30 group flex flex-col overflow-hidden relative min-h-[180px]">
-                        
-                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-user-secret text-8xl text-blue-500 group-hover:scale-125 transition-transform duration-700"></i>
+
+                        <div
+                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i
+                                class="fa-solid fa-user-secret text-8xl text-blue-500 group-hover:scale-125 transition-transform duration-700"></i>
                         </div>
-                        
+
                         <div class="p-4 mt-auto relative z-10 text-right">
                             <div class="absolute top-4 left-4">
-                                <span class="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">جماعية</span>
+                                <span
+                                    class="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">جماعية</span>
                             </div>
-                            <h3 class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-blue-500 transition-colors">برا السالفة</h3>
+                            <h3
+                                class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-blue-500 transition-colors">
+                                برا السالفة</h3>
                             <p class="text-[10px] text-gray-600 dark:text-gray-500 line-clamp-2">من هو الجاسوس؟</p>
                         </div>
 
-                        <div class="glass-play-overlay absolute inset-0 z-20" style="background: rgba(37, 99, 235, 0.15); border-color: rgba(37, 99, 235, 0.3);">
+                        <div class="glass-play-overlay absolute inset-0 z-20"
+                            style="background: rgba(37, 99, 235, 0.15); border-color: rgba(37, 99, 235, 0.3);">
                             <div class="flex flex-col items-center gap-2 transition-all duration-500">
-                                <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/40">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/40">
                                     <i class="fa-solid fa-play text-lg ml-1"></i>
                                 </div>
-                                <span class="font-black font-heading text-white uppercase tracking-widest text-[10px]">العب الآن</span>
+                                <span
+                                    class="font-black font-heading text-white uppercase tracking-widest text-[10px]">العب
+                                    الآن</span>
                             </div>
                         </div>
                     </div>
@@ -672,25 +699,35 @@
                     <!-- لعبة 3 (خمن اللاعب) -->
                     <div onclick="openGameSheet('خمن.الاعب.html')"
                         class="stagger-item game-card-hover cursor-pointer col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-yellow-500/30 group flex flex-col overflow-hidden relative min-h-[180px]">
-                        
-                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-users-viewfinder text-8xl text-yellow-500 group-hover:scale-125 transition-transform duration-700"></i>
+
+                        <div
+                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i
+                                class="fa-solid fa-users-viewfinder text-8xl text-yellow-500 group-hover:scale-125 transition-transform duration-700"></i>
                         </div>
-                        
+
                         <div class="p-4 mt-auto relative z-10 text-right">
                             <div class="absolute top-4 left-4">
-                                <span class="bg-yellow-500 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">1 ضد 1</span>
+                                <span
+                                    class="bg-yellow-500 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">1
+                                    ضد 1</span>
                             </div>
-                            <h3 class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-yellow-500 transition-colors">خمن اللاعب</h3>
+                            <h3
+                                class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-yellow-500 transition-colors">
+                                خمن اللاعب</h3>
                             <p class="text-[10px] text-gray-600 dark:text-gray-500 line-clamp-2">تحدى أصدقاءك!</p>
                         </div>
 
-                        <div class="glass-play-overlay absolute inset-0 z-20" style="background: rgba(234, 179, 8, 0.15); border-color: rgba(234, 179, 8, 0.3);">
+                        <div class="glass-play-overlay absolute inset-0 z-20"
+                            style="background: rgba(234, 179, 8, 0.15); border-color: rgba(234, 179, 8, 0.3);">
                             <div class="flex flex-col items-center gap-2 transition-all duration-500">
-                                <div class="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center text-white shadow-xl shadow-yellow-500/40">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center text-white shadow-xl shadow-yellow-500/40">
                                     <i class="fa-solid fa-play text-lg ml-1"></i>
                                 </div>
-                                <span class="font-black font-heading text-white uppercase tracking-widest text-[10px]">العب الآن</span>
+                                <span
+                                    class="font-black font-heading text-white uppercase tracking-widest text-[10px]">العب
+                                    الآن</span>
                             </div>
                         </div>
                     </div>
@@ -698,25 +735,34 @@
                     <!-- لعبة 4 (الألغاز) -->
                     <div
                         class="stagger-item game-card-hover cursor-pointer col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-purple-500/30 group flex flex-col overflow-hidden relative min-h-[180px]">
-                        
-                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-puzzle-piece text-8xl text-purple-500 group-hover:scale-125 transition-transform duration-700"></i>
+
+                        <div
+                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i
+                                class="fa-solid fa-puzzle-piece text-8xl text-purple-500 group-hover:scale-125 transition-transform duration-700"></i>
                         </div>
-                        
+
                         <div class="p-4 mt-auto relative z-10 text-right">
                             <div class="absolute top-4 left-4">
-                                <span class="bg-purple-600 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">قريباً</span>
+                                <span
+                                    class="bg-purple-600 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">قريباً</span>
                             </div>
-                            <h3 class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-purple-500 transition-colors">الألغاز</h3>
+                            <h3
+                                class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-purple-500 transition-colors">
+                                الألغاز</h3>
                             <p class="text-[10px] text-gray-600 dark:text-gray-500 line-clamp-2">حل أصعب الألغاز.</p>
                         </div>
 
-                        <div class="glass-play-overlay absolute inset-0 z-20" style="background: rgba(147, 51, 234, 0.15); border-color: rgba(147, 51, 234, 0.3);">
+                        <div class="glass-play-overlay absolute inset-0 z-20"
+                            style="background: rgba(147, 51, 234, 0.15); border-color: rgba(147, 51, 234, 0.3);">
                             <div class="flex flex-col items-center gap-2 transition-all duration-500">
-                                <div class="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white shadow-xl shadow-purple-600/40">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white shadow-xl shadow-purple-600/40">
                                     <i class="fa-solid fa-lock text-lg"></i>
                                 </div>
-                                <span class="font-black font-heading text-white uppercase tracking-widest text-[10px]">قيد التطوير</span>
+                                <span
+                                    class="font-black font-heading text-white uppercase tracking-widest text-[10px]">قيد
+                                    التطوير</span>
                             </div>
                         </div>
                     </div>
@@ -724,25 +770,35 @@
                     <!-- لعبة 5 (لعبة الثعبان) -->
                     <div onclick="openGameSheet('لعبة.الثعبان.html')"
                         class="stagger-item game-card-hover cursor-pointer col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-green-500/30 group flex flex-col overflow-hidden relative min-h-[180px]">
-                        
-                        <div class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
-                            <i class="fa-solid fa-worm text-8xl text-green-500 group-hover:scale-125 transition-transform duration-700"></i>
-                        </div>
-                        
-                        <div class="p-4 mt-auto relative z-10 text-right">
-                            <div class="absolute top-4 left-4">
-                                <span class="bg-green-600 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">منفرد</span>
-                            </div>
-                            <h3 class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-green-500 transition-colors">لعبة الثعبان</h3>
-                            <p class="text-[10px] text-gray-600 dark:text-gray-500 line-clamp-2">كلاسيكيات الزمن الجميل!</p>
+
+                        <div
+                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i
+                                class="fa-solid fa-worm text-8xl text-green-500 group-hover:scale-125 transition-transform duration-700"></i>
                         </div>
 
-                        <div class="glass-play-overlay absolute inset-0 z-20" style="background: rgba(22, 163, 74, 0.15); border-color: rgba(22, 163, 74, 0.3);">
+                        <div class="p-4 mt-auto relative z-10 text-right">
+                            <div class="absolute top-4 left-4">
+                                <span
+                                    class="bg-green-600 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">منفرد</span>
+                            </div>
+                            <h3
+                                class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-green-500 transition-colors">
+                                لعبة الثعبان</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 line-clamp-2">كلاسيكيات الزمن الجميل!
+                            </p>
+                        </div>
+
+                        <div class="glass-play-overlay absolute inset-0 z-20"
+                            style="background: rgba(22, 163, 74, 0.15); border-color: rgba(22, 163, 74, 0.3);">
                             <div class="flex flex-col items-center gap-2 transition-all duration-500">
-                                <div class="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center text-white shadow-xl shadow-green-600/40">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center text-white shadow-xl shadow-green-600/40">
                                     <i class="fa-solid fa-play text-lg ml-1"></i>
                                 </div>
-                                <span class="font-black font-heading text-white uppercase tracking-widest text-[10px]">العب الآن</span>
+                                <span
+                                    class="font-black font-heading text-white uppercase tracking-widest text-[10px]">العب
+                                    الآن</span>
                             </div>
                         </div>
                     </div>
@@ -828,9 +884,11 @@
             <!-- 4. صفحة الإشعارات (جديد) -->
             <div id="notifications-page" class="page-section max-w-2xl mx-auto space-y-6">
                 <div class="stagger-item flex items-center justify-between mb-2">
-                    <h3 class="text-2xl font-black font-heading border-r-4 border-brand pr-3 uppercase text-gray-900 dark:text-white transition-colors duration-300">
+                    <h3
+                        class="text-2xl font-black font-heading border-r-4 border-brand pr-3 uppercase text-gray-900 dark:text-white transition-colors duration-300">
                         صندوق الوارد</h3>
-                    <button onclick="clearAllNotifications()" class="text-xs font-bold text-gray-400 hover:text-brand transition-colors">مسح الكل</button>
+                    <button onclick="clearAllNotifications()"
+                        class="text-xs font-bold text-gray-400 hover:text-brand transition-colors">مسح الكل</button>
                 </div>
 
                 <div id="notifications-list" class="space-y-3">
@@ -896,11 +954,11 @@
                         </div>
 
                         <!-- زر التعليمات الجديد -->
-                        <div
-                            class="flex justify-between items-center py-4 border-t border-borderLight dark:border-borderDark hover:bg-gray-50 dark:hover:bg-white/5 p-2 -mx-2 rounded transition-colors cursor-pointer group"
+                        <div class="flex justify-between items-center py-4 border-t border-borderLight dark:border-borderDark hover:bg-gray-50 dark:hover:bg-white/5 p-2 -mx-2 rounded transition-colors cursor-pointer group"
                             onclick="switchPage('instructions')">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-brand/10 text-brand flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform">
+                                <div
+                                    class="w-8 h-8 bg-brand/10 text-brand flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform">
                                     <i class="fa-solid fa-circle-info"></i>
                                 </div>
                                 <span class="font-bold font-heading">التعليمات ودليل النقاط</span>
@@ -909,11 +967,11 @@
                         </div>
 
                         <!-- زر الإبلاغ عن مستخدم -->
-                        <div
-                            class="flex justify-between items-center py-4 border-t border-borderLight dark:border-borderDark hover:bg-red-50 dark:hover:bg-red-900/10 p-2 -mx-2 rounded transition-colors cursor-pointer group"
+                        <div class="flex justify-between items-center py-4 border-t border-borderLight dark:border-borderDark hover:bg-red-50 dark:hover:bg-red-900/10 p-2 -mx-2 rounded transition-colors cursor-pointer group"
                             onclick="toggleReportUserModal(true)">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-red-500/10 text-red-500 flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform">
+                                <div
+                                    class="w-8 h-8 bg-red-500/10 text-red-500 flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform">
                                     <i class="fa-solid fa-flag"></i>
                                 </div>
                                 <span class="font-bold font-heading">إبلاغ عن مستخدم</span>
@@ -939,7 +997,8 @@
 
                     <!-- خيار حذف الحساب -->
                     <div class="mt-4 pt-4 border-t border-red-500/20">
-                        <button onclick="toggleDeleteAccountModal()" class="text-[10px] font-bold text-red-500/50 hover:text-red-500 transition-colors uppercase tracking-widest flex items-center gap-2 mx-auto">
+                        <button onclick="toggleDeleteAccountModal()"
+                            class="text-[10px] font-bold text-red-500/50 hover:text-red-500 transition-colors uppercase tracking-widest flex items-center gap-2 mx-auto">
                             <i class="fa-solid fa-trash-can"></i> حذف الحساب نهائياً
                         </button>
                     </div>
@@ -1012,7 +1071,8 @@
                     <h3 class="text-2xl font-black font-heading uppercase">دليل الأبطال</h3>
                 </div>
 
-                <div class="stagger-item bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark p-8 space-y-12 text-center">
+                <div
+                    class="stagger-item bg-panelLight dark:bg-panelDark border border-borderLight dark:border-borderDark p-8 space-y-12 text-center">
                     <div>
                         <h2 class="text-3xl md:text-4xl font-black font-heading text-brand mb-4">طريقة تجميع النقاط</h2>
                         <div class="w-20 h-1.5 bg-brand mx-auto mb-8 clip-angled-btn"></div>
@@ -1020,15 +1080,20 @@
 
                     <div class="space-y-6 text-gray-600 dark:text-gray-300">
                         <p class="text-lg font-medium leading-relaxed">
-                            مرحباً بك في <span class="text-brand font-black">برو أرينا</span>، المنصة الأقوى للمنافسة! نحن هنا نُقدر وقتك وجهدك، لذا جعلنا كل ثانية تقضيها في تدريباتك وألعابك ذات قيمة حقيقية في مسيرتك الاحترافية.
+                            مرحباً بك في <span class="text-brand font-black">برو أرينا</span>، المنصة الأقوى للمنافسة!
+                            نحن هنا نُقدر وقتك وجهدك، لذا جعلنا كل ثانية تقضيها في تدريباتك وألعابك ذات قيمة حقيقية في
+                            مسيرتك الاحترافية.
                         </p>
-                        
+
                         <div class="py-6 border-y border-borderLight dark:border-borderDark space-y-4">
-                            <h4 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-wider">كيف أحصل على النقاط؟</h4>
+                            <h4 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-wider">كيف
+                                أحصل على النقاط؟</h4>
                             <p class="text-base">
-                                النظام بسيط وشفاف للغاية: كلما قضيت وقتاً أطول داخل "ساحة المعركة" في أي لعبة، زاد رصيدك من النقاط.
+                                النظام بسيط وشفاف للغاية: كلما قضيت وقتاً أطول داخل "ساحة المعركة" في أي لعبة، زاد رصيدك
+                                من النقاط.
                             </p>
-                            <div class="bg-brand/10 p-4 border-r-4 border-brand inline-block text-brand font-black text-xl">
+                            <div
+                                class="bg-brand/10 p-4 border-r-4 border-brand inline-block text-brand font-black text-xl">
                                 1 دقيقة لعب = 1 نقطة خبرة
                             </div>
                             <p class="text-sm opacity-70">
@@ -1164,7 +1229,7 @@
                 db.collection('users').doc(auth.currentUser.uid).update({ theme: theme })
                     .catch(err => console.error("Error saving theme:", err));
             }
-            
+
             // البديل المحلي للمتصفح (للضيوف)
             localStorage.setItem('app-theme', theme);
         }
@@ -1250,7 +1315,7 @@
         function startPlayTimer() {
             if (playTimer) clearInterval(playTimer);
             playStartTime = Date.now();
-            
+
             // إضافة نقطة كل دقيقة (60000ms)
             playTimer = setInterval(() => {
                 awardPoint();
@@ -1267,7 +1332,7 @@
 
         function awardPoint() {
             if (!auth.currentUser) return;
-            
+
             const userRef = db.collection('users').doc(auth.currentUser.uid);
             userRef.update({
                 points: firebase.firestore.FieldValue.increment(1)
@@ -1280,7 +1345,7 @@
         // --- نظام الإشعارات ---
         function addNotification(title, message, type = 'info') {
             if (!auth.currentUser) return;
-            
+
             db.collection('users').doc(auth.currentUser.uid).collection('notifications').add({
                 title: title,
                 message: message,
@@ -1311,11 +1376,11 @@
                     list.innerHTML = '';
                     snapshot.forEach(doc => {
                         const data = doc.data();
-                        const time = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
-                        
+                        const time = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...';
+
                         let iconClass = 'fa-bell';
                         let bgColor = 'bg-gray-100 dark:bg-white/5 text-gray-400';
-                        
+
                         if (data.type === 'points') {
                             iconClass = 'fa-trophy';
                             bgColor = 'bg-brand/10 text-brand';
@@ -1326,7 +1391,7 @@
                             iconClass = 'fa-user-shield';
                             bgColor = 'bg-purple-500/10 text-purple-500';
                         }
-                        
+
                         const itemHtml = `
                             <div class="stagger-item p-4 bg-white dark:bg-panelDark border border-borderLight dark:border-borderDark hover:border-brand/30 transition-all flex gap-4 relative group">
                                 <div class="w-10 h-10 flex items-center justify-center ${bgColor} shrink-0">
@@ -1369,7 +1434,7 @@
             const batch = db.batch();
             const snapshots = await db.collection('users').doc(auth.currentUser.uid).collection('notifications')
                 .where('read', '==', false).get();
-            snapshots.forEach(doc => batch.update(doc.ref, {read: true}));
+            snapshots.forEach(doc => batch.update(doc.ref, { read: true }));
             await batch.commit();
         }
 
@@ -1383,7 +1448,7 @@
                 .then(querySnapshot => {
                     container.innerHTML = '';
                     let rank = 1;
-                    
+
                     if (querySnapshot.empty) {
                         container.innerHTML = '<div class="p-8 text-center text-gray-400 text-xs">لا يوجد لاعبين بعد</div>';
                         return;
@@ -1393,7 +1458,7 @@
                         const data = doc.data();
                         const isFirst = rank === 1;
                         const avatarSeed = data.avatarSeed || "Gamer";
-                        
+
                         const itemHtml = `
                             <div class="flex items-center gap-3 p-4 ${rank < 5 ? 'border-b' : ''} border-borderLight dark:border-borderDark ${isFirst ? 'bg-brand/5' : ''} relative overflow-hidden group hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-default">
                                 ${isFirst ? '<div class="absolute left-0 top-0 h-full w-1 bg-brand"></div>' : ''}
@@ -1425,10 +1490,10 @@
             const titleEl = toast.querySelector('#toast-title');
             const msgEl = toast.querySelector('#toast-message');
             const iconEl = toast.querySelector('#toast-icon');
-            
+
             titleEl.textContent = title;
             msgEl.textContent = message;
-            
+
             // تعيين الأيقونة حسب النوع
             iconEl.className = 'fa-solid';
             if (type === 'points') iconEl.classList.add('fa-trophy', 'text-brand');
@@ -1450,7 +1515,7 @@
         function toggleAdminAlert(show, data = {}) {
             const modal = document.getElementById('admin-alert-modal');
             if (!modal) return;
-            
+
             if (show) {
                 document.getElementById('admin-alert-title').textContent = data.title;
                 document.getElementById('admin-alert-message').textContent = data.message;
@@ -1458,7 +1523,7 @@
                 icon.className = 'fa-solid animate-pulse';
                 if (data.type === 'broadcast') icon.classList.add('fa-tower-broadcast');
                 else icon.classList.add('fa-user-shield');
-                
+
                 modal.classList.remove('opacity-0', 'pointer-events-none');
                 modal.children[0].classList.remove('scale-90');
                 modal.children[0].classList.add('scale-100');
@@ -1523,9 +1588,13 @@
 
         // --- وظائف النافذة المنزلقة (Game Sheet) ---
         function openGameSheet(url) {
+            // التحقق من وضع الصيانة أولاً
+            if (gameMaintenanceStatus[url]) {
+                showToastNotification("تحت الصيانة", "عذراً، هذه اللعبة تخضع للصيانة حالياً. عد لاحقاً!", "warning");
+                return;
+            }
+
             const sheet = document.getElementById('game-sheet');
-            const overlay = document.getElementById('game-sheet-overlay');
-            const iframe = document.getElementById('game-iframe');
 
             // بدء تتبع الوقت
             startPlayTimer();
@@ -1623,6 +1692,21 @@
             const savedTheme = localStorage.getItem('app-theme') || 'dark';
             setAppTheme(savedTheme);
 
+            // --- تحميل فوري للملف الشخصي من الكاش (لتجربة "بدون وقت") ---
+            const cachedProfile = localStorage.getItem('pro-arena-profile');
+            if (cachedProfile) {
+                try {
+                    const data = JSON.parse(cachedProfile);
+                    updateSidebarUser(data);
+                    showProfileCard(data, null);
+                    // تحديث النقاط في الهيدر فوراً
+                    const pointsDisplay = document.getElementById('header-points');
+                    if (pointsDisplay) pointsDisplay.textContent = (data.points || 0).toLocaleString();
+                } catch (e) {
+                    console.error("Error parsing cached profile:", e);
+                }
+            }
+
             const homePage = document.getElementById('home-page');
             homePage.classList.add('active');
             updateNavigationUI('home');
@@ -1633,6 +1717,7 @@
                 playStaggerAnimation(homePage);
                 startMatchesCarousel(); // تشغيل الكاروسيل عند تحميل الصفحة
                 fetchLeaderboard(); // تحميل قائمة الشرف
+                initMaintenanceListener(); // بدء مراقبة وضع الصيانة
             }, 100);
         });
 
@@ -1697,6 +1782,48 @@
         let messagesUnsubscribe = null;
         let isDeletingAccount = false; // Flag to prevent re-creation during deletion
 
+        // --- نظام وضع الصيانة (Maintenance Mode) ---
+        const gameMaintenanceStatus = {};
+        const gameUrlToId = {
+            'XO.html': 'xo',
+            'لعبة.الثعبان.html': 'snake',
+            'خمن.الاعب.html': 'guess_player',
+            'برا.السالفة.html': 'sallat'
+        };
+
+        function initMaintenanceListener() {
+            db.collection('config').doc('games').onSnapshot(doc => {
+                const data = doc.data() || {};
+
+                for (const url in gameUrlToId) {
+                    const gameId = gameUrlToId[url];
+                    const isMaintenance = data[gameId]?.maintenance || false;
+                    gameMaintenanceStatus[url] = isMaintenance;
+
+                    const card = document.querySelector(`div[onclick*="openGameSheet('${url}')"]`);
+                    if (!card) continue;
+
+                    // إزالة أي أوفرلاي صيانة قديم
+                    const oldOverlay = card.querySelector('.maintenance-overlay');
+                    if (oldOverlay) oldOverlay.remove();
+
+                    if (isMaintenance) {
+                        card.classList.add('pointer-events-none', 'opacity-80', 'grayscale-[0.5]');
+                        const overlayHtml = `
+                            <div class="maintenance-overlay absolute inset-0 z-50 bg-black/80 flex flex-col items-center justify-center text-center p-4">
+                                <i class="fa-solid fa-screwdriver-wrench text-brand text-3xl mb-3 animate-bounce"></i>
+                                <span class="text-white font-black font-heading text-sm uppercase tracking-widest">مغلق للصيانة</span>
+                                <p class="text-[10px] text-gray-400 mt-1">نعمل على تحسين التجربة، سنعود قريباً!</p>
+                            </div>
+                        `;
+                        card.insertAdjacentHTML('beforeend', overlayHtml);
+                    } else {
+                        card.classList.remove('pointer-events-none', 'opacity-80', 'grayscale-[0.5]');
+                    }
+                }
+            });
+        }
+
         // دالة توليد ID مخصص (مثلاً 6 أرقام)
         function generateCustomId() {
             return Math.floor(100000 + Math.random() * 900000).toString();
@@ -1720,7 +1847,7 @@
                 unsubscribeUser = db.collection('users').doc(user.uid).onSnapshot(async (doc) => {
                     if (doc.exists) {
                         currentUserData = doc.data();
-                        
+
                         // التحقق من الحظر
                         if (currentUserData.isBanned) {
                             alert("عذراً، تم حظر حسابك من قبل الإدارة لمخالفة القوانين.");
@@ -1728,7 +1855,7 @@
                             location.reload();
                             return;
                         }
-                        
+
                         // تحديث النقاط في الهيدر
                         const pointsDisplay = document.getElementById('header-points');
                         if (pointsDisplay) pointsDisplay.textContent = (currentUserData.points || 0).toLocaleString();
@@ -1755,6 +1882,9 @@
                         await db.collection('users').doc(user.uid).set(currentUserData);
                     }
 
+                    // تحديث الكاش المحلي للمزامنة الفورية في المرة القادمة
+                    localStorage.setItem('pro-arena-profile', JSON.stringify(currentUserData));
+
                     // مراقبة الإشعارات غير المقروءة للبادج (للكل)
                     if (!notificationsUnsubscribe) {
                         notificationsUnsubscribe = db.collection('users').doc(user.uid).collection('notifications')
@@ -1766,7 +1896,7 @@
                                         badge.classList.add('hidden');
                                     } else {
                                         badge.classList.remove('hidden');
-                                        
+
                                         // عرض إشعار منبثق (Toast) للإشعارات الجديدة فقط
                                         snap.docChanges().forEach(change => {
                                             if (change.type === "added") {
@@ -1798,10 +1928,16 @@
                     }
                 });
             } else {
-                // المستخدم غير مسجل دخول
+                // المستخدم غير مسجل دخول - الاتصال تلقائياً (مجهول)
                 currentUserData = null;
                 logoutContainer.classList.add('hidden');
-                showLoginForm();
+
+                // بدلاً من إظهار الفورم فوراً، نحاول الاتصال تلقائياً
+                auth.signInAnonymously().catch(error => {
+                    console.error("Anonymous Sign-In Error:", error);
+                    showLoginForm();
+                });
+
                 updateSidebarUser(null);
             }
         });
@@ -1848,7 +1984,12 @@
                         <span class="bg-borderLight dark:bg-borderDark text-xs font-bold px-2 py-1 border border-borderDark/20">المنطقة: ${data.region}</span>
                     </div>
                 </div>
-                <button onclick="switchPage('edit-profile')" class="w-full py-2 bg-borderLight dark:bg-borderDark hover:bg-brand hover:text-white font-bold transition-all active:scale-95 text-sm uppercase">تعديل الملف</button>
+                <div class="flex flex-col gap-2">
+                    <button onclick="switchPage('edit-profile')" class="w-full py-2 bg-borderLight dark:bg-borderDark hover:bg-brand hover:text-white font-bold transition-all active:scale-95 text-sm uppercase">تعديل الملف</button>
+                    ${auth.currentUser.isAnonymous ? `
+                        <button onclick="showLoginForm()" class="w-full py-2 border border-brand text-brand hover:bg-brand hover:text-white font-bold transition-all active:scale-95 text-xs uppercase">ربط حساب أو تسجيل دخول</button>
+                    ` : ''}
+                </div>
             `;
         }
 
@@ -1903,7 +2044,7 @@
             const username = document.getElementById('signup-username').value.trim();
             const email = document.getElementById('signup-email').value.trim();
             const pass = document.getElementById('signup-password').value;
-            
+
             if (!username || !email || !pass) return alert("يرجى ملء كافة الحقول");
             if (username.length < 3) return alert("يجب أن يكون الاسم 3 أحرف على الأقل");
 
@@ -1915,7 +2056,7 @@
             try {
                 // 1. إنشاء حساب المصادقة أولاً للحصول على تصريح القراءة (بعض القواعد تمنع الضيوف من البحث في المستخدمين)
                 const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                
+
                 // 2. الآن بعد تسجيل الدخول، نتحقق من تكرار الاسم
                 const nameCheck = await db.collection('users').where('username', '==', username).get();
                 if (!nameCheck.empty) {
@@ -1949,6 +2090,7 @@
 
         async function logout() {
             if (confirm("هل أنت متأكد من تسجيل الخروج؟")) {
+                localStorage.removeItem('pro-arena-profile');
                 await auth.signOut();
             }
         }
@@ -1983,10 +2125,15 @@
                 }
 
                 await db.collection('users').doc(auth.currentUser.uid).update({
-                    username: newName,
-                    region: newRegion,
                     avatarSeed: currentAvatarSeed
                 });
+
+                // تحديث الكاش بعد الحفظ
+                currentUserData.username = newName;
+                currentUserData.region = newRegion;
+                currentUserData.avatarSeed = currentAvatarSeed;
+                localStorage.setItem('pro-arena-profile', JSON.stringify(currentUserData));
+
                 alert("تم حفظ التغييرات بنجاح");
                 switchPage('settings');
             } catch (error) {
@@ -2381,7 +2528,7 @@
                 isDeletingAccount = true; // منع نظام المزامنة من إعادة إنشاء الملف فور حذفه
                 const user = auth.currentUser;
                 const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
-                
+
                 // 1. إعادة التحقق من كلمة المرور
                 await user.reauthenticateWithCredential(credential);
 
@@ -2415,7 +2562,7 @@
                 await user.delete();
 
                 alert("تم حذف حسابك وكافة بياناتك بنجاح. نآسف لرحيلك!");
-                location.reload(); 
+                location.reload();
             } catch (error) {
                 console.error("Error deleting account:", error);
                 let msg = "فشل الحذف: ";
@@ -2427,48 +2574,59 @@
                 btn.innerText = originalText;
             }
         }
-        // --- نظام إدارة الصيانة والألعاب ---
-        function initMaintenanceListener() {
-            db.collection('config').doc('games').onSnapshot(doc => {
-                const maintenanceData = doc.data() || {};
-                
-                // قائمة تعريفات الألعاب (تطابق IDs في admin.html)
-                const gameMappings = [
-                    { id: 'xo', selector: "div[onclick*='XO.html']" },
-                    { id: 'snake', selector: "div[onclick*='لعبة.الثعبان.html']" },
-                    { id: 'guess_player', selector: "div[onclick*='خمن.الاعب.html']" },
-                    { id: 'sallat', selector: "div[onclick*='برا.السالفة.html']" }
-                ];
+        // --- وظائف التنبيهات (Toast & Admin Alert) ---
+        function showToastNotification(title, message, type = 'info') {
+            const toast = document.getElementById('global-toast');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
 
-                gameMappings.forEach(game => {
-                    const card = document.querySelector(game.selector);
-                    if (!card) return;
+            // إعداد الأيقونة واللون حسب النوع
+            const configs = {
+                success: { icon: 'fa-circle-check', color: 'text-green-500' },
+                warning: { icon: 'fa-triangle-exclamation', color: 'text-yellow-500' },
+                error: { icon: 'fa-circle-xmark', color: 'text-red-500' },
+                info: { icon: 'fa-bell', color: 'text-brand' }
+            };
 
-                    const isUnderMaintenance = maintenanceData[game.id]?.maintenance;
-                    
-                    // إزالة أي أوفرلاي صيانة قديم
-                    const oldOverlay = card.querySelector('.maintenance-overlay');
-                    if (oldOverlay) oldOverlay.remove();
+            const config = configs[type] || configs.info;
+            toastIcon.className = `fa-solid ${config.icon} text-xl ${config.color}`;
+            toastTitle.textContent = title;
+            toastTitle.className = `font-black text-xs uppercase tracking-wider ${config.color} mb-1`;
+            toastMsg.textContent = message;
 
-                    if (isUnderMaintenance) {
-                        card.classList.add('pointer-events-none', 'opacity-80', 'grayscale-[0.5]');
-                        const overlayHtml = `
-                            <div class="maintenance-overlay absolute inset-0 z-50 bg-black/80 flex flex-col items-center justify-center text-center p-4">
-                                <i class="fa-solid fa-screwdriver-wrench text-brand text-3xl mb-3 animate-bounce"></i>
-                                <span class="text-white font-black font-heading text-sm uppercase tracking-widest">مغلق للصيانة</span>
-                                <p class="text-[10px] text-gray-400 mt-1">نعمل على تحسين التجربة، سنعود قريباً!</p>
-                            </div>
-                        `;
-                        card.insertAdjacentHTML('beforeend', overlayHtml);
-                    } else {
-                        card.classList.remove('pointer-events-none', 'opacity-80', 'grayscale-[0.5]');
-                    }
-                });
-            });
+            // إظهار التوست
+            toast.classList.remove('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+
+            // إخفاء تلقائي بعد 5 ثوانٍ
+            setTimeout(() => {
+                toast.classList.add('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
+                toast.classList.remove('translate-x-0', 'opacity-100', 'pointer-events-auto');
+            }, 5000);
         }
 
-        // تشغيل نظام المراقبة عند التحميل
-        initMaintenanceListener();
+        function toggleAdminAlert(show, data = null) {
+            const modal = document.getElementById('admin-alert-modal');
+            if (show && data) {
+                document.getElementById('admin-alert-title').textContent = data.title || "إشعار إداري عاجل";
+                document.getElementById('admin-alert-message').textContent = data.message;
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.classList.add('opacity-100', 'pointer-events-auto');
+                modal.querySelector('div').classList.remove('scale-90');
+                modal.querySelector('div').classList.add('scale-100');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                modal.classList.remove('opacity-100', 'pointer-events-auto');
+                modal.querySelector('div').classList.add('scale-90');
+                modal.querySelector('div').classList.remove('scale-100');
+
+                // إذا كان إشعاراً عاجلاً، نقوم بوضع علامة "مقروء" عليه في Firestore
+                if (data && data.docId) {
+                    db.collection('users').doc(auth.currentUser.uid).collection('notifications').doc(data.docId).update({ read: true });
+                }
+            }
+        }
     </script>
     <!-- مودال إضافة صديق -->
     <div id="add-friend-modal"
@@ -2516,11 +2674,13 @@
         <div
             class="bg-panelLight dark:bg-panelDark w-full max-w-md p-8 clip-angled border-2 border-red-500/30 shadow-2xl transform scale-90 transition-transform duration-300">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <div
+                    class="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
                 <h4 class="text-xl font-black font-heading uppercase text-red-500">حذف الحساب نهائياً</h4>
-                <p class="text-sm text-gray-500 mt-2">هذا الإجراء لا يمكن التراجع عنه. سيتم مسح كافة نقاطك وإنجازاتك.</p>
+                <p class="text-sm text-gray-500 mt-2">هذا الإجراء لا يمكن التراجع عنه. سيتم مسح كافة نقاطك وإنجازاتك.
+                </p>
             </div>
             <div class="space-y-4">
                 <p class="text-xs font-bold text-gray-400 uppercase text-center">أدخل كلمة المرور لتأكيد الحذف</p>
@@ -2543,14 +2703,17 @@
     </div>
 
     <!-- تنبيه منبثق عالمي (Toast) -->
-    <div id="global-toast" class="fixed top-24 right-6 z-[2000] w-80 bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/10 p-4 clip-angled shadow-2xl transition-all duration-500 transform translate-x-[150%] opacity-0 pointer-events-none">
+    <div id="global-toast"
+        class="fixed top-24 right-6 z-[2000] w-80 bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/10 p-4 clip-angled shadow-2xl transition-all duration-500 transform translate-x-[150%] opacity-0 pointer-events-none">
         <div class="flex gap-4">
             <div class="w-12 h-12 bg-white/5 flex items-center justify-center rounded-xl shrink-0">
                 <i id="toast-icon" class="fa-solid fa-bell text-xl"></i>
             </div>
             <div class="flex-1 text-right">
                 <h5 id="toast-title" class="font-black text-xs uppercase tracking-wider text-brand mb-1">تنبيه جديد</h5>
-                <p id="toast-message" class="text-xs text-gray-500 dark:text-gray-300 font-bold leading-relaxed line-clamp-2">لديك إشعار غير مقروء في صندوق الوارد.</p>
+                <p id="toast-message"
+                    class="text-xs text-gray-500 dark:text-gray-300 font-bold leading-relaxed line-clamp-2">لديك إشعار
+                    غير مقروء في صندوق الوارد.</p>
             </div>
         </div>
         <div class="absolute bottom-0 right-0 h-1 bg-brand/30 w-full animate-[toast-progress_6s_linear_infinite]"></div>
@@ -2558,57 +2721,76 @@
 
     <style>
         @keyframes toast-progress {
-            from { width: 100%; }
-            to { width: 0%; }
+            from {
+                width: 100%;
+            }
+
+            to {
+                width: 0%;
+            }
         }
     </style>
     <!-- مودال التنبيه الإداري (Centered & Persistent & Vertical) -->
-    <div id="admin-alert-modal" class="fixed inset-0 z-[3000] flex items-center justify-center bg-black/95 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-500 p-4">
-        <div class="bg-panelLight dark:bg-panelDark w-full max-w-sm p-8 md:p-10 clip-angled border-[3px] border-brand shadow-[0_0_50px_rgba(225,29,72,0.3)] transform scale-90 transition-transform duration-500 flex flex-col items-center text-center relative overflow-hidden">
+    <div id="admin-alert-modal"
+        class="fixed inset-0 z-[3000] flex items-center justify-center bg-black/95 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-500 p-4">
+        <div
+            class="bg-panelLight dark:bg-panelDark w-full max-w-sm p-8 md:p-10 clip-angled border-[3px] border-brand shadow-[0_0_50px_rgba(225,29,72,0.3)] transform scale-90 transition-transform duration-500 flex flex-col items-center text-center relative overflow-hidden">
             <!-- زخرفة خلفية -->
             <div class="absolute top-0 left-0 w-full h-2 bg-brand"></div>
-            
-            <div class="w-16 h-16 bg-brand text-white clip-angled-btn flex items-center justify-center mb-8 text-3xl shadow-lg shadow-brand/40">
+
+            <div
+                class="w-16 h-16 bg-brand text-white clip-angled-btn flex items-center justify-center mb-8 text-3xl shadow-lg shadow-brand/40">
                 <i id="admin-alert-icon" class="fa-solid fa-tower-broadcast animate-[pulse_1.5s_infinite]"></i>
             </div>
-            
-            <h3 id="admin-alert-title" class="text-2xl font-black font-heading text-brand uppercase tracking-widest mb-2">إشعار إداري عاجل</h3>
+
+            <h3 id="admin-alert-title"
+                class="text-2xl font-black font-heading text-brand uppercase tracking-widest mb-2">إشعار إداري عاجل</h3>
             <span class="text-[9px] font-bold text-gray-500 uppercase tracking-[0.3em] mb-6">PRO ARENA SYSTEM</span>
-            
-            <div class="w-full bg-gray-50 dark:bg-white/5 p-6 border-x-2 border-brand/20 min-h-[150px] flex items-center justify-center">
-                <p id="admin-alert-message" class="text-base md:text-lg text-gray-800 dark:text-gray-100 font-bold leading-relaxed">نص الرسالة الإدارية يظهر هنا بشكل واضح وكبير للجميع.</p>
+
+            <div
+                class="w-full bg-gray-50 dark:bg-white/5 p-6 border-x-2 border-brand/20 min-h-[150px] flex items-center justify-center">
+                <p id="admin-alert-message"
+                    class="text-base md:text-lg text-gray-800 dark:text-gray-100 font-bold leading-relaxed">نص الرسالة
+                    الإدارية يظهر هنا بشكل واضح وكبير للجميع.</p>
             </div>
-            
+
             <div class="mt-8 w-full">
-                <button onclick="toggleAdminAlert(false)" class="w-full py-4 bg-brand hover:bg-brandHover text-white font-black font-heading uppercase tracking-widest clip-angled-btn transition-all active:scale-95 shadow-xl shadow-brand/20">
+                <button onclick="toggleAdminAlert(false)"
+                    class="w-full py-4 bg-brand hover:bg-brandHover text-white font-black font-heading uppercase tracking-widest clip-angled-btn transition-all active:scale-95 shadow-xl shadow-brand/20">
                     استلمت، إغلاق
                 </button>
             </div>
-            
-            <div class="mt-4 text-[8px] font-bold text-gray-500 uppercase opacity-50">لا يمكن إخفاء هذا التنبيه حتى يتم تأكيد الاستلام</div>
+
+            <div class="mt-4 text-[8px] font-bold text-gray-500 uppercase opacity-50">لا يمكن إخفاء هذا التنبيه حتى يتم
+                تأكيد الاستلام</div>
         </div>
     </div>
 
     <!-- مودال الإبلاغ عن مستخدم -->
-    <div id="report-user-modal" class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 p-4 font-sans">
-        <div class="bg-panelLight dark:bg-panelDark w-full max-w-md p-8 clip-angled border-2 border-brand/20 shadow-2xl transform scale-90 transition-transform duration-300">
+    <div id="report-user-modal"
+        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 p-4 font-sans">
+        <div
+            class="bg-panelLight dark:bg-panelDark w-full max-w-md p-8 clip-angled border-2 border-brand/20 shadow-2xl transform scale-90 transition-transform duration-300">
             <div class="text-center mb-6 text-right">
-                <div class="w-16 h-16 bg-brand/10 text-brand rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <div
+                    class="w-16 h-16 bg-brand/10 text-brand rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
                     <i class="fa-solid fa-flag"></i>
                 </div>
                 <h4 class="text-xl font-black font-heading uppercase text-gray-900 dark:text-white">إرسال بلاغ</h4>
-                <p class="text-[10px] text-gray-500 mt-2">ساعدنا في الحفاظ على مجتمع برو أرينا آمناً وممتعاً عبر الإبلاغ عن السلوكيات المخالفة.</p>
+                <p class="text-[10px] text-gray-500 mt-2">ساعدنا في الحفاظ على مجتمع برو أرينا آمناً وممتعاً عبر الإبلاغ
+                    عن السلوكيات المخالفة.</p>
             </div>
-            
+
             <div class="space-y-4 text-right">
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-1">إسم المستخدم المُبلغ عنه</label>
-                    <input type="text" id="report-target-name" placeholder="مثال: القناص_007" 
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-1">إسم المستخدم المُبلغ
+                        عنه</label>
+                    <input type="text" id="report-target-name" placeholder="مثال: القناص_007"
                         class="w-full bg-gray-50 dark:bg-black/20 border-2 border-borderLight dark:border-borderDark px-4 py-3 focus:outline-none focus:border-brand transition-colors font-bold text-sm">
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-1">سبب الإبلاغ</label>
-                    <textarea id="report-reason" rows="3" placeholder="اشرح لنا ما حدث بالتفصيل..." 
+                    <textarea id="report-reason" rows="3" placeholder="اشرح لنا ما حدث بالتفصيل..."
                         class="w-full bg-gray-50 dark:bg-black/20 border-2 border-borderLight dark:border-borderDark px-4 py-3 focus:outline-none focus:border-brand transition-colors font-bold text-sm resize-none"></textarea>
                 </div>
 
