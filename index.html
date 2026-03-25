@@ -6,7 +6,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" id="status-bar-color" content="#0a0a0a">
-    <title>برو أرينا | منصة المحترفين</title>
+    <title>برو أرينا</title>
     <link rel="icon" type="image/png" href="صورة التطبيق.png">
     <link rel="apple-touch-icon" href="صورة التطبيق.png">
     <link rel="manifest" href="manifest.json">
@@ -1955,7 +1955,7 @@
             } else {
                 // المستخدم غير مسجل دخول - الاتصال تلقائياً (مجهول)
                 currentUserData = null;
-                logoutContainer.classList.add('hidden');
+                if (logoutBox) logoutBox.classList.add('hidden');
 
                 // بدلاً من إظهار الفورم فوراً، نحاول الاتصال تلقائياً
                 auth.signInAnonymously().catch(error => {
@@ -1994,6 +1994,42 @@
             `;
         }
 
+        function showLinkForm() {
+            const container = document.getElementById('auth-container');
+            container.innerHTML = `
+                <h3 class="font-bold text-gray-500 text-xs uppercase tracking-widest mb-4">ربط الحساب الحالي</h3>
+                <p class="text-[10px] text-gray-400 mb-4">قم بإنشاء بريد وكلمة سر لحفظ مستواك الحالي #${currentUserData.customId}</p>
+                <div class="space-y-4">
+                    <input type="email" id="link-email" placeholder="البريد الإلكتروني الجديد" class="w-full bg-gray-50 dark:bg-black/20 border border-borderLight dark:border-borderDark px-4 py-2 focus:outline-none focus:border-brand transition-colors">
+                    <input type="password" id="link-password" placeholder="كلمة المرور" class="w-full bg-gray-50 dark:bg-black/20 border border-borderLight dark:border-borderDark px-4 py-2 focus:outline-none focus:border-brand transition-colors">
+                    <button onclick="linkAccount()" class="w-full py-2 bg-brand text-white font-bold clip-angled-btn hover:bg-brandHover transition-all active:scale-95 text-sm uppercase">تأكيد الربط النهائي</button>
+                    <p class="text-center text-xs text-gray-500 mt-2"><a href="javascript:showProfileCard(currentUserData, auth.currentUser.uid)" class="text-gray-400">إلغاء والعودة</a></p>
+                </div>
+            `;
+        }
+
+        async function linkAccount() {
+            const email = document.getElementById('link-email').value.trim();
+            const pass = document.getElementById('link-password').value;
+
+            if (!email || !pass) return alert("يرجى ملء كافة الحقول");
+            if (pass.length < 6) return alert("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+
+            const btn = document.querySelector('button[onclick="linkAccount()"]');
+            btn.disabled = true;
+            btn.innerText = "جاري الربط...";
+
+            try {
+                const credential = firebase.auth.EmailAuthProvider.credential(email, pass);
+                await auth.currentUser.linkWithCredential(credential);
+                alert("تم ربط الحساب بنجاح! تم حفظ تقدمك.");
+            } catch (error) {
+                alert("خطأ في الربط: " + error.message);
+                btn.disabled = false;
+                btn.innerText = "تأكيد الربط النهائي";
+            }
+        }
+
         function showProfileCard(data, uid) {
             const container = document.getElementById('auth-container');
             const displayId = data.customId || (uid ? uid.substring(0, 8).toUpperCase() : "PRO-GUEST");
@@ -2012,7 +2048,8 @@
                 <div class="flex flex-col gap-2">
                     <button onclick="switchPage('edit-profile')" class="w-full py-2 bg-borderLight dark:bg-borderDark hover:bg-brand hover:text-white font-bold transition-all active:scale-95 text-sm uppercase">تعديل الملف</button>
                     ${auth.currentUser.isAnonymous ? `
-                        <button onclick="showLoginForm()" class="w-full py-2 border border-brand text-brand hover:bg-brand hover:text-white font-bold transition-all active:scale-95 text-xs uppercase">ربط حساب أو تسجيل دخول</button>
+                        <button onclick="showLinkForm()" class="w-full py-2 border border-brand text-brand hover:bg-brand hover:text-white font-bold transition-all active:scale-95 text-xs uppercase">ربط الحساب (حفظ التقدم الحالي)</button>
+                        <button onclick="showLoginForm()" class="w-full py-2 bg-gray-100 dark:bg-white/5 text-gray-500 font-bold transition-all active:scale-95 text-xs uppercase">تسجيل دخول بحساب آخر</button>
                     ` : ''}
                 </div>
             `;
@@ -2039,6 +2076,8 @@
                     </div>
                 `;
             } else {
+                const logoutBox = document.getElementById('logout-button-box');
+                const deleteItem = document.getElementById('delete-account-list-item');
                 if (logoutBox) logoutBox.classList.add('hidden');
                 if (deleteItem) deleteItem.classList.add('hidden');
                 sidebarUser.innerHTML = `
@@ -2152,6 +2191,8 @@
                 }
 
                 await db.collection('users').doc(auth.currentUser.uid).update({
+                    username: newName,
+                    region: newRegion,
                     avatarSeed: currentAvatarSeed
                 });
 
