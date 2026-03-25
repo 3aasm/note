@@ -3,9 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" id="status-bar-color" content="#fef08a">
     <title>تيك تاك تو | عالم المرح</title>
+    <link rel="apple-touch-icon" href="صورة التطبيق.png">
+    <link rel="manifest" href="manifest.json">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -308,6 +311,7 @@
             transform: translateY(-3px) scale(1.02);
             background-color: #eff6ff !important;
         }
+
         .dark .active-turn-card-x {
             box-shadow: 0 0 12px rgba(59, 130, 246, 0.4), 4px 4px 0px #020617 !important;
             background-color: #1e293b !important;
@@ -319,25 +323,40 @@
             transform: translateY(-3px) scale(1.02);
             background-color: #fef2f2 !important;
         }
+
         .dark .active-turn-card-o {
             box-shadow: 0 0 12px rgba(239, 68, 68, 0.4), 4px 4px 0px #020617 !important;
             background-color: #1e293b !important;
         }
 
-        #score-x-card, #score-o-card {
+        #score-x-card,
+        #score-o-card {
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 3px solid transparent;
             border-radius: 1rem;
         }
+
         @media (min-width: 768px) {
-            #score-x-card, #score-o-card { border-width: 4px; }
+
+            #score-x-card,
+            #score-o-card {
+                border-width: 4px;
+            }
         }
 
         /* أنيميشن الأيقونات الكرتونية */
         @keyframes cartoonBounce {
-            0%, 100% { transform: translateY(0) rotate(0); }
-            50% { transform: translateY(-5px) rotate(5deg); }
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0);
+            }
+
+            50% {
+                transform: translateY(-5px) rotate(5deg);
+            }
         }
+
         .animate-cartoon-bounce {
             animation: cartoonBounce 2s infinite ease-in-out;
         }
@@ -671,7 +690,8 @@
                         </div>
 
                         <!-- مؤشر الدور (مخفي حالياً بطلب المستخدم ليحل محله الأنميشين) -->
-                        <div id="turn-indicator" class="hidden h-10 w-full flex justify-center mb-3 md:mb-4 stagger-item">
+                        <div id="turn-indicator"
+                            class="hidden h-10 w-full flex justify-center mb-3 md:mb-4 stagger-item">
                             <div
                                 class="cartoon-panel bg-white dark:bg-slate-800 px-5 md:px-6 py-2 flex items-center gap-2.5 border-2 md:border-3 rounded-full shadow-[2px_2px_0px_#0f172a] transition-transform duration-300">
                                 <div id="turn-icon" class="text-brand text-lg md:text-xl"><i
@@ -685,7 +705,7 @@
                         <!-- شبكة اللعب -->
                         <div
                             class="cartoon-panel bg-slate-100 dark:bg-slate-800 p-2.5 md:p-4 w-full stagger-item mx-auto relative overflow-hidden">
-                            
+
                             <div class="grid grid-cols-3 gap-2.5 md:gap-3.5 w-full aspect-square relative z-10"
                                 id="board">
                                 <div class="cell text-[2.5rem] sm:text-5xl md:text-6xl font-black leading-none"
@@ -1253,6 +1273,7 @@
                 gameActive = false;
                 turnText.textContent = "تعادل !";
                 if (gameMode === 'online') db.ref('rooms/' + currentRoomId + '/active').set(false);
+                updateTurnIndicator();
                 return true;
             }
             return false;
@@ -1276,14 +1297,15 @@
             scores[winner]++;
             document.getElementById('score-x').textContent = scores.X;
             document.getElementById('score-o').textContent = scores.O;
+            updateTurnIndicator();
         }
 
         function updateTurnIndicator() {
-            if (!gameActive) return;
             const icon = document.getElementById('turn-icon');
             const turnText = document.getElementById('turn-text');
             const cardX = document.getElementById('score-x-card');
             const cardO = document.getElementById('score-o-card');
+            const resetBtn = document.getElementById('reset-btn');
 
             let turnLabel = "";
             let iconHTML = "";
@@ -1309,9 +1331,21 @@
             turnText.textContent = turnLabel;
             icon.innerHTML = iconHTML;
             icon.className = iconClass;
+
+            // تحديث حالة زر الإعادة (خافت أثناء اللعب)
+            const isBoardEmpty = gameState.every(s => s === "");
+            if (!isBoardEmpty && gameActive) {
+                resetBtn.classList.add('opacity-40', 'pointer-events-none');
+            } else {
+                resetBtn.classList.remove('opacity-40', 'pointer-events-none');
+            }
         }
 
         function resetGame() {
+            // التحقق من أن المباراة انتهت أو لوحة اللمس فارغة
+            const isBoardEmpty = gameState.every(s => s === "");
+            if (gameActive && !isBoardEmpty) return;
+
             if (gameMode === 'online' && currentRoomId) {
                 db.ref('rooms/' + currentRoomId).update({
                     board: ["", "", "", "", "", "", "", "", ""],
