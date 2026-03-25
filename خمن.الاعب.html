@@ -233,7 +233,7 @@
 
         /* تأثيرات الصورة */
         .mystery-img {
-            filter: blur(0px) brightness(1) contrast(1);
+            filter: blur(12px) brightness(1) contrast(1);
             transition: all 1s ease-in-out;
         }
 
@@ -740,6 +740,24 @@
                 </div>
 
                 <div id="position-options" class="flex flex-col gap-4">
+                    <!-- خيار تحديد الوقت (V2) -->
+                    <div id="timer-selection-host"
+                        class="cartoon-panel bg-white dark:bg-slate-800 p-4 border-2 border-brand mb-2">
+                        <label class="block text-sm font-black text-panelBorder dark:text-white mb-3 text-right">
+                            <i class="fa-solid fa-clock text-brand ml-1"></i> اختر وقت الدور:
+                        </label>
+                        <div class="flex gap-2">
+                            <button onclick="setTurnTime(10)" id="timer-btn-10"
+                                class="timer-opt-btn cartoon-btn flex-1 py-2 rounded-xl font-black text-sm bg-slate-100 dark:bg-slate-700">10
+                                ثواني</button>
+                            <button onclick="setTurnTime(20)" id="timer-btn-20"
+                                class="timer-opt-btn cartoon-btn flex-1 py-2 rounded-xl font-black text-sm bg-brand text-white">20
+                                ثانية</button>
+                            <button onclick="setTurnTime(30)" id="timer-btn-30"
+                                class="timer-opt-btn cartoon-btn flex-1 py-2 rounded-xl font-black text-sm bg-slate-100 dark:bg-slate-700">30
+                                ثانية</button>
+                        </div>
+                    </div>
                     <!-- خيار اللعب من خلف الهاتف -->
                     <div id="btn-pos-behind" onclick="selectPosition('behind')"
                         class="cartoon-panel bg-white dark:bg-slate-800 p-4 flex items-center justify-between hover:-translate-y-1 transition-transform cursor-pointer group w-full">
@@ -823,8 +841,20 @@
                                     الاعب الخصم : <span id="opponent-player-name"
                                         class="text-teamO transition-all duration-300">---</span>
                                 </div>
-                                <span id="turn-text"
-                                    class="text-[10px] md:text-xs font-black px-2 py-0.5 rounded border">...</span>
+                                <div class="flex items-center gap-2">
+                                    <span id="turn-text"
+                                        class="text-[10px] md:text-xs font-black px-2 py-0.5 rounded border">...</span>
+                                    <div id="online-timer-container"
+                                        class="hidden items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg border-2 border-panelBorder shadow-[1px_1px_0px_#0f172a]">
+                                        <i class="fa-solid fa-stopwatch text-red-500 text-[10px] animate-pulse"></i>
+                                        <span id="online-timer-val"
+                                            class="text-xs font-black text-panelBorder dark:text-white font-mono">00</span>
+                                    </div>
+                                    <button id="next-turn-btn" onclick="nextTurn()"
+                                        class="hidden cartoon-btn bg-white dark:bg-slate-700 px-2 py-0.5 rounded-lg text-[10px] font-black border-2 border-panelBorder hover:bg-slate-100">
+                                        التالي <i class="fa-solid fa-chevron-left text-[8px]"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -936,6 +966,11 @@
                                     <input type="text" id="final-player-guess" autocomplete="off"
                                         placeholder="اكتب اسم اللاعب للتخمين..."
                                         class="cartoon-btn w-full bg-white dark:bg-slate-700 px-3 py-3 rounded-xl font-bold text-sm text-panelBorder dark:text-white outline-none border-2 border-yellow-400">
+                                    <div id="attempts-badge"
+                                        class="absolute -top-3 -left-2 bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg border-2 border-panelBorder shadow-[2px_2px_0px_#0f172a] transform rotate-3 flex items-center gap-1">
+                                        <i class="fa-solid fa-heart text-[8px] animate-pulse"></i>
+                                        المحاولات: <span id="remaining-attempts-val">3</span>
+                                    </div>
                                     <div id="final-autocomplete"
                                         class="autocomplete-list hidden cartoon-panel bg-white dark:bg-slate-800 border-2 mt-1">
                                     </div>
@@ -1026,6 +1061,10 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+
+        db.ref(".info/serverTimeOffset").on("value", (snap) => {
+            serverTimeOffset = snap.val() || 0;
+        });
 
         // --- Players Database ---
         // قمنا بتخزين روابط الصور من Sofifa واستخدام Proxy الصور wsrv.nl لضمان عملها
@@ -1132,6 +1171,10 @@
         let currentPlayer = 1;
         let scores = { p1: 0, p2: 0 };
         let myRole = null;
+        let selectedTurnTime = 20;
+        let turnTimerInterval = null;
+        let currentRoomData = null;
+        let serverTimeOffset = 0;
 
         // --- DOM Elements ---
         const views = {
@@ -1447,6 +1490,10 @@
         }
 
         function checkFinalGuess() {
+            if (gameMode === 'online') {
+                const turnTxt = document.getElementById('turn-text').textContent;
+                if (turnTxt.includes('انتظر دورك')) return;
+            }
             const val = finalInputEl.value.trim();
             if (!val || !targetPlayer) return;
 
@@ -1455,6 +1502,26 @@
                 declareDone();
             } else {
                 finalInputEl.classList.add('border-red-500', 'animate-shake');
+
+                // خصم محاولة في وضع الأونلاين
+                if (gameMode === 'online' && currentRoomId) {
+                    const currentAttempts = parseInt(document.getElementById('remaining-attempts-val').textContent);
+                    const newAttempts = Math.max(0, currentAttempts - 1);
+
+                    if (newAttempts === 0) {
+                        // انتهت المحاولات، الفوز للخصم
+                        const oppRole = myRole === 'p1' ? 'p2' : 'p1';
+                        let up = { state: 'ended', winner: oppRole };
+                        up[oppRole + '_score'] = scores[oppRole] + 1;
+                        db.ref('football_rooms/' + currentRoomId).update(up);
+                    } else {
+                        // تحديث المحاولات المتبقية
+                        db.ref('football_rooms/' + currentRoomId).update({
+                            [myRole + '_attempts']: newAttempts
+                        });
+                    }
+                }
+
                 setTimeout(() => {
                     finalInputEl.classList.remove('border-red-500', 'animate-shake');
                     toggleFinalGuess(false); // إخفاء التخمين إذا أخطأ
@@ -1493,15 +1560,20 @@
             btn.classList.add('opacity-30', 'grayscale');
         }
 
-        function updateTurnUI() {
+        function updateTurnUI(data = null) {
             const turnText = document.getElementById('turn-text');
             const oppInfo = document.getElementById('opponent-player-info');
             const oppName = document.getElementById('opponent-player-name');
+            const timerContainer = document.getElementById('online-timer-container');
+            const nextBtn = document.getElementById('next-turn-btn');
+
             document.getElementById('turn-indicator').classList.remove('hidden');
             document.getElementById('turn-indicator').classList.add('flex');
 
             if (gameMode === 'local') {
                 oppInfo.classList.add('hidden');
+                timerContainer.classList.add('hidden');
+                nextBtn.classList.add('hidden');
                 if (currentPlayer === 1) {
                     turnText.textContent = "دور: لاعب 1"; turnText.className = "text-[10px] md:text-xs font-black text-brand border-brand border px-2 py-1 rounded bg-green-50";
                 } else {
@@ -1509,13 +1581,33 @@
                 }
             } else {
                 oppInfo.classList.remove('hidden');
-                // في وضع التخفي "خلف الهاتف" - نعرض لاعب الخصم
+                timerContainer.classList.remove('hidden');
+                timerContainer.classList.add('flex');
+
+                const isMyTurn = data && data.current_turn === myRole;
+                if (isMyTurn) nextBtn.classList.remove('hidden');
+                else nextBtn.classList.add('hidden');
+
+                const doneBtn = document.getElementById('done-guess-btn');
+                const submitBtn = document.getElementById('submit-guess-btn');
+                if (doneBtn) doneBtn.disabled = !isMyTurn;
+                if (submitBtn) submitBtn.disabled = !isMyTurn;
+                if (inputEl) inputEl.disabled = !isMyTurn;
+
                 if (playPosition === 'behind') {
                     oppName.textContent = targetPlayer ? targetPlayer.name : '---';
-                    turnText.textContent = "أنت الآن في وضع خلف الهاتف!"; turnText.className = "text-[10px] md:text-xs font-black text-blue-600 bg-blue-50 border-blue-300 border px-2 py-1 rounded";
+                    if (isMyTurn) {
+                        turnText.textContent = "دورك! اسأل أو خمن"; turnText.className = "text-[10px] md:text-xs font-black text-blue-600 bg-blue-50 border-blue-300 border px-2 py-1 rounded animate-pulse";
+                    } else {
+                        turnText.textContent = "انتظر دورك..."; turnText.className = "text-[10px] md:text-xs font-black text-slate-400 bg-slate-50 border-slate-200 border px-2 py-1 rounded";
+                    }
                 } else {
                     oppName.textContent = myChosenPlayer ? myChosenPlayer.name : '---';
-                    turnText.textContent = "اسأل الخصم لتخمين لاعبه!"; turnText.className = "text-[10px] md:text-xs font-black text-slate-600 bg-slate-100 border-slate-300 border px-2 py-1 rounded";
+                    if (isMyTurn) {
+                        turnText.textContent = "دورك! اسأل أو خمن"; turnText.className = "text-[10px] md:text-xs font-black text-brand bg-green-50 border-green-300 border px-2 py-1 rounded animate-pulse";
+                    } else {
+                        turnText.textContent = "انتظر دورك..."; turnText.className = "text-[10px] md:text-xs font-black text-slate-400 bg-slate-50 border-slate-200 border px-2 py-1 rounded";
+                    }
                 }
             }
         }
@@ -1532,6 +1624,10 @@
         // --- Core Game Flow ---
         function submitGuess() {
             if (isGameOver || !targetPlayer) return;
+            if (gameMode === 'online') {
+                const turnTxt = document.getElementById('turn-text').textContent;
+                if (turnTxt.includes('انتظر دورك')) return;
+            }
             const val = inputEl.value.trim();
             if (!val) return;
             inputEl.value = '';
@@ -1639,6 +1735,13 @@
             }
             if (largeQ) largeQ.classList.add('hidden');
 
+            // كشف الصورة الصغيرة في الوضع المحلي
+            const smallAvatar = document.getElementById('mystery-avatar');
+            if (smallAvatar) {
+                smallAvatar.classList.remove('mystery-img');
+                smallAvatar.classList.add('revealed-img');
+            }
+
             resultOverlay.classList.remove('pointer-events-none', 'hidden', 'opacity-0');
             resultOverlay.classList.add('opacity-100');
             resultText.classList.remove('scale-0');
@@ -1701,9 +1804,26 @@
         }
 
         // --- اختيار عرض الأونلاين ---
+        function setTurnTime(seconds) {
+            if (!isHost) return;
+            selectedTurnTime = seconds;
+            document.querySelectorAll('.timer-opt-btn').forEach(btn => {
+                btn.classList.remove('bg-brand', 'text-white');
+                btn.classList.add('bg-slate-100', 'dark:bg-slate-700');
+            });
+            const selectedBtn = document.getElementById('timer-btn-' + seconds);
+            selectedBtn.classList.remove('bg-slate-100', 'dark:bg-slate-700');
+            selectedBtn.classList.add('bg-brand', 'text-white');
+        }
+
         function selectPosition(pos) {
             if (!isHost) return; // الضيف لا يستطيع الاختيار
-            db.ref('football_rooms/' + currentRoomId).update({ play_mode: pos });
+            db.ref('football_rooms/' + currentRoomId).update({
+                play_mode: pos,
+                turn_time_limit: selectedTurnTime,
+                turn_start_at: firebase.database.ServerValue.TIMESTAMP,
+                current_turn: 'p1'
+            });
         }
 
         // --- Online Logic ---
@@ -1712,7 +1832,19 @@
             isHost = true; myRole = 'p1'; currentRoomId = code; gameMode = 'online'; scores = { p1: 0, p2: 0 }; playPosition = null;
             document.getElementById('header-code-val').textContent = code;
             document.getElementById('header-online-status').classList.remove('hidden'); document.getElementById('header-online-status').classList.add('flex');
-            db.ref('football_rooms/' + currentRoomId).set({ state: "waiting", p1_score: 0, p2_score: 0, p1_ready: false, p2_ready: false, p1_target: null, p2_target: null, winner: null, play_mode: null });
+            db.ref('football_rooms/' + currentRoomId).set({
+                state: "waiting",
+                p1_score: 0,
+                p2_score: 0,
+                p1_ready: false,
+                p2_ready: false,
+                p1_target: null,
+                p2_target: null,
+                p1_attempts: 3,
+                p2_attempts: 3,
+                winner: null,
+                play_mode: null
+            });
             setupOnlineListener();
             document.getElementById('setup-wait-msg').classList.remove('hidden'); document.getElementById('setup-wait-msg').classList.add('flex');
             document.getElementById('setup-wait-text').textContent = "بانتظار دخول الخصم..."; switchTab('setup');
@@ -1734,8 +1866,42 @@
         }
 
         function setupOnlineListener() {
+            // محرك الموقت العالمي (V2) - يعمل باستمرار ويدير كافة الحالات
+            if (!turnTimerInterval) {
+                turnTimerInterval = setInterval(() => {
+                    const timerValEl = document.getElementById('online-timer-val');
+                    if (!timerValEl) return;
+
+                    const isActive = currentRoomData && currentRoomData.state === 'playing' && !isGameOver && currentRoomData.turn_start_at;
+
+                    if (!isActive) {
+                        if (currentRoomData && currentRoomData.state === 'playing' && !currentRoomData.turn_start_at) {
+                            // مرحلة اختيار الوضع - نعرض الوقت المختار
+                            timerValEl.textContent = currentRoomData.turn_time_limit || 20;
+                        } else {
+                            timerValEl.textContent = "00";
+                        }
+                        return;
+                    }
+
+                    const now = Date.now() + serverTimeOffset;
+                    const limit = currentRoomData.turn_time_limit || 20;
+                    const elapsed = Math.floor((now - currentRoomData.turn_start_at) / 1000);
+                    const remaining = Math.max(0, limit - elapsed);
+
+                    timerValEl.textContent = remaining < 10 ? '0' + remaining : remaining;
+                    if (remaining <= 5) timerValEl.classList.add('text-red-500');
+                    else timerValEl.classList.remove('text-red-500');
+
+                    if (remaining === 0 && isHost && !isGameOver) {
+                        nextTurn();
+                    }
+                }, 500);
+            }
+
             db.ref('football_rooms/' + currentRoomId).on('value', snap => {
                 const data = snap.val(); if (!data) return;
+                currentRoomData = data; // مزامنة البيانات العالمية فوراً
                 scores.p1 = data.p1_score || 0; scores.p2 = data.p2_score || 0;
                 if (document.getElementById('score-p1')) { document.getElementById('score-p1').textContent = scores.p1; document.getElementById('score-p2').textContent = scores.p2; }
 
@@ -1836,6 +2002,8 @@
                                     } else {
                                         const isCorrectHint = rData.type === 'correct_hint';
                                         renderTextHistory(myPData.text, isCorrectHint);
+                                        // تبديل الدور آلياً بعد الرد
+                                        if (myRole === currentRoomData.current_turn) nextTurn();
                                     }
                                     if (isHost) {
                                         db.ref('football_rooms/' + currentRoomId + '/proposals').remove();
@@ -1844,10 +2012,27 @@
                                 });
                             });
                         }
+
+                        updateTurnUI(data); // تحديث الواجهة عند كل تغيير
                     }
                 } else if (data.state === "ended") {
                     if (!isGameOver && data.winner) handleWin(data.winner === 'p1' ? 1 : 2);
                 }
+
+                // تحديث المحاولات المتبقية
+                if (data[myRole + '_attempts'] !== undefined) {
+                    const attemptsVal = document.getElementById('remaining-attempts-val');
+                    if (attemptsVal) attemptsVal.textContent = data[myRole + '_attempts'];
+                }
+            });
+        }
+
+        function nextTurn() {
+            if (!currentRoomId || isGameOver || !currentRoomData) return;
+            const nextT = currentRoomData.current_turn === 'p1' ? 'p2' : 'p1';
+            db.ref('football_rooms/' + currentRoomId).update({
+                current_turn: nextT,
+                turn_start_at: firebase.database.ServerValue.TIMESTAMP
             });
         }
 
@@ -1864,9 +2049,13 @@
                     p2_target: null,
                     p1_ready: false,
                     p2_ready: false,
+                    p1_attempts: 3,
+                    p2_attempts: 3,
+                    current_turn: 'p1',
+                    turn_start_at: null, // تصفير الموقت للجولة الجديدة
                     winner: null,
                     play_mode: null,
-                    system_notify: null // مسح الإشعارات السابقة
+                    system_notify: null
                 });
             }
         }
