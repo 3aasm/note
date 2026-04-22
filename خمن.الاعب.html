@@ -104,6 +104,43 @@
             box-shadow: 4px 4px 0px #020617;
         }
 
+        .exit-ribbon-panel {
+            background: #171717; /* Dark panel */
+            width: 100%;
+            max-width: 360px;
+            padding: 2rem;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 3px solid #020617;
+            box-shadow: 6px 6px 0px #020617;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        #exit-modal.active .exit-ribbon-panel {
+            transform: scale(1) translateY(0);
+        }
+
+        .sheet-close-btn {
+            background: #e11d48;
+            color: #ffffff;
+            border: 3px solid #0f172a;
+            box-shadow: 4px 4px 0px #0f172a;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 1.25rem;
+            border-radius: 12px;
+        }
+
         .cartoon-btn {
             border: 2px solid #0f172a;
             box-shadow: 3px 3px 0px #0f172a;
@@ -490,22 +527,31 @@
 
     <!-- نافذة تأكيد الخروج -->
     <div id="exit-modal"
-        class="fixed inset-0 z-[400] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <div class="cartoon-panel bg-white dark:bg-slate-800 p-6 max-w-sm w-full text-center animate-popIn">
-            <div
-                class="w-16 h-16 mx-auto bg-red-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-red-500 text-3xl mb-4 border-2 border-panelBorder shadow-[3px_3px_0px_#0f172a]">
+        class="fixed inset-0 z-[400] hidden items-center justify-center bg-black/85 backdrop-blur-sm p-4">
+        <div class="exit-ribbon-panel">
+            
+            <!-- Icon -->
+            <div class="w-16 h-16 bg-brand border-[3px] border-[#020617] rounded-2xl flex items-center justify-center text-white text-3xl shadow-[4px_4px_0px_#020617]">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 class="text-xl font-black font-heading mb-2">تأكيد الخروج</h3>
-            <p class="text-sm font-bold text-slate-600 dark:text-slate-300 mb-6">هل أنت متأكد من الخروج للرئيسية؟ ستفقد
-                تقدم اللعبة الحالي!</p>
-            <div class="flex gap-3">
-                <button onclick="confirmExit(true)"
-                    class="cartoon-btn bg-red-500 text-white flex-1 py-2 rounded-xl font-black hover:bg-red-600">نعم،
-                    خروج</button>
-                <button onclick="confirmExit(false)"
-                    class="cartoon-btn bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-white flex-1 py-2 rounded-xl font-black hover:bg-slate-300">إلغاء</button>
+
+            <!-- Text -->
+            <div>
+                <h3 class="font-black font-heading text-2xl uppercase tracking-tight text-white mb-2">هل تريد الخروج؟</h3>
+                <p class="text-sm font-bold text-gray-400">سيتم فقدان أي تقدم لم يتم حفظه.</p>
             </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-col w-full gap-3 mt-2">
+                <button onclick="confirmExit(true)" class="w-full py-3 bg-brand hover:bg-red-600 text-white font-black rounded-xl border-[3px] border-[#020617] shadow-[4px_4px_0px_#020617] transition-colors flex items-center justify-center gap-2">
+                    <span class="text-sm">خروج من اللعبة</span>
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+                <button onclick="confirmExit(false)" class="w-full py-3 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-xl border-[3px] border-[#020617] shadow-[4px_4px_0px_#020617] transition-colors">
+                    تراجع
+                </button>
+            </div>
+            
         </div>
     </div>
 
