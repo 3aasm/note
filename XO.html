@@ -26,11 +26,11 @@
     <!-- Tailwind Configuration -->
     <script>
         // Theme Init (Prevents Flash)
-        (function() {
+        (function () {
             const urlParams = new URLSearchParams(window.location.search);
             const themeParam = urlParams.get('theme');
             const savedTheme = localStorage.getItem('xo-theme');
-            
+
             if (themeParam === 'dark' || (themeParam !== 'light' && (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)))) {
                 document.documentElement.classList.add('dark');
             }
