@@ -6,7 +6,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" id="status-bar-color" content="#0a0a0a">
-    <title>برو أرينا</title>
+    <title>برو أرينان</title>
     <link rel="icon" type="image/png" href="صورة التطبيق.png">
     <link rel="apple-touch-icon" href="صورة التطبيق.png">
     <link rel="manifest" href="manifest.json">
@@ -307,16 +307,16 @@
         #exit-confirm-modal {
             position: fixed;
             inset: 0;
-            z-index: 200;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
+            z-index: 300;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 20px;
+            padding: 0;
         }
 
         #exit-confirm-modal.active {
@@ -325,40 +325,24 @@
         }
 
         .confirm-panel {
-            background: #ffffff;
+            background: #171717; /* Dark panel */
             width: 100%;
             max-width: 360px;
             padding: 2rem;
             transform: scale(0.9) translateY(20px);
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            border: 2px solid #e4e4e7;
-        }
-
-        .dark .confirm-panel {
-            background: #171717;
-            border-color: #262626;
+            border: 3px solid #020617;
+            box-shadow: 6px 6px 0px #020617;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1.5rem;
         }
 
         #exit-confirm-modal.active .confirm-panel {
             transform: scale(1) translateY(0);
-        }
-
-        .modal-icon {
-            width: 60px;
-            height: 60px;
-            background: #fee2e2;
-            color: #ef4444;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 9999px;
-            margin: 0 auto 1.5rem;
-            font-size: 1.5rem;
-        }
-
-        .dark .modal-icon {
-            background: #450a0a;
-            color: #ef4444;
         }
 
         /* تفاعل الأزرار في الجوال */
@@ -661,6 +645,41 @@
                         </div>
                     </div>
 
+                    <!-- لعبة المافيا -->
+                    <div onclick="openGameSheet('لعبة_المافيا.html')"
+                        class="stagger-item game-card-hover cursor-pointer col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-red-500/30 group flex flex-col overflow-hidden relative min-h-[180px]">
+
+                        <div
+                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i
+                                class="fa-solid fa-skull text-8xl text-red-500 group-hover:scale-125 transition-transform duration-700"></i>
+                        </div>
+
+                        <div class="p-4 mt-auto relative z-10 text-right">
+                            <div class="absolute top-4 left-4">
+                                <span
+                                    class="bg-red-600 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">جماعية</span>
+                            </div>
+                            <h3
+                                class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-red-500 transition-colors">
+                                لعبة المافيا</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 line-clamp-2">من هو القاتل؟ استنتج وابق على قيد الحياة.</p>
+                        </div>
+
+                        <div class="glass-play-overlay absolute inset-0 z-20"
+                            style="background: rgba(220, 38, 38, 0.15); border-color: rgba(220, 38, 38, 0.3);">
+                            <div class="flex flex-col items-center gap-2 transition-all duration-500">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white shadow-xl shadow-red-600/40">
+                                    <i class="fa-solid fa-play text-lg ml-1"></i>
+                                </div>
+                                <span
+                                    class="font-black font-heading text-white uppercase tracking-widest text-[10px]">العب
+                                    الآن</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- لعبة 2 (برا السالفة) -->
                     <div onclick="openGameSheet('برا.السالفة.html')"
                         class="stagger-item game-card-hover cursor-pointer col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-blue-500/30 group flex flex-col overflow-hidden relative min-h-[180px]">
@@ -799,6 +818,41 @@
                                 <span
                                     class="font-black font-heading text-white uppercase tracking-widest text-[10px]">العب
                                     الآن</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- لعبة التخمين (تحت التطوير) -->
+                    <div
+                        class="stagger-item game-card-hover cursor-default col-span-1 bg-white dark:bg-[#141414] border border-borderLight dark:border-white/5 hover:border-orange-500/30 group flex flex-col overflow-hidden relative min-h-[180px]">
+
+                        <div
+                            class="absolute inset-0 flex items-center justify-center opacity-15 dark:opacity-10 pointer-events-none">
+                            <i
+                                class="fa-solid fa-question text-8xl text-orange-500 group-hover:scale-125 transition-transform duration-700"></i>
+                        </div>
+
+                        <div class="p-4 mt-auto relative z-10 text-right">
+                            <div class="absolute top-4 left-4">
+                                <span
+                                    class="bg-orange-600 text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest clip-angled-btn">قريباً</span>
+                            </div>
+                            <h3
+                                class="font-black font-heading text-lg text-gray-900 dark:text-white mb-1 uppercase group-hover:text-orange-500 transition-colors">
+                                لعبة التخمين</h3>
+                            <p class="text-[10px] text-gray-600 dark:text-gray-500 line-clamp-2">خمن واستمتع.</p>
+                        </div>
+
+                        <div class="glass-play-overlay absolute inset-0 z-20"
+                            style="background: rgba(249, 115, 22, 0.15); border-color: rgba(249, 115, 22, 0.3);">
+                            <div class="flex flex-col items-center gap-2 transition-all duration-500">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-orange-600 flex items-center justify-center text-white shadow-xl shadow-orange-600/40">
+                                    <i class="fa-solid fa-lock text-lg"></i>
+                                </div>
+                                <span
+                                    class="font-black font-heading text-white uppercase tracking-widest text-[10px]">قيد
+                                    التطوير</span>
                             </div>
                         </div>
                     </div>
@@ -1185,26 +1239,30 @@
 
     <!-- Exit Confirmation Modal -->
     <div id="exit-confirm-modal">
-        <div class="confirm-panel clip-angled shadow-2xl">
-            <div class="modal-icon">
-                <i class="fa-solid fa-right-from-bracket"></i>
+        <div class="confirm-panel">
+            
+            <!-- Icon -->
+            <div class="w-16 h-16 bg-brand border-[3px] border-[#020617] rounded-2xl flex items-center justify-center text-white text-3xl shadow-[4px_4px_0px_#020617]">
+                <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3
-                class="text-xl font-black font-heading text-center mb-2 text-gray-900 dark:text-white uppercase tracking-tight">
-                هل تريد الخروج؟</h3>
-            <p class="text-gray-500 dark:text-gray-400 text-center mb-8 text-sm font-medium">سيتم فقدان أي تقدم لم يتم
-                حفظه في المباراة الحالية.</p>
 
-            <div class="flex flex-col gap-3">
-                <button onclick="confirmExit(true)"
-                    class="w-full py-3 bg-brand hover:bg-brandHover text-white font-black font-heading uppercase tracking-widest clip-angled-btn transition-all active:scale-95 shadow-lg shadow-brand/20">
-                    تأكيد الخروج
+            <!-- Text -->
+            <div>
+                <h3 class="font-black font-heading text-2xl uppercase tracking-tight text-white mb-2">هل تريد الخروج؟</h3>
+                <p class="text-sm font-bold text-gray-400">سيتم فقدان أي تقدم لم يتم حفظه.</p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-col w-full gap-3 mt-2">
+                <button onclick="confirmExit(true)" class="w-full py-3 bg-brand hover:bg-red-600 text-white font-black rounded-xl border-[3px] border-[#020617] shadow-[4px_4px_0px_#020617] transition-colors flex items-center justify-center gap-2">
+                    <span class="text-sm">خروج من اللعبة</span>
+                    <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
-                <button onclick="confirmExit(false)"
-                    class="w-full py-3 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 font-bold font-heading uppercase tracking-widest clip-angled-btn transition-all active:scale-95">
+                <button onclick="confirmExit(false)" class="w-full py-3 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-xl border-[3px] border-[#020617] shadow-[4px_4px_0px_#020617] transition-colors">
                     تراجع
                 </button>
             </div>
+            
         </div>
     </div>
 
@@ -1801,6 +1859,7 @@
         let currentChatId = null;
         let messagesUnsubscribe = null;
         let isDeletingAccount = false; // Flag to prevent re-creation during deletion
+        let pointTimerInterval = null;
 
         // --- نظام وضع الصيانة (Maintenance Mode) ---
         const gameMaintenanceStatus = {};
@@ -1860,10 +1919,22 @@
             if (friendRequestsUnsubscribe) { friendRequestsUnsubscribe(); friendRequestsUnsubscribe = null; }
             if (friendsListUnsubscribe) { friendsListUnsubscribe(); friendsListUnsubscribe = null; }
             if (notificationsUnsubscribe) { notificationsUnsubscribe(); notificationsUnsubscribe = null; }
+            if (pointTimerInterval) { clearInterval(pointTimerInterval); pointTimerInterval = null; }
 
             if (user) {
                 if (logoutBox) logoutBox.classList.remove('hidden');
                 if (deleteItem) deleteItem.classList.remove('hidden');
+
+                // بدء مؤقت النقاط التلقائي (نقطة كل دقيقة)
+                if (!pointTimerInterval) {
+                    pointTimerInterval = setInterval(async () => {
+                        try {
+                            await db.collection('users').doc(user.uid).update({
+                                points: firebase.firestore.FieldValue.increment(1)
+                            });
+                        } catch (e) { console.error("Auto-points error:", e); }
+                    }, 60000);
+                }
 
                 // استخدام onSnapshot للمزامنة الفورية
                 unsubscribeUser = db.collection('users').doc(user.uid).onSnapshot(async (doc) => {
@@ -2099,8 +2170,16 @@
             const pass = document.getElementById('login-password').value;
             if (!email || !pass) return alert("يرجى ملء الحقول");
 
+            const priorUser = auth.currentUser;
+            const wasAnonymous = priorUser && priorUser.isAnonymous;
+            const priorUid = priorUser ? priorUser.uid : null;
+
             try {
                 await auth.signInWithEmailAndPassword(email, pass);
+                // تنظيف بيانات الضيف بعد تسجيل الدخول الناجح
+                if (wasAnonymous && priorUid) {
+                    db.collection('users').doc(priorUid).delete().catch(e => console.error("Cleanup error:", e));
+                }
             } catch (error) {
                 alert("خطأ في تسجيل الدخول: " + error.message);
             }
@@ -2119,21 +2198,20 @@
             btn.disabled = true;
             btn.innerText = "جاري التحقق...";
 
-            try {
-                // 1. إنشاء حساب المصادقة أولاً للحصول على تصريح القراءة (بعض القواعد تمنع الضيوف من البحث في المستخدمين)
-                const cred = await auth.createUserWithEmailAndPassword(email, pass);
+            const priorUser = auth.currentUser;
+            const wasAnonymous = priorUser && priorUser.isAnonymous;
+            const priorUid = priorUser ? priorUser.uid : null;
 
-                // 2. الآن بعد تسجيل الدخول، نتحقق من تكرار الاسم
+            try {
+                const cred = await auth.createUserWithEmailAndPassword(email, pass);
                 const nameCheck = await db.collection('users').where('username', '==', username).get();
                 if (!nameCheck.empty) {
-                    // إذا كان الاسم محجوزاً، نمسح حساب المصادقة فوراً ليتسنى للمستخدم المحاولة مرة أخرى بنفس البريد
                     await cred.user.delete();
                     btn.disabled = false;
                     btn.innerText = originalText;
-                    return alert("عذراً، هذا الاسم محجوز بالفعل لمستخدم آخر. يرجى اختيار اسم محارب مختلف.");
+                    return alert("عذراً، هذا الاسم محجوز بالفعل لمستخدم آخر.");
                 }
 
-                // 3. إنشاء ملف المستخدم بنجاح
                 await db.collection('users').doc(cred.user.uid).set({
                     username: username,
                     region: "الشرق الأوسط",
@@ -2142,11 +2220,15 @@
                     customId: generateCustomId(),
                     theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
                 });
+
+                // تنظيف بيانات الضيف القديمة بعد إنشاء الحساب الجديد
+                if (wasAnonymous && priorUid) {
+                    db.collection('users').doc(priorUid).delete().catch(e => console.error("Cleanup error:", e));
+                }
             } catch (error) {
-                // معالجة الخطأ
                 let errorMsg = error.message;
                 if (error.code === 'permission-denied') {
-                    errorMsg = "صلاحيات الوصول مرفوضة. يرجى التأكد من إعدادات قاعدة البيانات أو المحاولة لاحقاً.";
+                    errorMsg = "صلاحيات الوصول مرفوضة.";
                 }
                 alert("خطأ في إنشاء الحساب: " + errorMsg);
                 btn.disabled = false;
@@ -2155,9 +2237,33 @@
         }
 
         async function logout() {
-            if (confirm("هل أنت متأكد من تسجيل الخروج؟")) {
+            if (!auth.currentUser) return;
+
+            if (confirm("هل أنت متأكد من تسجيل الخروج؟ سيتم حذف بيانات حساب الضيف نهائياً إذا لم تقم بربطه.")) {
+                const user = auth.currentUser;
+                const isAnonymous = user.isAnonymous;
+                const uid = user.uid;
+
                 localStorage.removeItem('pro-arena-profile');
-                await auth.signOut();
+
+                if (isAnonymous) {
+                    try {
+                        isDeletingAccount = true;
+                        // حذف البيانات من Firestore أولاً
+                        await db.collection('users').doc(uid).delete();
+                        // ثم حذف الحساب من Auth
+                        await user.delete();
+                        console.log("تم حذف حساب الضيف بنجاح");
+                    } catch (error) {
+                        console.error("Error deleting anonymous user:", error);
+                        await auth.signOut();
+                    } finally {
+                        isDeletingAccount = false;
+                        location.reload(); // إعادة تحميل للتأكد من نظافة الحالة
+                    }
+                } else {
+                    await auth.signOut();
+                }
             }
         }
 
