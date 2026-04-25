@@ -219,25 +219,25 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.75rem 1.25rem;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--panel-bg);
+            padding: 0.75rem 1rem;
+            background: #0a0a0a;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .sheet-close-btn {
             background: #e11d48;
             color: #ffffff;
-            border: 2px solid #ffffff;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            transition: all 0.25s ease;
+            font-weight: 800;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
+            flex-direction: row-reverse;
+            gap: 0.6rem;
+            padding: 0.45rem 1.2rem;
+            border-radius: 14px;
             cursor: pointer;
-            box-shadow: var(--shadow-brand);
+            border: none;
+            box-shadow: 0 4px 15px rgba(225, 29, 72, 0.3);
         }
 
         .sheet-close-btn:hover {
@@ -251,7 +251,7 @@
 
         #game-iframe {
             width: 100%;
-            height: calc(100% - 76px);
+            flex: 1;
             border: none;
         }
 
@@ -1228,17 +1228,16 @@
     <div id="game-sheet-overlay" onclick="closeGameSheet()"></div>
     <div id="game-sheet" class="bg-surface-panel">
         <div class="flex flex-col h-full w-full">
-            <div id="game-sheet-header" class="flex items-center justify-between px-5 py-3.5 bg-surface-panel">
-                <div class="flex items-center gap-3">
-                    <div
-                        class="w-10 h-10 bg-brand border-2 border-white/20 rounded-xl flex items-center justify-center text-primary shadow-lg shadow-brand/30 overflow-hidden">
-                        <img src="صورة التطبيق.png" alt="Logo" class="w-full h-full object-cover">
+            <div id="game-sheet-header">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-brand/10 border border-brand/30 rounded-xl flex items-center justify-center text-brand shadow-lg shadow-brand/10 overflow-hidden">
+                        <img src="صورة التطبيق.png" alt="Logo" class="w-full h-full object-cover" onerror="this.outerHTML='<i class=\'fa-solid fa-crosshairs\'></i>'">
                     </div>
-                    <h3 class="font-black font-heading text-xl uppercase tracking-tight text-primary">الألعاب</h3>
+                    <h3 class="font-black font-heading text-lg text-white tracking-wide">ساحة المعركة</h3>
                 </div>
-                <button onclick="closeGameSheet()" class="sheet-close-btn" title="خروج من اللعبة">
-                    <span class="text-xs font-bold">خروج</span>
-                    <i class="fa-solid fa-right-from-bracket"></i>
+                <button onclick="closeGameSheet()" class="sheet-close-btn">
+                    <span class="text-xs">خروج</span>
+                    <i class="fa-solid fa-right-from-bracket text-xs"></i>
                 </button>
             </div>
             <div class="h-[3px] bg-gradient-to-r from-brand via-red-600 to-brand w-full opacity-80"></div>
