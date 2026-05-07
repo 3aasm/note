@@ -47,6 +47,8 @@
         body {
             -webkit-tap-highlight-color: transparent;
             background-color: #111111;
+            overflow-x: hidden;
+            width: 100%;
         }
 
         .scrollbar-hide::-webkit-scrollbar {
@@ -507,8 +509,8 @@
     </div>
 
     <!-- Header -->
-    <header class="px-6 pt-8 pb-4 flex items-center justify-between z-10 relative shrink-0">
-        <div class="flex items-center gap-4 flex-1">
+    <header class="px-4 sm:px-6 pt-8 pb-4 flex items-center justify-between z-10 relative shrink-0 w-full">
+        <div class="flex items-center gap-2 sm:gap-4 flex-1">
             <button id="header-back-btn" onclick="handleHomeClick()"
                 class="hidden w-10 h-10 glass-btn rounded-xl flex items-center justify-center text-zinc-300 text-lg shrink-0">
                 <i class="fa-solid fa-arrow-right"></i>
@@ -559,7 +561,7 @@
 
     <!-- Main Content Area -->
     <main id="main-scroll-area"
-        class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 pb-8 scroll-smooth relative z-0 flex flex-col items-center justify-start scrollbar-hide">
+        class="flex-1 w-full overflow-y-auto overflow-x-hidden p-4 md:p-6 pb-8 scroll-smooth relative z-0 flex flex-col items-center justify-start scrollbar-hide">
         <div class="w-full max-w-[32rem] mx-auto relative flex-1 flex flex-col justify-center">
 
             <!-- ====== الشاشة الرئيسية ====== -->
@@ -568,12 +570,12 @@
 
                     <!-- Background VS Text (Moved to Absolute Top) -->
                     <div class="absolute inset-x-0 top-[-2rem] flex justify-center pointer-events-none overflow-hidden">
-                        <span class="text-[10rem] md:text-[12rem] font-black italic text-white/5 tracking-tighter select-none">VS</span>
+                        <span class="text-[clamp(6rem,25vw,10rem)] md:text-[12rem] font-black italic text-white/5 tracking-tighter select-none">VS</span>
                     </div>
 
                     <!-- Single Combined Legend Image (Wider) -->
                     <div class="absolute inset-0 pointer-events-none overflow-hidden flex justify-center">
-                        <img id="legend-combined" src="" 
+                        <img id="legend-combined" src=""
                             class="w-full h-full object-cover opacity-0 transition-opacity duration-1000 mix-blend-lighten grayscale-[30%] brightness-[0.6] scale-110"
                             alt="Legends Art">
                     </div>
@@ -588,7 +590,8 @@
                             <i class="fa-solid fa-futbol text-4xl text-zinc-300"></i>
                         </div>
                         <h2 class="text-4xl font-black font-heading mb-2 text-white tracking-tight drop-shadow-lg">حدد
-                            <span class="text-emerald-400">الاعب</span></h2>
+                            <span class="text-emerald-400">الاعب</span>
+                        </h2>
                         <p
                             class="text-sm text-zinc-300 font-medium bg-black/40 px-4 py-1 rounded-full backdrop-blur-sm inline-block border border-white/5">
                             اكتشف الشخصية الرياضية المجهولة .</p>
@@ -1053,7 +1056,7 @@
 
         function loadLegendaryImages() {
             const combined = document.getElementById('legend-combined');
-            
+
             if (combined) {
                 combined.src = "https://i.pinimg.com/736x/e9/29/c8/e929c8fe1a3e537f23d3d64d930d8fb1.jpg";
                 combined.onload = () => {
