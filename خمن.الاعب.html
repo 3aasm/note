@@ -366,7 +366,7 @@
 </head>
 
 <body
-    class="bg-[#111111] text-zinc-100 font-sans h-[100dvh] flex flex-col overflow-hidden selection:bg-emerald-900 m-0">
+    class="bg-[#111111] text-zinc-100 font-sans h-[100dvh] flex flex-col overflow-hidden selection:bg-emerald-900 m-0 w-full min-w-full items-center">
 
     <!-- Elegant Transition Overlay -->
     <div id="elegant-transition">
@@ -509,8 +509,9 @@
     </div>
 
     <!-- Header -->
-    <header class="px-4 sm:px-6 pt-8 pb-4 flex items-center justify-between z-10 relative shrink-0 w-full">
-        <div class="flex items-center gap-2 sm:gap-4 flex-1">
+    <header
+        class="px-4 sm:px-6 pt-8 pb-4 flex items-center justify-between z-10 relative shrink-0 w-full max-w-[32rem]">
+        <div class="flex items-center gap-2 sm:gap-4 flex-1 w-full">
             <button id="header-back-btn" onclick="handleHomeClick()"
                 class="hidden w-10 h-10 glass-btn rounded-xl flex items-center justify-center text-zinc-300 text-lg shrink-0">
                 <i class="fa-solid fa-arrow-right"></i>
@@ -570,7 +571,8 @@
 
                     <!-- Background VS Text (Moved to Absolute Top) -->
                     <div class="absolute inset-x-0 top-[-2rem] flex justify-center pointer-events-none overflow-hidden">
-                        <span class="text-[clamp(6rem,25vw,10rem)] md:text-[12rem] font-black italic text-white/5 tracking-tighter select-none">VS</span>
+                        <span
+                            class="text-[clamp(6rem,25vw,10rem)] md:text-[12rem] font-black italic text-white/5 tracking-tighter select-none">VS</span>
                     </div>
 
                     <!-- Single Combined Legend Image (Wider) -->
