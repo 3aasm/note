@@ -561,12 +561,12 @@
 
     <!-- Main Content Area -->
     <main id="main-scroll-area"
-        class="flex-1 w-full overflow-y-auto overflow-x-hidden p-4 md:p-6 pb-8 scroll-smooth relative z-0 flex flex-col items-center justify-start scrollbar-hide">
+        class="flex-1 w-full min-w-full overflow-y-auto overflow-x-hidden p-4 md:p-6 pb-8 scroll-smooth relative z-0 flex flex-col items-center justify-start scrollbar-hide">
         <div class="w-full max-w-[32rem] mx-auto relative flex-1 flex flex-col justify-center">
 
             <!-- ====== الشاشة الرئيسية ====== -->
-            <div id="home-view" class="page-section w-full active pb-10">
-                <div class="relative flex flex-col items-center justify-center mb-4 min-h-[240px]">
+            <div id="home-view" class="page-section w-full active pb-10 flex flex-col items-center">
+                <div class="relative w-full flex flex-col items-center justify-center mb-4 min-h-[240px]">
 
                     <!-- Background VS Text (Moved to Absolute Top) -->
                     <div class="absolute inset-x-0 top-[-2rem] flex justify-center pointer-events-none overflow-hidden">
@@ -581,7 +581,7 @@
                     </div>
 
                     <!-- Main Center Content -->
-                    <div class="text-center z-10">
+                    <div class="text-center z-10 w-full flex flex-col items-center">
                         <div
                             class="w-20 h-20 mx-auto rounded-full border border-white/10 bg-white/5 flex items-center justify-center mb-6 relative overflow-hidden backdrop-blur-md">
                             <div
