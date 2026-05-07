@@ -44,11 +44,13 @@
     </script>
 
     <style>
-        body {
+        html, body {
             -webkit-tap-highlight-color: transparent;
             background-color: #111111;
             overflow-x: hidden;
             width: 100%;
+            position: relative;
+            touch-action: pan-y;
         }
 
         .scrollbar-hide::-webkit-scrollbar {
@@ -365,8 +367,8 @@
     </style>
 </head>
 
-<body
-    class="bg-[#111111] text-zinc-100 font-sans h-[100dvh] flex flex-col overflow-hidden selection:bg-emerald-900 m-0 w-full min-w-full items-center">
+<body dir="rtl"
+    class="bg-[#111111] text-zinc-100 font-sans h-[100dvh] flex flex-col overflow-hidden selection:bg-emerald-900 m-0 w-full min-w-full text-right">
 
     <!-- Elegant Transition Overlay -->
     <div id="elegant-transition">
@@ -379,7 +381,7 @@
     <div class="goal-net-bg"></div>
 
     <!-- Photorealistic Stadium Backdrop -->
-    <div class="fixed bottom-0 left-0 w-full h-[40vh] z-[-1] pointer-events-none overflow-hidden">
+    <div class="fixed bottom-0 left-0 w-full max-w-full h-[40vh] z-[-1] pointer-events-none overflow-hidden">
         <!-- The Realistic Image -->
         <div class="absolute inset-0 bg-cover bg-bottom bg-no-repeat opacity-40 mix-blend-lighten"
             style="background-image: url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&q=80&w=2000');">
@@ -509,8 +511,7 @@
     </div>
 
     <!-- Header -->
-    <header
-        class="px-4 sm:px-6 pt-8 pb-4 flex items-center justify-between z-10 relative shrink-0 w-full max-w-[32rem]">
+    <header class="px-4 sm:px-6 pt-8 pb-4 flex items-center justify-between z-10 relative shrink-0 w-full max-w-[32rem] mx-auto">
         <div class="flex items-center gap-2 sm:gap-4 flex-1 w-full">
             <button id="header-back-btn" onclick="handleHomeClick()"
                 class="hidden w-10 h-10 glass-btn rounded-xl flex items-center justify-center text-zinc-300 text-lg shrink-0">
@@ -562,7 +563,7 @@
 
     <!-- Main Content Area -->
     <main id="main-scroll-area"
-        class="flex-1 w-full min-w-full overflow-y-auto overflow-x-hidden p-4 md:p-6 pb-8 scroll-smooth relative z-0 flex flex-col items-center justify-start scrollbar-hide">
+        class="flex-1 w-full max-w-full overflow-y-auto overflow-x-hidden p-4 md:p-6 pb-8 scroll-smooth relative z-0 flex flex-col items-stretch justify-start scrollbar-hide">
         <div class="w-full max-w-[32rem] mx-auto relative flex-1 flex flex-col justify-center">
 
             <!-- ====== الشاشة الرئيسية ====== -->
