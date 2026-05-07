@@ -57,9 +57,9 @@
 
     <style>
         :root {
-            --panel-bg: #141414;
-            --surface-bg: #0a0a0a;
-            --surface-light: #0f0f0f;
+            --panel-bg: #0a0a0a;
+            --surface-bg: #000000;
+            --surface-light: #121212;
             --surface-hover: #1a1a1a;
             --border-color: #1f1f1f;
             --text-primary: #ffffff;
@@ -153,6 +153,47 @@
             animation: fadeOutDown 0.25s ease-in forwards;
         }
 
+        .page-section {
+            position: relative;
+            min-height: 100%;
+        }
+
+        .bg-decor-icons {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0.04;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: space-around;
+            justify-content: space-around;
+            z-index: -1;
+            padding: 2rem;
+            gap: 4rem;
+        }
+
+        .bg-decor-icons i {
+            transform: rotate(-15deg);
+        }
+
+        #main-scroll-area.fullscreen-active {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        @keyframes messageIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.9); filter: blur(4px); }
+            to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        .message-anim {
+            animation: messageIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .friend-item-click:active {
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
         .stagger-item {
             opacity: 0;
             transform: translateY(12px);
@@ -166,11 +207,14 @@
 
         /* خلفية مخططة */
         .bg-stripes {
-            background-image: repeating-linear-gradient(45deg,
-                    transparent,
-                    transparent 12px,
-                    rgba(225, 29, 72, 0.03) 12px,
-                    rgba(225, 29, 72, 0.03) 24px);
+            background-color: #000000;
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            background-attachment: fixed;
+        }
+
+        .light .bg-stripes {
+            background-color: #f4f4f5;
+            background-image: radial-gradient(circle at center, #ffffff 0%, #fff1f2 100%);
         }
 
         /* نافذة اللعبة المنزلقة */
@@ -615,19 +659,42 @@
     <!-- المحتوى الرئيسي -->
     <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-stripes">
         <header
-            class="h-16 fixed top-0 left-0 right-0 md:relative md:right-0 border-b border-surface-border bg-surface/90 dark:bg-surface/90 backdrop-blur-lg z-50 flex items-center justify-between px-5 transition-colors duration-400">
-            <div class="flex items-center gap-2">
+            class="h-16 fixed top-0 left-0 right-0 lg:relative lg:right-0 border-b border-surface-border bg-surface/90 dark:bg-surface/90 backdrop-blur-lg z-50 flex items-center justify-between px-5 transition-colors duration-400">
+            <div class="flex items-center gap-2 flex-1 overflow-hidden">
                 <h2 id="header-title"
-                    class="text-lg md:text-xl font-black font-heading uppercase text-primary transition-all duration-300">
+                    class="text-lg md:text-xl font-black font-heading uppercase text-primary transition-all duration-300 truncate">
                     مقر القيادة</h2>
+                <!-- حاوية البحث لصفحة الألعاب -->
+                <div id="header-search-container" class="hidden w-full max-w-[220px] ml-2">
+                    <div class="relative">
+                        <input type="text" oninput="handleGameSearch(this.value)" placeholder="ابحث عن لعبة..."
+                            class="w-full bg-surface-panel border border-surface-border text-primary px-3 py-2 pr-9 focus:outline-none focus:border-brand rounded-xl text-xs transition-all duration-300 placeholder-gray-500">
+                        <i
+                            class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-secondary text-xs"></i>
+                    </div>
+                </div>
             </div>
             <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2 px-3 py-1.5 bg-brand/10 border border-brand/30 rounded-xl">
+                <!-- حاوية الأزرار المخصصة (دردشة) -->
+                <div id="header-custom-actions" class="hidden flex items-center gap-2"></div>
+
+                <!-- حاوية النقاط -->
+                <div id="header-stats"
+                    class="flex items-center gap-2 px-3 py-1.5 bg-brand/10 border border-brand/30 rounded-xl">
                     <i class="fa-solid fa-star text-brand text-xs"></i>
                     <span id="header-points" class="font-bold text-sm text-primary">0</span>
                 </div>
-                <div class="w-px h-6 bg-surface-border"></div>
-                <button onclick="switchPage('notifications')"
+
+                <!-- حاوية المستخدمين النشطين (إعدادات) -->
+                <div id="header-active-users"
+                    class="hidden flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-xl">
+                    <i class="fa-solid fa-users text-green-500 text-xs"></i>
+                    <span class="text-xs font-bold text-primary">1,482</span>
+                </div>
+
+                <div id="header-divider" class="w-px h-6 bg-surface-border"></div>
+
+                <button id="header-notifications-btn" onclick="switchPage('notifications')"
                     class="w-8 h-8 flex items-center justify-center text-secondary hover:text-brand transition-all duration-300 hover:scale-110 active:scale-90 relative">
                     <i class="fa-solid fa-bell text-lg"></i>
                     <span id="notification-badge"
@@ -636,10 +703,19 @@
             </div>
         </header>
 
-        <div id="main-scroll-area" class="flex-1 overflow-y-auto p-4 md:p-8 pt-20 md:pt-8 pb-28 md:pb-8 scroll-smooth">
+        <div id="main-scroll-area" class="flex-1 overflow-y-auto p-4 lg:p-8 pt-20 lg:pt-8 pb-36 lg:pb-8 scroll-smooth">
 
             <!-- صفحة مقر القيادة -->
             <div id="home-page" class="page-section active max-w-6xl mx-auto space-y-8">
+                <div class="bg-decor-icons">
+                    <i class="fa-solid fa-house text-[150px]"></i>
+                    <i class="fa-solid fa-crosshairs text-[180px]"></i>
+                    <i class="fa-solid fa-trophy text-[120px]"></i>
+                    <i class="fa-solid fa-gamepad text-[160px]"></i>
+                    <i class="fa-solid fa-shield-halved text-[140px]"></i>
+                    <i class="fa-solid fa-house text-[100px]"></i>
+                    <i class="fa-solid fa-crosshairs text-[140px]"></i>
+                </div>
                 <div
                     class="stagger-item relative h-56 md:h-72 bg-gradient-to-br from-gray-900 via-black to-gray-950 rounded-2xl overflow-hidden group border border-surface-border">
                     <div class="absolute inset-0 flex items-center justify-around opacity-10 pointer-events-none">
@@ -711,11 +787,20 @@
 
             <!-- صفحة ساحة المعركة -->
             <div id="games-page" class="page-section max-w-6xl mx-auto space-y-6">
+                <div class="bg-decor-icons">
+                    <i class="fa-solid fa-gamepad text-[180px]"></i>
+                    <i class="fa-solid fa-dice text-[140px]"></i>
+                    <i class="fa-solid fa-chess text-[160px]"></i>
+                    <i class="fa-solid fa-puzzle-piece text-[120px]"></i>
+                    <i class="fa-solid fa-ghost text-[150px]"></i>
+                    <i class="fa-solid fa-gamepad text-[110px]"></i>
+                </div>
                 <div class="stagger-item flex flex-col mb-2">
                     <div class="relative flex-1">
-                        <input type="text" placeholder="ابحث عن لعبة..."
+                        <input type="text" oninput="handleGameSearch(this.value)" placeholder="ابحث عن لعبة..."
                             class="w-full bg-surface-panel border border-surface-border text-primary px-4 py-2.5 pr-10 pl-12 focus:outline-none focus:border-brand rounded-xl transition-colors duration-300 placeholder-gray-500">
-                        <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-secondary"></i>
+                        <i
+                            class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-secondary"></i>
                         <button onclick="toggleFilters()" id="filter-toggle-btn"
                             class="absolute left-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-surface-hover/50 text-secondary hover:text-brand transition-all duration-300 active:scale-90 rounded-lg">
                             <i class="fa-solid fa-sliders text-sm transition-transform duration-300"></i>
@@ -950,27 +1035,35 @@
             </div>
 
             <!-- صفحة التحالفات -->
-            <div id="messages-page" class="page-section max-w-4xl mx-auto">
-                <div class="stagger-item flex items-center justify-between mb-6 border-b border-surface-border pb-4">
+            <div id="messages-page" class="page-section w-full">
+                <div class="bg-decor-icons">
+                    <i class="fa-solid fa-comments text-[180px]"></i>
+                    <i class="fa-solid fa-paper-plane text-[140px]"></i>
+                    <i class="fa-solid fa-user-group text-[160px]"></i>
+                    <i class="fa-solid fa-at text-[120px]"></i>
+                    <i class="fa-solid fa-message text-[150px]"></i>
+                    <i class="fa-solid fa-comments text-[110px]"></i>
+                </div>
+                <div
+                    class="lg:flex hidden stagger-item items-center justify-between border-b border-surface-border pb-4 px-4 lg:px-8">
                     <h3 class="text-2xl font-black font-heading border-r-4 border-brand pr-3 uppercase text-primary">
                         قائمة
                         الأصدقاء</h3>
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                         <button onclick="toggleFriendRequestsModal()"
-                            class="bg-surface-panel border border-surface-border hover:border-brand hover:text-brand text-sm font-bold px-4 py-2 transition-all duration-300 active:scale-95 flex items-center gap-2 relative rounded-xl">
-                            <i class="fa-solid fa-user-plus"></i> الإضافات
+                            class="bg-surface-panel border border-surface-border hover:border-brand hover:text-brand text-sm font-bold px-6 py-3 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 relative rounded-xl w-full sm:w-auto">
+                            <i class="fa-solid fa-user-plus"></i> طلبات الصداقة
                             <span id="friend-requests-count"
                                 class="hidden absolute -top-2 -right-2 bg-brand text-primary text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-surface animate-bounce">0</span>
                         </button>
                         <button onclick="toggleAddFriendModal()"
-                            class="btn-brand text-sm px-4 py-2 flex items-center gap-2">
-                            <i class="fa-solid fa-plus"></i> إضافة صديق
+                            class="btn-brand text-sm px-6 py-3 flex items-center justify-center gap-2 w-full sm:w-auto">
+                            <i class="fa-solid fa-plus"></i> إضافة صديق جديد
                         </button>
                     </div>
                 </div>
-                <div id="friends-list-view"
-                    class="bg-surface-panel border border-surface-border rounded-2xl min-h-[400px]">
-                    <div id="friends-list-container" class="divide-y divide-surface-border">
+                <div id="friends-list-view" class="-mx-4 md:-mx-8 -mt-4 -mb-36 md:-mb-8 min-h-[calc(100vh-160px)]">
+                    <div id="friends-list-container" class="px-4 md:px-8">
                         <div class="flex flex-col items-center justify-center py-20 text-secondary">
                             <i class="fa-solid fa-user-group text-5xl mb-4 opacity-20"></i>
                             <p class="font-bold">لا يوجد أصدقاء بعد</p>
@@ -978,36 +1071,17 @@
                         </div>
                     </div>
                 </div>
-                <div id="chat-view"
-                    class="hidden bg-surface-panel border border-surface-border rounded-2xl h-[500px] flex flex-col relative overflow-hidden">
-                    <div class="p-4 border-b border-surface-border flex items-center gap-4 bg-black/20">
-                        <button onclick="closeChat()"
-                            class="text-secondary hover:text-brand transition-colors duration-300"><i
-                                class="fa-solid fa-arrow-right text-lg"></i></button>
-                        <div class="w-10 h-10 border-2 border-brand rounded-xl p-0.5"><img id="chat-friend-avatar"
-                                src="" class="w-full h-full object-cover rounded-lg"></div>
-                        <div class="flex-1">
-                            <h4 id="chat-friend-name" class="font-bold font-heading text-primary">اسم الصديق</h4>
-                            <div class="flex items-center gap-1.5"><span
-                                    class="w-2 h-2 rounded-full bg-green-500"></span><span
-                                    class="text-[10px] text-secondary">متصل الآن</span></div>
-                        </div>
-                    </div>
-                    <div id="chat-messages"
-                        class="flex-1 p-4 overflow-y-auto space-y-4 flex flex-col-reverse bg-black/10"></div>
-                    <div class="p-4 border-t border-surface-border bg-black/20">
-                        <form onsubmit="handleChatSubmit(event)" class="flex gap-2">
-                            <input type="text" id="chat-input" placeholder="اكتب رسالتك العسكرية..."
-                                class="flex-1 bg-black/40 border border-surface-border text-primary px-4 py-2.5 focus:outline-none focus:border-brand transition-all duration-300 rounded-xl placeholder-gray-500">
-                            <button type="submit" class="btn-brand w-10 h-10 flex items-center justify-center p-0"><i
-                                    class="fa-solid fa-paper-plane"></i></button>
-                        </form>
-                    </div>
-                </div>
             </div>
 
             <!-- صفحة الإشعارات -->
             <div id="notifications-page" class="page-section max-w-2xl mx-auto space-y-6">
+                <div class="bg-decor-icons">
+                    <i class="fa-solid fa-bell text-[180px]"></i>
+                    <i class="fa-solid fa-info-circle text-[140px]"></i>
+                    <i class="fa-solid fa-envelope-open text-[160px]"></i>
+                    <i class="fa-solid fa-bullhorn text-[120px]"></i>
+                    <i class="fa-solid fa-bell text-[150px]"></i>
+                </div>
                 <div class="stagger-item flex items-center justify-between mb-2">
                     <h3 class="text-2xl font-black font-heading border-r-4 border-brand pr-3 uppercase text-primary">
                         صندوق
@@ -1026,6 +1100,14 @@
 
             <!-- صفحة الإعدادات -->
             <div id="settings-page" class="page-section max-w-4xl mx-auto space-y-6">
+                <div class="bg-decor-icons">
+                    <i class="fa-solid fa-sliders text-[180px]"></i>
+                    <i class="fa-solid fa-gears text-[140px]"></i>
+                    <i class="fa-solid fa-user-gear text-[160px]"></i>
+                    <i class="fa-solid fa-screwdriver-wrench text-[120px]"></i>
+                    <i class="fa-solid fa-circle-info text-[150px]"></i>
+                    <i class="fa-solid fa-sliders text-[110px]"></i>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                     <div id="auth-container"
                         class="stagger-item bg-surface-panel border border-surface-border rounded-2xl p-6 hover:border-brand/40 transition-colors duration-300 min-h-[250px] flex flex-col justify-center">
@@ -1109,14 +1191,23 @@
             </div>
 
             <!-- صفحة تعديل الملف الشخصي -->
-            <div id="edit-profile-page" class="page-section max-w-2xl mx-auto space-y-6">
-                <div class="flex items-center gap-4 mb-4">
-                    <button onclick="switchPage('settings')"
-                        class="w-10 h-10 flex items-center justify-center bg-surface-panel border border-surface-border hover:text-brand transition-all duration-300 active:scale-90 rounded-xl"><i
-                            class="fa-solid fa-arrow-right"></i></button>
-                    <h3 class="text-2xl font-black font-heading uppercase text-primary">تعديل الملف الشخصي</h3>
+            <div id="edit-profile-page" class="page-section w-full h-full">
+                <div class="bg-decor-icons">
+                    <i class="fa-solid fa-user-pen text-[180px]"></i>
+                    <i class="fa-solid fa-image text-[140px]"></i>
+                    <i class="fa-solid fa-id-card text-[160px]"></i>
+                    <i class="fa-solid fa-earth-americas text-[120px]"></i>
+                    <i class="fa-solid fa-palette text-[150px]"></i>
                 </div>
-                <div class="stagger-item bg-surface-panel border border-surface-border rounded-2xl p-6 space-y-8">
+                <div class="px-4 lg:px-8 py-6 space-y-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <button onclick="switchPage('settings')"
+                            class="w-10 h-10 flex items-center justify-center bg-surface-panel border border-surface-border hover:text-brand transition-all duration-300 active:scale-90 rounded-xl">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <h3 class="text-2xl font-black font-heading uppercase text-primary">تعديل الملف الشخصي</h3>
+                    </div>
+                    <div class="stagger-item bg-surface-panel border border-surface-border rounded-2xl p-8 md:p-12 space-y-10 shadow-xl max-w-5xl mx-auto">
                     <div class="flex flex-col items-center gap-4">
                         <div class="relative group">
                             <div id="profile-edit-avatar"
@@ -1151,17 +1242,27 @@
                             class="fa-solid fa-floppy-disk"></i> حفظ التغييرات</button>
                 </div>
             </div>
+        </div>
 
             <!-- صفحة التعليمات -->
-            <div id="instructions-page" class="page-section max-w-2xl mx-auto space-y-6">
-                <div class="flex items-center gap-4 mb-4">
-                    <button onclick="switchPage('settings')"
-                        class="w-10 h-10 flex items-center justify-center bg-surface-panel border border-surface-border hover:text-brand transition-all duration-300 active:scale-90 rounded-xl"><i
-                            class="fa-solid fa-arrow-right"></i></button>
-                    <h3 class="text-2xl font-black font-heading uppercase text-primary">دليل الأبطال</h3>
+            <div id="instructions-page" class="page-section w-full h-full">
+                <div class="bg-decor-icons">
+                    <i class="fa-solid fa-book-open text-[180px]"></i>
+                    <i class="fa-solid fa-lightbulb text-[140px]"></i>
+                    <i class="fa-solid fa-circle-question text-[160px]"></i>
+                    <i class="fa-solid fa-star text-[120px]"></i>
+                    <i class="fa-solid fa-circle-info text-[150px]"></i>
                 </div>
-                <div
-                    class="stagger-item bg-surface-panel border border-surface-border rounded-2xl p-8 space-y-12 text-center">
+                <div class="px-4 lg:px-8 py-6 space-y-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <button onclick="switchPage('settings')"
+                            class="w-10 h-10 flex items-center justify-center bg-surface-panel border border-surface-border hover:text-brand transition-all duration-300 active:scale-90 rounded-xl">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <h3 class="text-2xl font-black font-heading uppercase text-primary">التعليمات</h3>
+                    </div>
+                    <div
+                        class="stagger-item bg-surface-panel border border-surface-border rounded-2xl p-8 md:p-16 space-y-12 text-center max-w-5xl mx-auto shadow-xl">
                     <div>
                         <h2 class="text-3xl md:text-4xl font-black font-heading text-brand mb-4">طريقة تجميع النقاط</h2>
                         <div class="w-20 h-1.5 bg-brand mx-auto mb-8 rounded-full"></div>
@@ -1191,23 +1292,23 @@
     <!-- شريط تنقل سفلي للجوال - مقوس الأطراف -->
     <nav
         class="md:hidden fixed bottom-0 w-full z-50 bg-surface-panel border-t border-surface-border pb-safe transition-colors duration-300 mobile-nav-curved shadow-[0_-8px_30px_rgba(0,0,0,0.5)]">
-        <div class="flex justify-between items-center h-16 px-1 relative">
+        <div class="flex justify-between items-center h-24 px-1 relative">
             <button onclick="switchPage('home')"
-                class="nav-btn nav-btn-active flex-1 h-full flex flex-col items-center justify-center gap-1 text-secondary border-t-2 border-transparent transition-all duration-300 active:scale-95 relative"
+                class="nav-btn nav-btn-active flex-1 h-full flex flex-col items-center justify-center pb-8 gap-1 text-secondary border-t-2 border-transparent transition-all duration-300 active:scale-95 relative"
                 data-target="home">
                 <span class="nav-indicator"></span>
                 <i class="fa-solid fa-crosshairs text-xl transition-transform duration-300"></i>
                 <span class="text-[10px] font-bold font-heading uppercase">الرئيسية</span>
             </button>
             <button onclick="switchPage('games')"
-                class="nav-btn flex-1 h-full flex flex-col items-center justify-center gap-1 text-secondary border-t-2 border-transparent transition-all duration-300 active:scale-95 relative"
+                class="nav-btn flex-1 h-full flex flex-col items-center justify-center pb-8 gap-1 text-secondary border-t-2 border-transparent transition-all duration-300 active:scale-95 relative"
                 data-target="games">
                 <span class="nav-indicator"></span>
                 <i class="fa-solid fa-dragon text-xl transition-transform duration-300"></i>
                 <span class="text-[10px] font-bold font-heading uppercase">الألعاب</span>
             </button>
             <button onclick="switchPage('messages')"
-                class="nav-btn flex-1 h-full flex flex-col items-center justify-center gap-1 text-secondary border-t-2 border-transparent transition-all duration-300 active:scale-95 relative"
+                class="nav-btn flex-1 h-full flex flex-col items-center justify-center pb-8 gap-1 text-secondary border-t-2 border-transparent transition-all duration-300 active:scale-95 relative"
                 data-target="messages">
                 <span class="nav-indicator"></span>
                 <i class="fa-solid fa-paper-plane text-xl relative transition-transform duration-300"><span
@@ -1215,7 +1316,7 @@
                 <span class="text-[10px] font-bold font-heading uppercase">المراسلات</span>
             </button>
             <button onclick="switchPage('settings')"
-                class="nav-btn flex-1 h-full flex flex-col items-center justify-center gap-1 text-secondary border-t-2 border-transparent transition-all duration-300 active:scale-95 relative"
+                class="nav-btn flex-1 h-full flex flex-col items-center justify-center pb-8 gap-1 text-secondary border-t-2 border-transparent transition-all duration-300 active:scale-95 relative"
                 data-target="settings">
                 <span class="nav-indicator"></span>
                 <i class="fa-solid fa-gear text-xl transition-transform duration-300"></i>
@@ -1230,8 +1331,10 @@
         <div class="flex flex-col h-full w-full">
             <div id="game-sheet-header">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 bg-brand/10 border border-brand/30 rounded-xl flex items-center justify-center text-brand shadow-lg shadow-brand/10 overflow-hidden">
-                        <img src="صورة التطبيق.png" alt="Logo" class="w-full h-full object-cover" onerror="this.outerHTML='<i class=\'fa-solid fa-crosshairs\'></i>'">
+                    <div
+                        class="w-9 h-9 bg-brand/10 border border-brand/30 rounded-xl flex items-center justify-center text-brand shadow-lg shadow-brand/10 overflow-hidden">
+                        <img src="صورة التطبيق.png" alt="Logo" class="w-full h-full object-cover"
+                            onerror="this.outerHTML='<i class=\'fa-solid fa-crosshairs\'></i>'">
                     </div>
                     <h3 class="font-black font-heading text-lg text-white tracking-wide">ساحة المعركة</h3>
                 </div>
@@ -1397,6 +1500,78 @@
         </div>
     </div>
 
+    <!-- نافذة الدردشة المستقلة (Full Screen) -->
+    <div id="chat-view"
+        class="hidden fixed inset-0 z-[999] bg-surface flex flex-col overflow-hidden bg-stripes translate-x-full transition-transform duration-300 ease-in-out h-[100dvh] w-screen">
+        <div
+            class="p-4 pt-10 md:px-8 border-b border-surface-border flex items-center gap-4 bg-surface/95 backdrop-blur-xl shrink-0">
+            <button onclick="closeChat()"
+                class="w-12 h-12 flex items-center justify-center text-secondary hover:text-brand transition-colors duration-300">
+                <i class="fa-solid fa-arrow-right text-2xl"></i>
+            </button>
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 border-2 border-brand rounded-2xl overflow-hidden shadow-brand">
+                    <img id="chat-avatar" src="" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h4 id="chat-username" class="font-bold text-primary text-xl"></h4>
+                    <span id="chat-status" class="text-xs text-green-500 flex items-center gap-1.5">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> متصل الآن
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div id="chat-messages"
+            class="flex-1 p-4 md:px-8 overflow-y-auto space-y-4 flex flex-col-reverse bg-black/5 scrollbar-hide"></div>
+        <div class="p-4 md:px-8 pb-12 border-t border-surface-border bg-surface/95 backdrop-blur-xl shrink-0">
+            <form onsubmit="handleChatSubmit(event)" class="flex gap-3 max-w-4xl mx-auto items-center">
+                <input type="text" id="chat-input" placeholder="اكتب رسالتك..."
+                    class="flex-1 bg-black/40 border border-surface-border text-primary px-5 py-4 focus:outline-none focus:border-brand transition-all duration-300 rounded-2xl placeholder-gray-600">
+                <button type="submit"
+                    class="w-14 h-14 bg-brand text-white rounded-2xl flex items-center justify-center hover:bg-brand-hover transition-all active:scale-90 shadow-brand shrink-0">
+                    <i class="fa-solid fa-paper-plane text-xl"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- بار التنقل السفلي -->
+    <nav id="bottom-nav"
+        class="fixed bottom-0 left-0 right-0 bg-surface/90 backdrop-blur-xl border-t border-surface-border z-40 transition-transform duration-300 lg:hidden">
+        <div class="max-w-lg mx-auto flex justify-around items-center h-24 px-4 pb-4">
+            <button onclick="switchPage('home')" id="nav-home"
+                class="flex flex-col items-center gap-1.5 text-secondary hover:text-brand transition-all duration-300 relative group">
+                <div class="p-2 rounded-xl group-hover:bg-brand/10 transition-colors">
+                    <i class="fa-solid fa-house-chimney text-xl"></i>
+                </div>
+                <span class="text-[10px] font-bold font-heading">الرئيسية</span>
+            </button>
+            <button onclick="switchPage('games')" id="nav-games"
+                class="flex flex-col items-center gap-1.5 text-secondary hover:text-brand transition-all duration-300 relative group">
+                <div class="p-2 rounded-xl group-hover:bg-brand/10 transition-colors">
+                    <i class="fa-solid fa-dragon text-xl"></i>
+                </div>
+                <span class="text-[10px] font-bold font-heading">الألعاب</span>
+            </button>
+            <button onclick="switchPage('messages')" id="nav-messages"
+                class="flex flex-col items-center gap-1.5 text-secondary hover:text-brand transition-all duration-300 relative group">
+                <div class="p-2 rounded-xl group-hover:bg-brand/10 transition-colors relative">
+                    <i class="fa-solid fa-paper-plane text-xl"></i>
+                    <span id="nav-messages-badge"
+                        class="hidden absolute top-1 right-1 bg-brand text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-full border border-surface">0</span>
+                </div>
+                <span class="text-[10px] font-bold font-heading">المراسلات</span>
+            </button>
+            <button onclick="switchPage('settings')" id="nav-settings"
+                class="flex flex-col items-center gap-1.5 text-secondary hover:text-brand transition-all duration-300 relative group">
+                <div class="p-2 rounded-xl group-hover:bg-brand/10 transition-colors">
+                    <i class="fa-solid fa-gear text-xl"></i>
+                </div>
+                <span class="text-[10px] font-bold font-heading">الإعدادات</span>
+            </button>
+        </div>
+    </nav>
+
     <script>
         // ==================== جميع وظائف JavaScript الأصلية كاملة ====================
         function setAppTheme(theme, saveToDb = false) {
@@ -1406,7 +1581,7 @@
             if (theme === 'dark') {
                 html.classList.remove('light');
                 html.classList.add('dark');
-                if (metaThemeColor) metaThemeColor.setAttribute('content', '#0a0a0a');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#000000');
             } else {
                 html.classList.remove('dark');
                 html.classList.add('light');
@@ -1430,10 +1605,10 @@
         let isAnimating = false;
         const pageTitles = {
             'home': 'الرئيسية',
-            'games': 'مركز الألعاب',
-            'messages': 'دردشة اهل الشرقية',
-            'settings': 'الإعدادات والتحكم',
-            'instructions': 'دليل الأبطال',
+            'games': ' الألعاب',
+            'messages': 'الدردشة ',
+            'settings': 'الإعدادات',
+            'instructions': 'التعليمات',
             'notifications': 'صندوق الوارد',
             'edit-profile': 'تعديل الملف الشخصي',
         };
@@ -1446,6 +1621,69 @@
             isAnimating = true;
             updateNavigationUI(pageId);
             document.getElementById('header-title').textContent = pageTitles[pageId] || pageId;
+
+            // --- التحكم الديناميكي في الشريط العلوي (Mobile/Tablet Only) ---
+            const isMobileOrTablet = window.innerWidth < 1024;
+            const hTitle = document.getElementById('header-title');
+            const hSearch = document.getElementById('header-search-container');
+            const hStats = document.getElementById('header-stats');
+            const hActions = document.getElementById('header-custom-actions');
+            const hUsers = document.getElementById('header-active-users');
+            const hNotify = document.getElementById('header-notifications-btn');
+            const hDivider = document.getElementById('header-divider');
+
+            // تصفير الحالة الافتراضية
+            hTitle.classList.remove('hidden');
+            hSearch.classList.add('hidden');
+            hStats.classList.remove('hidden');
+            hActions.classList.add('hidden');
+            hActions.innerHTML = '';
+            hUsers.classList.add('hidden');
+            hNotify.classList.remove('hidden');
+            hDivider.classList.remove('hidden');
+
+            // --- التحكم في وضع ملء الشاشة (صفحة التعديل والتعليمات) ---
+            const fullScreenPages = ['edit-profile', 'instructions'];
+            const mainHeader = document.querySelector('header');
+            const bottomNav = document.getElementById('bottom-nav');
+            const mobileBottomNav = document.querySelector('nav.md\\:hidden');
+            const scrollArea = document.getElementById('main-scroll-area');
+
+            if (fullScreenPages.includes(pageId)) {
+                mainHeader.classList.add('-translate-y-full', 'opacity-0');
+                if (bottomNav) bottomNav.classList.add('translate-y-full');
+                if (mobileBottomNav) mobileBottomNav.classList.add('translate-y-full');
+                scrollArea.classList.add('fullscreen-active');
+            } else {
+                mainHeader.classList.remove('-translate-y-full', 'opacity-0');
+                if (bottomNav) bottomNav.classList.remove('translate-y-full');
+                if (mobileBottomNav) mobileBottomNav.classList.remove('translate-y-full');
+                scrollArea.classList.remove('fullscreen-active');
+            }
+
+            if (isMobileOrTablet) {
+                if (pageId === 'messages') {
+                    hNotify.classList.add('hidden');
+                    hActions.classList.remove('hidden');
+                    hActions.innerHTML = `
+                        <button onclick="toggleFriendRequestsModal()" class="h-9 px-4 flex items-center justify-center bg-surface-panel border border-surface-border rounded-xl text-secondary relative text-[10px] font-bold gap-2">
+                            <i class="fa-solid fa-user-plus text-[10px]"></i>
+                            <span>الطلبات</span>
+                            <span id="header-friend-requests-count" class="hidden absolute -top-1 -right-1 bg-brand text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-full border border-surface">0</span>
+                        </button>
+                        <button onclick="toggleAddFriendModal()" class="h-9 px-4 flex items-center justify-center bg-brand rounded-xl text-white text-[10px] font-bold gap-2">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            <span>إضافة</span>
+                        </button>`;
+                } else if (pageId === 'settings') {
+                    hStats.classList.add('hidden');
+                    hNotify.classList.add('hidden');
+                    hDivider.classList.add('hidden');
+                    hUsers.classList.remove('hidden');
+                    hUsers.querySelector('span').textContent = (1400 + Math.floor(Math.random() * 100)).toLocaleString();
+                }
+            }
+
             if (currentPage) {
                 currentPage.classList.remove('active');
                 currentPage.classList.add('exiting');
@@ -2014,13 +2252,15 @@
             if (friendRequestsUnsubscribe) friendRequestsUnsubscribe();
             friendRequestsUnsubscribe = db.collection('users').doc(auth.currentUser.uid).collection('friendRequests').onSnapshot(snap => {
                 const badge = document.getElementById('friend-requests-count');
+                const hBadge = document.getElementById('header-friend-requests-count');
                 const list = document.getElementById('friend-requests-list');
                 if (snap.empty) {
-                    badge.classList.add('hidden');
+                    if (badge) badge.classList.add('hidden');
+                    if (hBadge) hBadge.classList.add('hidden');
                     list.innerHTML = '<p class="text-center text-gray-500 py-10">لا توجد طلبات</p>';
                 } else {
-                    badge.classList.remove('hidden');
-                    badge.textContent = snap.size;
+                    if (badge) { badge.classList.remove('hidden'); badge.textContent = snap.size; }
+                    if (hBadge) { hBadge.classList.remove('hidden'); hBadge.textContent = snap.size; }
                     list.innerHTML = snap.docs.map(d => { const data = d.data(); return `<div class="flex items-center gap-3 p-3 bg-black/20 border border-surface-border rounded-xl"><div class="w-10 h-10 border border-brand rounded-xl"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${data.fromAvatarSeed}&backgroundColor=e11d48"></div><div class="flex-1"><h5 class="font-bold text-sm text-primary">${data.fromName}</h5><p class="text-[10px] text-secondary">#${data.fromId}</p></div><div class="flex gap-2"><button onclick="acceptFriendRequest('${d.id}',${JSON.stringify(data).replace(/"/g, '&quot;')})" class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center"><i class="fas fa-check text-white"></i></button><button onclick="rejectFriendRequest('${d.id}')" class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center"><i class="fas fa-times text-white"></i></button></div></div>`; }).join('');
                 }
             });
@@ -2028,22 +2268,67 @@
             friendsListUnsubscribe = db.collection('users').doc(auth.currentUser.uid).collection('friends').orderBy('username').onSnapshot(snap => {
                 const container = document.getElementById('friends-list-container');
                 if (snap.empty) container.innerHTML = '<div class="flex flex-col items-center justify-center py-20 text-gray-500"><i class="fa-solid fa-user-group text-5xl mb-4 opacity-20"></i><p class="font-bold">لا يوجد أصدقاء</p></div>';
-                else container.innerHTML = snap.docs.map(d => { const f = d.data(); return `<div onclick='openChat(${JSON.stringify(f).replace(/'/g, "&apos;")})' class="flex items-center gap-4 p-4 border-b border-surface-border hover:bg-white/[0.02] cursor-pointer transition-colors rounded-xl"><div class="w-12 h-12 border-2 border-brand rounded-xl"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${f.avatarSeed}&backgroundColor=e11d48"></div><div class="flex-1"><h4 class="font-bold text-primary">${f.username}</h4><span class="text-[10px] text-secondary">#${f.customId}</span></div></div>`; }).join('');
+                else container.innerHTML = snap.docs.map((d, index) => {
+                    const f = d.data();
+                    return `<div onclick='openChat(${JSON.stringify(f).replace(/'/g, "&apos;")})' style="animation-delay: ${index * 0.05}s" class="stagger-item friend-item-click flex items-center gap-4 p-4 hover:bg-white/[0.05] cursor-pointer transition-all duration-300 rounded-2xl mb-2 border border-transparent hover:border-brand/20 shadow-sm">
+                        <div class="w-12 h-12 border-2 border-brand rounded-xl overflow-hidden shadow-lg shadow-brand/10">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${f.avatarSeed}&backgroundColor=e11d48" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-primary group-hover:text-brand transition-colors">${f.username}</h4>
+                            <span class="text-[10px] text-secondary font-mono">#${f.customId}</span>
+                        </div>
+                        <div class="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+                    </div>`;
+                }).join('');
+            });
+        }
+
+        function handleGameSearch(query) {
+            const q = query.toLowerCase();
+            document.querySelectorAll('.game-card-hover').forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const desc = card.querySelector('p').textContent.toLowerCase();
+                if (title.includes(q) || desc.includes(q)) card.style.display = 'flex';
+                else card.style.display = 'none';
             });
         }
 
         function openChat(friend) {
-            document.getElementById('friends-list-view').classList.add('hidden');
-            document.getElementById('chat-view').classList.remove('hidden');
-            document.getElementById('chat-friend-name').textContent = friend.username;
-            document.getElementById('chat-friend-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${friend.avatarSeed}&backgroundColor=e11d48`;
+            const chatView = document.getElementById('chat-view');
+            const bottomNav = document.getElementById('bottom-nav');
+            const mainHeader = document.querySelector('header');
+
+            chatView.classList.remove('hidden');
+            bottomNav.classList.add('translate-y-full');
+            mainHeader.classList.add('-translate-y-full', 'opacity-0');
+
+            setTimeout(() => {
+                chatView.classList.remove('translate-x-full');
+                chatView.classList.add('translate-x-0');
+            }, 10);
+
+            document.getElementById('chat-username').textContent = friend.username;
+            document.getElementById('chat-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${friend.avatarSeed}&backgroundColor=e11d48`;
             currentChatId = auth.currentUser.uid < friend.uid ? `${auth.currentUser.uid}_${friend.uid}` : `${friend.uid}_${auth.currentUser.uid}`;
             listenForMessages(currentChatId);
         }
 
         function closeChat() {
-            document.getElementById('friends-list-view').classList.remove('hidden');
-            document.getElementById('chat-view').classList.add('hidden'); if (messagesUnsubscribe) {
+            const chatView = document.getElementById('chat-view');
+            const bottomNav = document.getElementById('bottom-nav');
+            const mainHeader = document.querySelector('header');
+
+            chatView.classList.remove('translate-x-0');
+            chatView.classList.add('translate-x-full');
+
+            setTimeout(() => {
+                chatView.classList.add('hidden');
+                bottomNav.classList.remove('translate-y-full');
+                mainHeader.classList.remove('-translate-y-full', 'opacity-0');
+            }, 300);
+
+            if (messagesUnsubscribe) {
                 messagesUnsubscribe();
                 messagesUnsubscribe = null;
             }
@@ -2052,7 +2337,21 @@
 
         function listenForMessages(chatId) {
             if (messagesUnsubscribe) messagesUnsubscribe();
-            messagesUnsubscribe = db.collection('chats').doc(chatId).collection('messages').orderBy('timestamp', 'desc').limit(50).onSnapshot(snap => { document.getElementById('chat-messages').innerHTML = snap.docs.map(d => { const m = d.data(); const isMe = m.senderUid === auth.currentUser.uid; return `<div class="flex ${isMe ? 'justify-start' : 'justify-end'}"><div class="${isMe ? 'bg-brand text-white rounded-xl rounded-tr-none ml-12' : 'bg-gray-800 border border-surface-border mr-12 rounded-xl rounded-tl-none'} p-3 max-w-[85%]"><p class="text-sm">${m.text}</p><span class="text-[8px] opacity-60 mt-1 block">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}</span></div></div>`; }).join(''); });
+            messagesUnsubscribe = db.collection('chats').doc(chatId).collection('messages').orderBy('timestamp', 'desc').limit(50).onSnapshot(snap => {
+                const container = document.getElementById('chat-messages');
+                container.innerHTML = snap.docs.map((d, index) => {
+                    const m = d.data();
+                    const isMe = m.senderUid === auth.currentUser.uid;
+                    const delay = index * 0.05;
+                    return `<div class="flex ${isMe ? 'justify-start' : 'justify-end'} message-anim" style="animation-delay: ${delay}s">
+                        <div class="${isMe ? 'bg-brand text-white rounded-2xl rounded-tr-none ml-12 shadow-lg shadow-brand/20' : 'bg-surface-panel border border-surface-border mr-12 rounded-2xl rounded-tl-none shadow-md'} p-3.5 max-w-[85%] relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
+                            <p class="text-sm font-medium relative z-10 leading-relaxed">${m.text}</p>
+                            <span class="text-[9px] opacity-60 mt-1.5 block relative z-10 font-bold">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            });
         }
 
         async function handleChatSubmit(e) {
