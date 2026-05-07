@@ -1,937 +1,503 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="light">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" id="status-bar-color" content="#fef08a">
-    <title>لعبة الثعبان | عالم المرح</title>
-    <link rel="apple-touch-icon" href="صورة التطبيق.png">
-    <link rel="manifest" href="manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بروتوكول الأفعى</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- FontAwesome Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Tajawal:wght@500;700;900&display=swap"
-        rel="stylesheet">
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
-    <!-- Confetti for winning/high scores -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-    <!-- Tailwind Configuration -->
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Tajawal', 'sans-serif'],
-                        heading: ['Cairo', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: '#3b82f6', // Bright Blue
-                        accent: '#ef4444', // Bright Red
-                        success: '#22c55e', // Green
-                        bonus: '#facc15', // Yellow
-                        bgLight: '#fef08a', // Sunny Yellow
-                        bgDark: '#0f172a', // Slate Dark
-                        panelBorder: '#0f172a', // Very dark blue/black
-                        panelDark: '#1e293b',
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
         body {
             -webkit-tap-highlight-color: transparent;
-            background-image: radial-gradient(#fbbf24 2px, transparent 2px);
-            background-size: 24px 24px;
+            overscroll-behavior: none;
+            /* يمنع السحب للتحديث في الجوال */
         }
 
-        .dark body {
-            background-image: radial-gradient(#1e293b 2px, transparent 2px);
-        }
-
-        /* أنيميشن دخول الصفحة */
-        @keyframes bounceIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.95) translateY(10px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .page-section {
-            display: none !important;
-        }
-
-        .page-section.active {
-            display: flex !important;
-            animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        /* التصميم الكرتوني (Neobrutalism) */
-        .cartoon-panel {
-            background-color: var(--tw-bg-opacity, #ffffff);
-            border: 3px solid #0f172a;
-            border-radius: 1.25rem;
-            box-shadow: 4px 4px 0px #0f172a;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .dark .cartoon-panel {
-            background-color: #1e293b;
-            border-color: #020617;
-            box-shadow: 4px 4px 0px #020617;
-        }
-
-        .cartoon-btn {
-            border: 2px solid #0f172a;
-            box-shadow: 3px 3px 0px #0f172a;
-            transition: all 0.1s ease-in-out;
-            cursor: pointer;
-            outline: none;
-            user-select: none;
-        }
-
-        .dark .cartoon-btn {
-            border-color: #020617;
-            box-shadow: 3px 3px 0px #020617;
-        }
-
-        .cartoon-btn:active {
-            transform: translate(3px, 3px);
-            box-shadow: 0px 0px 0px #0f172a !important;
-        }
-
-        .dark .cartoon-btn:active {
-            box-shadow: 0px 0px 0px #020617 !important;
-        }
-
-        @media (min-width: 768px) {
-            .cartoon-panel {
-                border-width: 4px;
-                box-shadow: 6px 6px 0px #0f172a;
-                border-radius: 1.5rem;
-            }
-
-            .dark .cartoon-panel {
-                box-shadow: 6px 6px 0px #020617;
-            }
-
-            .cartoon-btn {
-                border-width: 3px;
-                box-shadow: 4px 4px 0px #0f172a;
-            }
-
-            .dark .cartoon-btn {
-                box-shadow: 4px 4px 0px #020617;
-            }
-
-            .cartoon-btn:active {
-                transform: translate(4px, 4px);
-            }
-        }
-
-        /* إخفاء شريط التمرير */
-        .no-scrollbar::-webkit-scrollbar {
+        .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
 
-        .no-scrollbar {
+        .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
 
-        .shake {
-            animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        .animate-fade-scale {
+            animation: fadeScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        @keyframes shake {
-
-            10%,
-            90% {
-                transform: translate3d(-2px, 0, 0);
+        @keyframes fadeScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
             }
 
-            20%,
-            80% {
-                transform: translate3d(4px, 0, 0);
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
             }
 
-            30%,
-            50%,
-            70% {
-                transform: translate3d(-6px, 0, 0);
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
+        }
 
-            40%,
-            60% {
-                transform: translate3d(6px, 0, 0);
-            }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        /* تأثير الشبكة الخلفية */
+        .bg-grid-pattern {
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* توهج النيون */
+        .neon-text-green {
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .neon-shadow-green {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
         }
     </style>
 </head>
 
-<body
-    class="bg-bgLight dark:bg-bgDark text-gray-900 dark:text-gray-100 transition-colors duration-300 h-screen flex flex-col overflow-hidden selection:bg-brand selection:text-white"
-    id="body-container">
+<body class="bg-[#0a0a0a] text-zinc-100 font-sans selection:bg-emerald-900 m-0 overflow-hidden">
+    <div id="root"></div>
 
-    <!-- شريط علوي -->
-    <header class="h-16 z-20 flex items-center justify-between px-4 md:px-8 mt-3 md:mt-5 shrink-0">
-        <div class="flex items-center gap-2 flex-1">
-            <!-- زر الرجوع -->
-            <button id="back-btn" onclick="showStartScreen()"
-                class="hidden w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center text-panelBorder dark:text-white font-bold text-lg md:text-xl shrink-0">
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
+    <!-- الأصوات -->
+    <audio id="eatSound" preload="auto"
+        src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3"></audio>
+    <audio id="gameOverSound" preload="auto"
+        src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3"></audio>
+    <audio id="clickSound" preload="auto"
+        src="https://assets.mixkit.co/sfx/preview/mixkit-click-release-907.mp3"></audio>
 
-            <!-- الشعار / العنوان -->
-            <div class="flex items-center gap-2 cartoon-panel bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border-2 cursor-pointer shrink-0"
-                onclick="showStartScreen()">
-                <i class="fa-solid fa-worm text-brand text-sm hidden sm:block"></i>
-                <h2 class="font-black font-heading text-lg">الثعبان</h2>
-            </div>
-        </div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-        <div class="flex items-center gap-2 shrink-0">
-            <!-- زر الصوت -->
-            <button id="sound-toggle" onclick="toggleSound()"
-                class="w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center text-panelBorder dark:text-white transition-all">
-                <i class="fa-solid fa-volume-up text-lg md:text-xl"></i>
-            </button>
-
-            <!-- زر الثيم (يظهر فقط إذا كانت اللعبة تعمل بشكل مستقل) -->
-            <button onclick="toggleTheme()"
-                class="w-10 h-10 md:w-12 md:h-12 cartoon-btn bg-yellow-300 dark:bg-indigo-500 rounded-xl flex items-center justify-center text-panelBorder dark:text-white transition-all"
-                id="theme-toggle">
-                <i class="fa-solid fa-sun text-xl md:text-2xl"></i>
-            </button>
-            <script>
-                // إخفاء زر النمط إذا كانت اللعبة داخل iframe (لأن الأب يتحكم بالنمط)
-                if (window !== window.parent) {
-                    document.getElementById('theme-toggle').style.display = 'none';
-                }
-            </script>
-        </div>
-    </header>
-
-    <!-- منطقة المحتوى الرئيسية -->
-    <main
-        class="flex-1 overflow-y-auto no-scrollbar p-4 md:p-6 pb-6 scroll-smooth relative z-10 flex flex-col items-center justify-start md:justify-center">
-        <div class="w-full max-w-[28rem] md:max-w-md mx-auto h-full flex flex-col">
-
-            <!-- 1. شاشة البداية -->
-            <div id="startScreen" class="page-section w-full active flex-col h-full justify-center">
-                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center w-full">
-                    <div
-                        class="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full bg-blue-100 dark:bg-slate-800 flex items-center justify-center text-5xl md:text-6xl text-brand mb-5 border-4 border-panelBorder dark:border-slate-900 shadow-[4px_4px_0px_#0f172a] transform -rotate-12">
-                        <i class="fa-solid fa-worm"></i>
-                    </div>
-
-                    <h2 class="text-3xl md:text-4xl font-black font-heading mb-3 text-panelBorder dark:text-white">لعبة
-                        الثعبان</h2>
-                    <p
-                        class="text-sm md:text-base text-slate-500 dark:text-slate-400 mb-6 font-bold bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700">
-                        تحكم بالثعبان لجمع الطعام وتجنب الاصطدام بالجدران أو بنفسك! 🐍
-                    </p>
-
-                    <button onclick="initializeGame()"
-                        class="cartoon-btn w-full bg-brand text-white py-4 rounded-xl font-black text-xl flex items-center justify-center gap-3 hover:bg-blue-600 mb-6">
-                        ابدأ اللعب <i class="fa-solid fa-play"></i>
-                    </button>
-
-                    <!-- قائمة المتصدرين -->
-                    <div
-                        class="bg-yellow-50 dark:bg-slate-800 border-2 border-yellow-300 dark:border-slate-600 rounded-xl p-4 text-right">
-                        <h3
-                            class="font-black text-panelBorder dark:text-white mb-3 text-lg flex items-center justify-between border-b-2 border-yellow-200 dark:border-slate-700 pb-2">
-                            <span><i class="fa-solid fa-trophy text-yellow-500 ml-1"></i> أفضل النتائج</span>
-                        </h3>
-                        <ul id="highScoresList" class="space-y-2 max-h-[140px] overflow-y-auto no-scrollbar py-1">
-                            <!-- سيتم التعبئة بواسطة JS -->
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. منطقة اللعب -->
-            <div id="gamePlayArea" class="page-section w-full flex-col h-full">
-
-                <!-- الإحصائيات العلوية -->
-                <div class="grid grid-cols-3 gap-2 mb-3">
-                    <div class="cartoon-panel bg-white dark:bg-slate-800 p-2 flex flex-col items-center justify-center">
-                        <span class="text-[10px] md:text-xs font-bold text-slate-500 dark:text-slate-400">النتيجة</span>
-                        <span id="score" class="text-lg md:text-xl font-black text-brand">0</span>
-                    </div>
-                    <div class="cartoon-panel bg-white dark:bg-slate-800 p-2 flex flex-col items-center justify-center">
-                        <span class="text-[10px] md:text-xs font-bold text-slate-500 dark:text-slate-400">الطول</span>
-                        <span id="length" class="text-lg md:text-xl font-black text-success">1</span>
-                    </div>
-                    <div class="cartoon-panel bg-white dark:bg-slate-800 p-2 flex flex-col items-center justify-center">
-                        <span class="text-[10px] md:text-xs font-bold text-slate-500 dark:text-slate-400">السرعة</span>
-                        <span id="speed" class="text-sm font-black text-accent truncate w-full text-center">عادية</span>
-                    </div>
-                </div>
-
-                <!-- لوحة الرسم (Canvas) -->
-                <div
-                    class="cartoon-panel bg-slate-50 dark:bg-slate-900 p-2 md:p-3 w-full flex items-center justify-center mx-auto relative overflow-hidden flex-shrink-0">
-                    <canvas id="gameCanvas" width="300" height="300"
-                        class="w-full max-w-[300px] aspect-square bg-slate-100 dark:bg-slate-800 border-2 border-panelBorder dark:border-slate-700 rounded-xl"></canvas>
-                </div>
-
-                <!-- أزرار التحكم (D-Pad) -->
-                <div class="flex-1 flex items-center justify-center mt-4 mb-2">
-                    <div class="grid grid-cols-3 gap-2 md:gap-3 w-48 md:w-56">
-                        <div></div>
-                        <button id="up"
-                            class="cartoon-btn bg-slate-200 dark:bg-slate-700 aspect-square rounded-xl flex items-center justify-center text-2xl md:text-3xl text-panelBorder dark:text-white">
-                            <i class="fa-solid fa-caret-up"></i>
-                        </button>
-                        <div></div>
-                        <button id="left"
-                            class="cartoon-btn bg-slate-200 dark:bg-slate-700 aspect-square rounded-xl flex items-center justify-center text-2xl md:text-3xl text-panelBorder dark:text-white">
-                            <i class="fa-solid fa-caret-right"></i>
-                        </button>
-                        <button id="down"
-                            class="cartoon-btn bg-slate-200 dark:bg-slate-700 aspect-square rounded-xl flex items-center justify-center text-2xl md:text-3xl text-panelBorder dark:text-white">
-                            <i class="fa-solid fa-caret-down"></i>
-                        </button>
-                        <button id="right"
-                            class="cartoon-btn bg-slate-200 dark:bg-slate-700 aspect-square rounded-xl flex items-center justify-center text-2xl md:text-3xl text-panelBorder dark:text-white">
-                            <i class="fa-solid fa-caret-left"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. شاشة نهاية اللعبة -->
-            <div id="gameOverScreen" class="page-section w-full flex-col h-full justify-center">
-                <div class="cartoon-panel bg-white dark:bg-panelDark p-6 md:p-8 text-center w-full">
-                    <div
-                        class="w-20 h-20 mx-auto rounded-full bg-red-100 dark:bg-slate-800 flex items-center justify-center text-4xl text-accent mb-4 border-4 border-panelBorder dark:border-slate-900 shadow-[3px_3px_0px_#0f172a]">
-                        <i class="fa-solid fa-skull"></i>
-                    </div>
-
-                    <h2 class="text-3xl font-black font-heading mb-4 text-accent">انتهت اللعبة!</h2>
-
-                    <div
-                        class="bg-slate-50 dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 p-4 mb-6 space-y-3">
-                        <div
-                            class="flex justify-between items-center border-b-2 border-slate-200 dark:border-slate-700 pb-2">
-                            <span class="font-bold text-slate-500 dark:text-slate-400">النتيجة النهائية</span>
-                            <span id="finalScore" class="font-black text-2xl text-brand">0</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-slate-500 dark:text-slate-400">طول الثعبان</span>
-                            <span id="finalLength" class="font-black text-xl text-success">1</span>
-                        </div>
-                    </div>
-
-                    <div class="cartoon-panel bg-white/50 dark:bg-slate-900/50 p-4">
-                        <h3 class="font-black font-heading text-sm mb-3 flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-trophy text-yellow-500"></i>
-                            أفضل النتائج
-                        </h3>
-                        <div id="highScoresList" class="max-h-[120px] overflow-y-auto custom-scrollbar space-y-2 pr-2">
-                            <!-- سيتم توليد المحتوى بواسطة JavaScript -->
-                        </div>
-                    </div>
-
-                    <div class="space-y-3">
-                        <button onclick="initializeGame()"
-                            class="cartoon-btn w-full bg-brand text-white py-3 rounded-xl font-black text-lg flex items-center justify-center gap-2">
-                            إعادة اللعب <i class="fa-solid fa-rotate-right"></i>
-                        </button>
-                        <button onclick="showStartScreen()"
-                            class="cartoon-btn w-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white py-3 rounded-xl font-black text-lg flex items-center justify-center gap-2">
-                            القائمة الرئيسية <i class="fa-solid fa-house"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- ملفات الصوت -->
-    <audio id="eatSound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="bonusSound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="gameOverSound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="startSound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-changing-tab-206.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="clickSound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-click-release-907.mp3" type="audio/mpeg">
-    </audio>
-
-    <script>
-        // --- Theme Management ---
-        function toggleTheme() {
-            const currentTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
-            applyTheme(currentTheme);
-            gameData.theme = currentTheme;
-            saveGameData();
-        }
-
-        function applyTheme(theme) {
-            const html = document.documentElement;
-            const icon = document.querySelector('#theme-toggle i');
-            const metaThemeColor = document.getElementById('status-bar-color');
-            if (theme === 'dark') {
-                html.classList.add('dark');
-                html.classList.remove('light');
-                if (metaThemeColor) metaThemeColor.setAttribute('content', '#0f172a');
-                if (icon) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
-                isDarkMode = true;
-            } else {
-                html.classList.add('light');
-                html.classList.remove('dark');
-                if (metaThemeColor) metaThemeColor.setAttribute('content', '#fef08a');
-                if (icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
-                isDarkMode = false;
-            }
-        }
-
-        // --- Sound Management ---
-        let soundEnabled = true;
-        const eatSound = document.getElementById('eatSound');
-        const bonusSound = document.getElementById('bonusSound');
-        const gameOverSound = document.getElementById('gameOverSound');
-        const startSound = document.getElementById('startSound');
-        const clickSound = document.getElementById('clickSound');
-
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            gameData.soundEnabled = soundEnabled;
-            saveGameData();
-            updateSoundIcon();
-        }
-
-        function updateSoundIcon() {
-            const icon = document.querySelector('#sound-toggle i');
-            icon.className = soundEnabled ? 'fa-solid fa-volume-up text-lg md:text-xl' : 'fa-solid fa-volume-xmark text-lg md:text-xl text-slate-400';
-        }
-
-        function playSound(sound) {
-            if (soundEnabled) {
-                sound.currentTime = 0;
-                sound.play().catch(e => console.log("Audio error:", e));
-            }
-        }
-
-        // --- Game Variables & Data ---
-        let gameData = {
-            highScores: [0, 0, 0, 0, 0],
-            soundEnabled: true,
-            theme: 'light'
-        };
-        let isDarkMode = false;
-
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        // --- إعدادات اللعبة الثابتة ---
         const TILE_SIZE = 15;
-        const BONUS_FOOD_VALUE = 50;
+        const CANVAS_SIZE = 300;
 
-        let snake, food, bonusFood, obstacles;
-        let dx, dy;
-        let score, snakeLength, foodEaten;
-        let lastRenderTime;
-        let gameSpeed = 150;
-        let isGameOver;
-        let isDirectionChanged = false;
-        let bonusFoodTimer;
-        let touchStartX = 0;
-        let touchStartY = 0;
-
-        // --- Navigation ---
-        function updateUI() {
-            const elScore = document.getElementById('score');
-            const elLength = document.getElementById('length');
-            const elSpeed = document.getElementById('speed');
-
-            if (elScore) elScore.textContent = score;
-            if (elLength) elLength.textContent = snakeLength;
-
-            if (elSpeed) {
-                let speedText = "عادية";
-                if (gameSpeed < 100) speedText = "برق";
-                else if (gameSpeed < 130) speedText = "سريع";
-                elSpeed.textContent = speedText;
+        function playSound(id) {
+            const audio = document.getElementById(id);
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log("Audio play blocked", e));
             }
         }
 
-        function showScreen(screenId) {
-            document.querySelectorAll('.page-section').forEach(el => {
-                el.classList.remove('active');
-            });
-            document.getElementById(screenId).classList.add('active');
+        function App() {
+            const [gameState, setGameState] = useState('start'); // start, playing, game-over
+            const [score, setScore] = useState(0);
+            const [highScores, setHighScores] = useState([0, 0, 0]);
+            const [finalLength, setFinalLength] = useState(0);
 
-            const backBtn = document.getElementById('back-btn');
-            if (screenId === 'startScreen') {
-                backBtn.classList.add('hidden');
-                displayHighScores(gameData.highScores);
-            } else {
-                backBtn.classList.remove('hidden');
-            }
-        }
+            useEffect(() => {
+                const saved = localStorage.getItem('cyber_snake_highscores');
+                if (saved) setHighScores(JSON.parse(saved));
+            }, []);
 
-        function showStartScreen() {
-            isGameOver = true; // Stop loop if running
-            showScreen('startScreen');
-        }
-
-        // --- Local Storage & Syncing ---
-        function loadGameData() {
-            const saved = localStorage.getItem('lmah_snake_data_v2');
-            if (saved) {
-                gameData = JSON.parse(saved);
-                soundEnabled = gameData.soundEnabled;
-            }
-
-            // التحقق من وجود نمط مرسل من الصفحة الأم (URL Parameter)
-            const urlParams = new URLSearchParams(window.location.search);
-            const themeParam = urlParams.get('theme');
-
-            if (themeParam && (themeParam === 'dark' || themeParam === 'light')) {
-                applyTheme(themeParam);
-                gameData.theme = themeParam;
-            } else if (gameData.theme) {
-                applyTheme(gameData.theme);
-            } else {
-                // Check system preference
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    gameData.theme = 'dark';
-                    applyTheme('dark');
-                } else {
-                    applyTheme('light');
-                }
-            }
-            updateSoundIcon();
-        }
-
-        // الاستماع لتغييرات النمط من الصفحة الأم (postMessage)
-        window.addEventListener('message', function (event) {
-            if (event.data && event.data.type === 'set_theme') {
-                applyTheme(event.data.theme);
-                gameData.theme = event.data.theme;
-                saveGameData();
-            }
-        });
-
-        function saveGameData() {
-            localStorage.setItem('lmah_snake_data_v2', JSON.stringify(gameData));
-        }
-
-        // --- Game Logic ---
-        function initializeGame() {
-            snake = [
-                { x: 10, y: 10 },
-                { x: 9, y: 10 },
-                { x: 8, y: 10 }
-            ];
-            food = {};
-            bonusFood = null;
-            obstacles = [];
-            dx = 1;
-            dy = 0;
-            score = 0;
-            snakeLength = 3;
-            foodEaten = 0;
-            gameSpeed = 150;
-            isGameOver = false;
-            isDirectionChanged = false;
-
-            updateUI();
-            showScreen('gamePlayArea');
-            playSound(startSound);
-
-            generateFood();
-            generateObstacles(4);
-
-            lastRenderTime = 0;
-            requestAnimationFrame(gameLoop);
-        }
-
-        function generateFood() {
-            const maxX = canvas.width / TILE_SIZE;
-            const maxY = canvas.height / TILE_SIZE;
-
-            do {
-                food = {
-                    x: Math.floor(Math.random() * maxX),
-                    y: Math.floor(Math.random() * maxY),
-                    isBonus: Math.random() < 0.15 // 15% chance
-                };
-            } while (isFoodOnSnakeOrObstacle(food));
-
-            if (food.isBonus) {
-                bonusFood = food;
-                clearTimeout(bonusFoodTimer);
-                bonusFoodTimer = setTimeout(() => {
-                    bonusFood = null;
-                }, 6000);
-            } else {
-                bonusFood = null;
-            }
-        }
-
-        function generateObstacles(count) {
-            const maxX = canvas.width / TILE_SIZE;
-            const maxY = canvas.height / TILE_SIZE;
-            obstacles = [];
-            for (let i = 0; i < count; i++) {
-                let newObstacle;
-                do {
-                    newObstacle = {
-                        x: Math.floor(Math.random() * maxX),
-                        y: Math.floor(Math.random() * maxY)
-                    };
-                } while (isFoodOnSnakeOrObstacle(newObstacle) ||
-                    (newObstacle.x === food.x && newObstacle.y === food.y));
-                obstacles.push(newObstacle);
-            }
-        }
-
-        function isFoodOnSnakeOrObstacle(position) {
-            for (let i = 0; i < snake.length; i++) {
-                if (position.x === snake[i].x && position.y === snake[i].y) return true;
-            }
-            for (let i = 0; i < obstacles.length; i++) {
-                if (position.x === obstacles[i].x && position.y === obstacles[i].y) return true;
-            }
-            return false;
-        }
-
-        function draw() {
-            // Clear Canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw Grid (Neobrutalism subtle grid)
-            ctx.strokeStyle = isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.05)';
-            ctx.lineWidth = 1;
-            for (let x = 0; x <= canvas.width; x += TILE_SIZE) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-            }
-            for (let y = 0; y <= canvas.height; y += TILE_SIZE) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-            }
-
-            // Draw Obstacles (Solid gray with thick border)
-            obstacles.forEach(obstacle => {
-                ctx.fillStyle = isDarkMode ? '#475569' : '#94a3b8'; // Slate colors
-                ctx.strokeStyle = isDarkMode ? '#020617' : '#0f172a'; // Panel Border
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.roundRect(obstacle.x * TILE_SIZE + 1, obstacle.y * TILE_SIZE + 1, TILE_SIZE - 2, TILE_SIZE - 2, 3);
-                ctx.fill();
-                ctx.stroke();
-            });
-
-            // Draw Normal Food (Red circle, black border)
-            ctx.fillStyle = '#ef4444'; // accent
-            ctx.strokeStyle = isDarkMode ? '#020617' : '#0f172a';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(food.x * TILE_SIZE + TILE_SIZE / 2, food.y * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE / 2 - 2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-
-            // Draw Bonus Food
-            if (bonusFood) {
-                ctx.fillStyle = '#facc15'; // bonus yellow
-                ctx.strokeStyle = isDarkMode ? '#020617' : '#0f172a';
-                ctx.lineWidth = 2;
-
-                // Outer star/spikes effect (simplified for cartoon look)
-                ctx.save();
-                ctx.translate(bonusFood.x * TILE_SIZE + TILE_SIZE / 2, bonusFood.y * TILE_SIZE + TILE_SIZE / 2);
-                ctx.rotate(Date.now() / 200); // Simple rotation
-                ctx.fillRect(-TILE_SIZE / 2 + 1, -TILE_SIZE / 2 + 1, TILE_SIZE - 2, TILE_SIZE - 2);
-                ctx.strokeRect(-TILE_SIZE / 2 + 1, -TILE_SIZE / 2 + 1, TILE_SIZE - 2, TILE_SIZE - 2);
-                ctx.restore();
-            }
-
-            // Draw Snake
-            snake.forEach((segment, index) => {
-                const isHead = index === 0;
-
-                ctx.fillStyle = isHead ? '#3b82f6' : '#93c5fd'; // brand : light blue
-                ctx.strokeStyle = isDarkMode ? '#020617' : '#0f172a';
-                ctx.lineWidth = 2;
-
-                // Cartoon body
-                ctx.beginPath();
-                ctx.roundRect(segment.x * TILE_SIZE, segment.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, isHead ? 4 : 2);
-                ctx.fill();
-                ctx.stroke();
-
-                // Cartoon Eyes for Head
-                if (isHead) {
-                    const eyeSize = 3;
-                    const pupilSize = 1.5;
-                    let e1x, e1y, e2x, e2y;
-
-                    const offset = 4;
-                    const center = TILE_SIZE / 2;
-
-                    if (dx === 1) { // Right
-                        e1x = center + offset; e1y = center - offset;
-                        e2x = center + offset; e2y = center + offset;
-                    } else if (dx === -1) { // Left
-                        e1x = center - offset; e1y = center - offset;
-                        e2x = center - offset; e2y = center + offset;
-                    } else if (dy === 1) { // Down
-                        e1x = center - offset; e1y = center + offset;
-                        e2x = center + offset; e2y = center + offset;
-                    } else { // Up
-                        e1x = center - offset; e1y = center - offset;
-                        e2x = center + offset; e2y = center - offset;
-                    }
-
-                    // Sclera (White)
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath(); ctx.arc(segment.x * TILE_SIZE + e1x, segment.y * TILE_SIZE + e1y, eyeSize, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-                    ctx.beginPath(); ctx.arc(segment.x * TILE_SIZE + e2x, segment.y * TILE_SIZE + e2y, eyeSize, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-
-                    // Pupil (Black)
-                    ctx.fillStyle = '#000000';
-                    ctx.beginPath(); ctx.arc(segment.x * TILE_SIZE + e1x + (dx * 0.5), segment.y * TILE_SIZE + e1y + (dy * 0.5), pupilSize, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(segment.x * TILE_SIZE + e2x + (dx * 0.5), segment.y * TILE_SIZE + e2y + (dy * 0.5), pupilSize, 0, Math.PI * 2); ctx.fill();
-                }
-            });
-        }
-
-        function update() {
-            if (isGameOver) return;
-
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-            snake.unshift(head);
-            isDirectionChanged = false;
-
-            // Wall Collision
-            if (head.x < 0 || head.x >= canvas.width / TILE_SIZE || head.y < 0 || head.y >= canvas.height / TILE_SIZE) {
-                endGame(); return;
-            }
-
-            // Self Collision
-            for (let i = 1; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) { endGame(); return; }
-            }
-
-            // Obstacle Collision
-            for (let i = 0; i < obstacles.length; i++) {
-                if (head.x === obstacles[i].x && head.y === obstacles[i].y) { endGame(); return; }
-            }
-
-            // Food Logic
-            if (bonusFood && head.x === bonusFood.x && head.y === bonusFood.y) {
-                score += BONUS_FOOD_VALUE;
-                foodEaten++;
-                playSound(bonusSound);
-                bonusFood = null;
-                clearTimeout(bonusFoodTimer);
-                gameSpeed = Math.max(70, gameSpeed - 8);
-                snake.pop(); // Don't grow on bonus
-                generateFood();
-            } else if (head.x === food.x && head.y === food.y) {
-                score += 10 + Math.floor(snake.length / 5) * 5;
-                snakeLength = snake.length;
-                foodEaten++;
-                playSound(eatSound);
-                gameSpeed = Math.max(70, gameSpeed - 2);
-                generateFood();
-            } else {
-                snake.pop();
-            }
-
-            updateUI();
-        }
-
-        function updateUI() {
-            document.getElementById('score').textContent = score;
-            document.getElementById('length').textContent = snakeLength;
-
-            const speedEl = document.getElementById('speed');
-            if (gameSpeed > 130) { speedEl.textContent = 'بطيئة'; speedEl.className = 'text-sm font-black text-blue-500 truncate w-full text-center'; }
-            else if (gameSpeed > 100) { speedEl.textContent = 'متوسطة'; speedEl.className = 'text-sm font-black text-green-500 truncate w-full text-center'; }
-            else if (gameSpeed > 80) { speedEl.textContent = 'سريعة'; speedEl.className = 'text-sm font-black text-orange-500 truncate w-full text-center'; }
-            else { speedEl.textContent = 'صاروخ!'; speedEl.className = 'text-sm font-black text-red-500 truncate w-full text-center animate-pulse'; }
-        }
-
-        function endGame() {
-            isGameOver = true;
-            playSound(gameOverSound);
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('finalLength').textContent = snakeLength;
-
-            updateHighScores(score);
-
-            // Shake effect
-            const bodyContainer = document.getElementById('body-container');
-            bodyContainer.classList.add('shake');
-            setTimeout(() => {
-                bodyContainer.classList.remove('shake');
-                showScreen('gameOverScreen');
-            }, 400);
-        }
-
-        function gameLoop(timestamp) {
-            if (isGameOver) return;
-            const elapsedTime = timestamp - lastRenderTime;
-
-            if (elapsedTime > gameSpeed) {
-                lastRenderTime = timestamp;
-                update();
-                draw();
-            }
-            requestAnimationFrame(gameLoop);
-        }
-
-        // --- High Scores ---
-        function updateHighScores(newScore) {
-            if (newScore === 0) return;
-            let scores = gameData.highScores;
-            scores.push(newScore);
-            scores.sort((a, b) => b - a);
-            gameData.highScores = scores.slice(0, 5);
-            saveGameData();
-
-            if (newScore > 0 && newScore === gameData.highScores[0]) {
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#3b82f6', '#facc15', '#ef4444'] });
-            }
-        }
-
-        function displayHighScores(scores) {
-            const list = document.querySelectorAll('#highScoresList');
-            list.forEach(ul => {
-                ul.innerHTML = '';
-                scores.forEach((score, index) => {
-                    let medal = '🏆'; // Simple trophy for all scores
-                    let colorClass = 'text-slate-600 dark:text-slate-300';
-                    let label = 'أعلى نتيجة';
-                    
-                    if (index === 0) { medal = '🥇'; colorClass = 'text-yellow-600 dark:text-yellow-400 font-black'; }
-                    else if (index === 1) { medal = '🥈'; colorClass = 'text-slate-500 dark:text-slate-300 font-bold'; }
-                    else if (index === 2) { medal = '🥉'; colorClass = 'text-orange-500 dark:text-orange-400 font-bold'; }
-
-                    ul.innerHTML += `
-                        <li class="flex justify-between items-center bg-white/50 dark:bg-black/20 p-2.5 rounded-lg border-2 border-slate-200 dark:border-slate-700 shadow-sm transition-transform hover:scale-[0.98]">
-                            <span class="${colorClass} flex items-center gap-2">
-                                <span class="text-lg">${medal}</span>
-                                <span class="text-xs font-black uppercase tracking-tighter">${label}</span>
-                            </span>
-                            <span class="font-black text-panelBorder dark:text-white text-lg">${score}</span>
-                        </li>
-                    `;
-                });
-            });
-        }
-
-        // --- Controls ---
-        function changeDirection(newDx, newDy) {
-            if (isGameOver || isDirectionChanged) return;
-            if ((newDx === -dx && newDx !== 0) || (newDy === -dy && newDy !== 0)) return;
-            dx = newDx; dy = newDy;
-            isDirectionChanged = true;
-        }
-
-        // التحسين للجوال: استخدام pointerdown لجعل الاستجابة فورية
-        const setupControl = (id, dx, dy) => {
-            const btn = document.getElementById(id);
-            const handler = (e) => {
-                e.preventDefault(); 
-                changeDirection(dx, dy);
-                playSound(clickSound); // تشغيل الصوت فوراً عند الضغط
+            const saveHighScore = (newScore) => {
+                let scores = [...highScores, newScore];
+                scores.sort((a, b) => b - a);
+                scores = scores.slice(0, 3);
+                setHighScores(scores);
+                localStorage.setItem('cyber_snake_highscores', JSON.stringify(scores));
             };
-            btn.addEventListener('pointerdown', handler);
-        };
 
-        setupControl('up', 0, -1);
-        setupControl('down', 0, 1);
-        setupControl('left', 1, 0);
-        setupControl('right', -1, 0);
+            const startGame = () => {
+                playSound('clickSound');
+                setScore(0);
+                setFinalLength(0);
+                setGameState('playing');
+            };
 
-        document.addEventListener('keydown', e => {
-            if (isGameOver) return;
-            switch (e.key) {
-                case 'ArrowUp': case 'w': case 'W': changeDirection(0, -1); break;
-                case 'ArrowDown': case 's': case 'S': changeDirection(0, 1); break;
-                case 'ArrowLeft': case 'a': case 'A': changeDirection(-1, 0); break;
-                case 'ArrowRight': case 'd': case 'D': changeDirection(1, 0); break;
-            }
-        });
+            const handleGameOver = (finalScore, length) => {
+                playSound('gameOverSound');
+                setScore(finalScore);
+                setFinalLength(length);
+                saveHighScore(finalScore);
+                setGameState('game-over');
+            };
 
-        // Swipe Controls
-        canvas.addEventListener('touchstart', e => {
-            e.preventDefault();
-            touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
-        }, { passive: false });
+            return (
+                <div className="min-h-[100dvh] w-full flex justify-center items-center relative overflow-hidden bg-grid-pattern">
+                    {/* إضاءة خلفية (استبدال الأحمر بالأخضر) */}
+                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[40%] bg-emerald-900/20 blur-[120px] pointer-events-none"></div>
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[30%] bg-blue-900/10 blur-[100px] pointer-events-none"></div>
 
-        canvas.addEventListener('touchend', e => {
-            const diffX = e.changedTouches[0].clientX - touchStartX;
-            const diffY = e.changedTouches[0].clientY - touchStartY;
-            const minSwipe = 20;
+                    <div className="w-full max-w-[480px] h-[100dvh] sm:h-auto sm:min-h-[800px] sm:border sm:border-zinc-800/50 sm:rounded-[2.5rem] bg-[#111111]/90 backdrop-blur-xl relative flex flex-col shadow-2xl">
 
-            if (Math.abs(diffX) > minSwipe || Math.abs(diffY) > minSwipe) {
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    changeDirection(diffX > 0 ? 1 : -1, 0);
-                } else {
-                    changeDirection(0, diffY > 0 ? 1 : -1);
-                }
-            }
-        });
+                        {/* الهيدر العلوي */}
+                        <header className="px-6 pt-8 pb-4 flex items-center justify-between z-10 shrink-0 border-b border-zinc-800/50">
+                            <div>
+                                <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                                    بروتوكول الأفعى <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                </h1>
+                                <p className="text-[10px] text-zinc-500 font-mono mt-1 uppercase tracking-widest">SYSTEM // OVERRIDE</p>
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-500">
+                                <i className="fa-solid fa-code"></i>
+                            </div>
+                        </header>
 
-        // Polyfill for roundRect
-        if (!CanvasRenderingContext2D.prototype.roundRect) {
-            CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius) {
-                if (width < 2 * radius) radius = width / 2;
-                if (height < 2 * radius) radius = height / 2;
-                this.beginPath();
-                this.moveTo(x + radius, y);
-                this.arcTo(x + width, y, x + width, y + height, radius);
-                this.arcTo(x + width, y + height, x, y + height, radius);
-                this.arcTo(x, y + height, x, y, radius);
-                this.arcTo(x, y, x + width, y, radius);
-                this.closePath();
-                return this;
-            }
+                        <main className="flex-1 overflow-y-auto overflow-x-hidden relative scrollbar-hide flex flex-col">
+                            {gameState === 'start' && (
+                                <StartScreen highScores={highScores} onStart={startGame} />
+                            )}
+                            {gameState === 'playing' && (
+                                <GameArea onGameOver={handleGameOver} onScoreUpdate={setScore} />
+                            )}
+                        </main>
+
+                        {gameState === 'game-over' && (
+                            <GameOverPhase score={score} length={finalLength} onReset={() => setGameState('start')} onReplay={startGame} />
+                        )}
+                    </div>
+                </div>
+            );
         }
 
-        // Init on load
-        window.addEventListener('DOMContentLoaded', () => {
-            loadGameData();
-            showStartScreen();
+        // --- شاشة البداية ---
+        function StartScreen({ highScores, onStart }) {
+            return (
+                <div className="px-6 py-8 space-y-8 animate-fade-in flex-1 flex flex-col">
 
-            // إضافة أصوات لجميع الأزرار (باستخدام pointerdown لسرعة الاستجابة)
-            document.querySelectorAll('button').forEach(btn => {
-                // استثناء أزرار التحكم لأنها تملك معالج خاص بها بالفعل لمنع التكرار
-                if (!['up', 'down', 'left', 'right'].includes(btn.id)) {
-                    btn.addEventListener('pointerdown', () => {
-                        playSound(clickSound);
-                    });
-                }
+                    <div className="flex flex-col items-center justify-center py-6 text-center">
+                        <div className="w-24 h-24 mb-6 rounded-3xl border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center relative overflow-hidden neon-shadow-green rotate-3">
+                            <i className="fa-solid fa-worm text-5xl text-emerald-400"></i>
+                        </div>
+                        <h2 className="text-xl font-bold text-zinc-300 mb-2">النظام جاهز للاختراق</h2>
+                        <p className="text-sm text-zinc-500 leading-relaxed max-w-[250px]">
+                            اجمع البيانات الحمراء لتوسيع نطاق الدودة. تجنب الاصطدام بالجدران النارية أو التداخل مع مسارك.
+                        </p>
+                    </div>
+
+                    <div className="bg-[#161616] border border-zinc-800 rounded-3xl p-5 relative overflow-hidden">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+                                <i className="fa-solid fa-trophy text-yellow-500/80"></i> سجلات النظام
+                            </h3>
+                        </div>
+                        <div className="space-y-2">
+                            {highScores.map((score, idx) => (
+                                <div key={idx} className="flex justify-between items-center bg-[#0a0a0a] p-3 rounded-2xl border border-zinc-800/80">
+                                    <span className="text-zinc-500 font-mono text-xs">RANK_0{idx + 1}</span>
+                                    <span className="font-black text-emerald-400 font-mono text-lg">{score}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mt-auto pt-4">
+                        <button
+                            onClick={onStart}
+                            className="w-full bg-emerald-500/10 backdrop-blur-lg border border-emerald-500/30 text-emerald-400 font-bold py-4 rounded-2xl hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all flex items-center justify-center gap-2 shadow-[0_8px_32px_rgba(16,185,129,0.15)] text-lg"
+                        >
+                            تفعيل الدودة <i className="fa-solid fa-power-off ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- شاشة اللعب (محرك اللعبة) ---
+        function GameArea({ onGameOver, onScoreUpdate }) {
+            const canvasRef = useRef(null);
+            const [scoreState, setScoreState] = useState(0);
+            const [speedState, setSpeedState] = useState('عادي');
+
+            // متغيرات اللعبة (بدون إعادة تصيير React لتجنب البطء)
+            const gameData = useRef({
+                snake: [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }],
+                food: { x: 5, y: 5 },
+                dx: 1,
+                dy: 0,
+                nextDx: 1,
+                nextDy: 0,
+                score: 0,
+                speed: 130,
+                lastTime: 0,
+                reqId: null
             });
-        });
+
+            // أدوات التحكم
+            const changeDirection = (newDx, newDy) => {
+                const { dx, dy } = gameData.current;
+                // منع الانعكاس المباشر
+                if ((newDx === -dx && newDx !== 0) || (newDy === -dy && newDy !== 0)) return;
+                gameData.current.nextDx = newDx;
+                gameData.current.nextDy = newDy;
+                playSound('clickSound');
+            };
+
+            const handleControl = (dir) => (e) => {
+                e.preventDefault();
+                if (dir === 'up') changeDirection(0, -1);
+                if (dir === 'down') changeDirection(0, 1);
+                if (dir === 'left') changeDirection(-1, 0); // معكوس لـ RTL
+                if (dir === 'right') changeDirection(1, 0); // معكوس لـ RTL
+            };
+
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    switch (e.key) {
+                        case 'ArrowUp': case 'w': changeDirection(0, -1); break;
+                        case 'ArrowDown': case 's': changeDirection(0, 1); break;
+                        case 'ArrowLeft': case 'a': changeDirection(-1, 0); break;
+                        case 'ArrowRight': case 'd': changeDirection(1, 0); break;
+                    }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, []);
+
+            // توليد الطعام
+            const generateFood = () => {
+                const { snake } = gameData.current;
+                let newFood;
+                let isOnSnake = true;
+                while (isOnSnake) {
+                    newFood = {
+                        x: Math.floor(Math.random() * (CANVAS_SIZE / TILE_SIZE)),
+                        y: Math.floor(Math.random() * (CANVAS_SIZE / TILE_SIZE))
+                    };
+                    isOnSnake = snake.some(s => s.x === newFood.x && s.y === newFood.y);
+                }
+                gameData.current.food = newFood;
+            };
+
+            // حلقة اللعبة (Game Loop)
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                generateFood();
+
+                const loop = (time) => {
+                    gameData.current.reqId = requestAnimationFrame(loop);
+
+                    const delta = time - gameData.current.lastTime;
+                    if (delta < gameData.current.speed) return;
+                    gameData.current.lastTime = time;
+
+                    updateGame(ctx);
+                };
+
+                gameData.current.reqId = requestAnimationFrame(loop);
+
+                return () => cancelAnimationFrame(gameData.current.reqId);
+            }, []);
+
+            const updateGame = (ctx) => {
+                const data = gameData.current;
+                data.dx = data.nextDx;
+                data.dy = data.nextDy;
+
+                const head = { x: data.snake[0].x + data.dx, y: data.snake[0].y + data.dy };
+
+                // التصادم مع الجدران
+                if (head.x < 0 || head.x >= CANVAS_SIZE / TILE_SIZE || head.y < 0 || head.y >= CANVAS_SIZE / TILE_SIZE) {
+                    cancelAnimationFrame(data.reqId);
+                    onGameOver(data.score, data.snake.length);
+                    return;
+                }
+
+                // التصادم مع النفس
+                if (data.snake.some(s => s.x === head.x && s.y === head.y)) {
+                    cancelAnimationFrame(data.reqId);
+                    onGameOver(data.score, data.snake.length);
+                    return;
+                }
+
+                data.snake.unshift(head);
+
+                // أكل الطعام
+                if (head.x === data.food.x && head.y === data.food.y) {
+                    playSound('eatSound');
+                    data.score += 10;
+                    data.speed = Math.max(60, data.speed - 2); // زيادة السرعة
+
+                    setScoreState(data.score);
+                    onScoreUpdate(data.score);
+
+                    if (data.speed < 80) setSpeedState('خطر');
+                    else if (data.speed < 110) setSpeedState('سريع');
+
+                    generateFood();
+                } else {
+                    data.snake.pop(); // إذا لم يأكل، احذف الذيل
+                }
+
+                drawGame(ctx, data);
+            };
+
+            const drawGame = (ctx, data) => {
+                // مسح الشاشة
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+                // رسم الشبكة البسيطة (Cyber style)
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= CANVAS_SIZE; i += TILE_SIZE) {
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, CANVAS_SIZE); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(CANVAS_SIZE, i); ctx.stroke();
+                }
+
+                // رسم الطعام (Data packet - Red Neon)
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#ef4444';
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(data.food.x * TILE_SIZE + 2, data.food.y * TILE_SIZE + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+
+                // رسم الثعبان (Cyber Worm - Green Neon)
+                ctx.shadowColor = '#10b981';
+                data.snake.forEach((segment, index) => {
+                    const isHead = index === 0;
+                    ctx.fillStyle = isHead ? '#10b981' : '#059669';
+                    ctx.shadowBlur = isHead ? 15 : 5;
+
+                    // شكل القطع
+                    ctx.beginPath();
+                    ctx.roundRect(segment.x * TILE_SIZE + 1, segment.y * TILE_SIZE + 1, TILE_SIZE - 2, TILE_SIZE - 2, isHead ? 4 : 2);
+                    ctx.fill();
+                });
+                ctx.shadowBlur = 0; // إعادة تعيين
+            };
+
+            return (
+                <div className="px-6 py-4 animate-fade-in flex flex-col h-full">
+                    {/* لوحة المعلومات العلوية (Dashboard) */}
+                    <div className="bg-[#161616] border border-zinc-800 rounded-3xl p-4 mb-6 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none"></div>
+                        <div className="grid grid-cols-3 gap-3 relative z-10 text-center">
+                            <div className="bg-[#0a0a0a] rounded-2xl p-2 border border-zinc-800/80">
+                                <span className="block text-[10px] text-zinc-500 font-mono mb-1">DATA</span>
+                                <span className="text-xl font-black text-emerald-400 leading-none">{scoreState}</span>
+                            </div>
+                            <div className="bg-[#0a0a0a] rounded-2xl p-2 border border-zinc-800/80">
+                                <span className="block text-[10px] text-zinc-500 font-mono mb-1">NODES</span>
+                                <span className="text-xl font-black text-zinc-300 leading-none">{Math.floor(scoreState / 10) + 3}</span>
+                            </div>
+                            <div className="bg-[#0a0a0a] rounded-2xl p-2 border border-zinc-800/80">
+                                <span className="block text-[10px] text-zinc-500 font-mono mb-1">SPEED</span>
+                                <span className={`text-sm font-bold mt-1 block leading-none ${speedState === 'خطر' ? 'text-red-500 animate-pulse' : 'text-blue-400'}`}>
+                                    {speedState}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* مساحة اللعب */}
+                    <div className="flex-1 flex flex-col items-center justify-center">
+                        <div className="relative p-2 bg-[#161616] border border-zinc-800 rounded-3xl shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                            <canvas
+                                ref={canvasRef}
+                                width={CANVAS_SIZE}
+                                height={CANVAS_SIZE}
+                                className="bg-[#0a0a0a] rounded-2xl block"
+                            ></canvas>
+                        </div>
+                    </div>
+
+                    {/* أزرار التحكم (D-PAD الزجاجية) */}
+                    <div className="mt-8 mb-4 flex justify-center w-full">
+                        <div className="grid grid-cols-3 gap-2 w-[220px]">
+                            <div></div>
+                            <button onPointerDown={handleControl('up')} className="aspect-square bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-center text-2xl text-zinc-400 hover:text-white hover:bg-white/10 active:bg-emerald-500/20 active:border-emerald-500/50 transition-all touch-none">
+                                <i className="fa-solid fa-chevron-up"></i>
+                            </button>
+                            <div></div>
+                            <button onPointerDown={handleControl('right')} className="aspect-square bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-center text-2xl text-zinc-400 hover:text-white hover:bg-white/10 active:bg-emerald-500/20 active:border-emerald-500/50 transition-all touch-none">
+                                <i className="fa-solid fa-chevron-right"></i>
+                            </button>
+                            <button onPointerDown={handleControl('down')} className="aspect-square bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-center text-2xl text-zinc-400 hover:text-white hover:bg-white/10 active:bg-emerald-500/20 active:border-emerald-500/50 transition-all touch-none">
+                                <i className="fa-solid fa-chevron-down"></i>
+                            </button>
+                            <button onPointerDown={handleControl('left')} className="aspect-square bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-center text-2xl text-zinc-400 hover:text-white hover:bg-white/10 active:bg-emerald-500/20 active:border-emerald-500/50 transition-all touch-none">
+                                <i className="fa-solid fa-chevron-left"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- شاشة النهاية (تشبه شاشة الإقصاء في المافيا) ---
+        function GameOverPhase({ score, length, onReset, onReplay }) {
+            return (
+                <div className="absolute inset-0 z-50 bg-[#050505] flex flex-col items-center justify-center p-6">
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-900/30 via-[#050505] to-[#050505]"></div>
+
+                    <div className="relative z-10 flex flex-col items-center text-center animate-fade-scale w-full">
+                        <div className="w-32 h-32 mb-8 rounded-full border border-red-500/30 bg-red-950/20 flex items-center justify-center relative overflow-hidden">
+                            <div className="absolute inset-0 border-[4px] border-red-600 rounded-full animate-[spin_3s_linear_infinite] border-t-transparent"></div>
+                            <i className="fa-solid fa-triangle-exclamation w-16 h-16 text-6xl text-red-500 drop-shadow-[0_0_15px_rgba(220,38,38,0.5)] flex items-center justify-center"></i>
+                        </div>
+
+                        <div className="uppercase tracking-[0.3em] text-red-500/80 text-sm font-mono mb-2">CRITICAL ERROR</div>
+                        <h2 className="text-4xl font-black text-white mb-8 tracking-tight">تم تدمير الدودة</h2>
+
+                        <div className="w-full max-w-[280px] space-y-3 mb-10">
+                            <div className="flex items-center justify-between bg-zinc-900/80 px-5 py-4 rounded-2xl border border-zinc-800">
+                                <span className="text-zinc-400 text-sm">البيانات المستخرجة:</span>
+                                <span className="font-black text-2xl text-emerald-400 font-mono">{score}</span>
+                            </div>
+                            <div className="flex items-center justify-between bg-zinc-900/80 px-5 py-4 rounded-2xl border border-zinc-800">
+                                <span className="text-zinc-400 text-sm">طول العقدة:</span>
+                                <span className="font-black text-xl text-zinc-200 font-mono">{length}</span>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-3 w-full max-w-[280px]">
+                            <button
+                                onClick={onReplay}
+                                className="w-full bg-emerald-500/10 backdrop-blur-lg border border-emerald-500/30 text-emerald-400 font-bold py-4 rounded-2xl hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all flex items-center justify-center gap-3 shadow-[0_8px_32px_rgba(16,185,129,0.15)] text-lg animate-fade-in opacity-0"
+                                style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}
+                            >
+                                إعادة الاتصال <i className="fa-solid fa-rotate-right ml-1"></i>
+                            </button>
+                            <button
+                                onClick={onReset}
+                                className="w-full bg-white/5 backdrop-blur-lg border border-white/10 text-zinc-300 font-bold py-4 rounded-2xl hover:bg-white/10 hover:border-white/20 transition-all flex items-center justify-center gap-3 text-sm animate-fade-in opacity-0"
+                                style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}
+                            >
+                                إنهاء النظام <i className="fa-solid fa-power-off ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 
