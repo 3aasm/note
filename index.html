@@ -151,23 +151,24 @@
 
         /* أزرار 3D */
         .btn-3d {
-            background: linear-gradient(135deg, #FFB347, #FF7B00);
+            background: #FF9800;
             color: white;
-            border-radius: 30px;
-            box-shadow: 0 8px 20px rgba(255, 123, 0, 0.3), inset 0 -3px 0 rgba(0, 0, 0, 0.15);
-            transition: all 0.2s ease;
-            font-weight: 800;
+            border-radius: 9999px;
+            box-shadow: 0 5px 0 #C2410C, 0 8px 15px rgba(255, 152, 0, 0.3);
+            transition: all 0.1s ease-out;
+            font-weight: 900;
             border: none;
+            display: inline-block;
         }
 
         .btn-3d:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(255, 123, 0, 0.4), inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #C2410C, 0 4px 10px rgba(255, 152, 0, 0.3);
         }
 
         .btn-3d:active {
-            transform: translateY(2px);
-            box-shadow: 0 4px 10px rgba(255, 123, 0, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #C2410C, 0 0 0 rgba(0, 0, 0, 0);
         }
 
         .btn-outline-3d {
@@ -181,25 +182,25 @@
         }
 
         .btn-white-3d {
-            background: white;
+            background: #FFFFFF;
             color: #FF9800;
-            border-radius: 30px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1), inset 0 -4px 0 rgba(0, 0, 0, 0.08);
-            transition: all 0.2s ease;
+            border-radius: 9999px;
+            box-shadow: 0 6px 0 #E65100, 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.1s ease-out;
             font-weight: 900;
             border: none;
-            padding: 0.75rem 2rem;
+            padding: 0.875rem 2.5rem;
             display: inline-block;
         }
 
         .btn-white-3d:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15), inset 0 -4px 0 rgba(0, 0, 0, 0.08);
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #E65100, 0 6px 15px rgba(0, 0, 0, 0.1);
         }
 
         .btn-white-3d:active {
-            transform: translateY(2px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1), inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #E65100, 0 0 0 rgba(0, 0, 0, 0);
         }
 
         /* بطاقات */
@@ -606,14 +607,16 @@
                 <div class="stagger-item">
                     <div class="relative w-full">
                         <i
-                            class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                            class="fa-solid fa-magnifying-glass absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
                         <input type="text" oninput="handleGameSearch(this.value)" placeholder="ابحث عن لعبة..."
-                            class="input-ui w-full pl-[90px] pr-12 py-3.5 font-bold text-sm shadow-sm relative">
-                        <button id="category-cycle-btn" onclick="cycleCategory()"
-                            class="absolute left-2 top-1/2 -translate-y-1/2 bg-brand text-white px-3 py-2 min-w-[70px] justify-center font-black rounded-xl shadow-sm transition-all text-xs flex items-center gap-1.5 z-10 select-none hover:scale-105 active:scale-95">
-                            <span id="category-cycle-text">الكل</span>
-                            <i class="fa-solid fa-layer-group text-[10px] opacity-80"></i>
-                        </button>
+                            class="input-ui w-full pl-[110px] pr-14 py-4 font-bold text-sm shadow-sm relative !rounded-full border-gray-200">
+                        <div class="absolute left-2 top-1/2 -translate-y-1/2 z-10">
+                            <button id="category-cycle-btn" onclick="cycleCategory()"
+                                class="btn-3d px-4 py-2 min-w-[85px] flex justify-center items-center gap-2 select-none text-sm !rounded-full">
+                                <i class="fa-solid fa-layer-group opacity-90"></i>
+                                <span id="category-cycle-text">الكل</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -914,12 +917,18 @@
     <!-- Game Sheet -->
     <div id="game-sheet-overlay" onclick="closeGameSheet()"></div>
     <div id="game-sheet">
-        <div class="h-full w-full relative">
+        <div class="h-full w-full relative overflow-hidden">
             <!-- زر الخروج المبسط -->
-            <div class="absolute top-0 left-0 w-full p-4 z-50 pointer-events-none">
-                <button onclick="closeGameSheet()"
-                    class="pointer-events-auto w-[46px] h-[46px] bg-[#EF4444] hover:bg-red-600 rounded-2xl shadow-[0_4px_0_#B91C1C] text-white flex items-center justify-center text-xl transition-all active:translate-y-[4px] active:shadow-none float-left">
-                    <i class="fa-solid fa-door-open"></i>
+            <div class="absolute top-0 left-0 w-full p-4 z-50 pointer-events-none flex justify-start">
+                <button id="game-exit-btn" onclick="handleExitClick(event)" onpointerdown="handleExitTouchStart(event)"
+                    onpointerup="handleExitTouchEnd(event)" onpointerleave="handleExitTouchEnd(event)"
+                    class="pointer-events-auto w-[46px] h-[46px] bg-[#EF4444] hover:bg-red-600 rounded-2xl shadow-[0_4px_0_#B91C1C] text-white flex items-center justify-center text-xl transition-transform duration-300 active:translate-y-[4px] active:shadow-none absolute top-4 left-4 z-10">
+                    <i class="fa-solid fa-door-open pointer-events-none"></i>
+                </button>
+                <button id="game-show-btn" onclick="showExitBtn()"
+                    class="pointer-events-auto w-[46px] h-[36px] bg-black/50 backdrop-blur-md border border-white/10 rounded-b-2xl text-white flex items-center justify-center transition-transform duration-300 absolute top-0 left-4 z-0"
+                    style="transform: translateY(-150%);">
+                    <i class="fa-solid fa-chevron-down text-sm pointer-events-none"></i>
                 </button>
             </div>
             <iframe id="game-iframe" src=""
@@ -1332,10 +1341,40 @@
         }
 
         // --- وظائف الألعاب ---
+        let exitPressTimer;
+        let isLongPressed = false;
+
+        function handleExitTouchStart(e) {
+            isLongPressed = false;
+            exitPressTimer = setTimeout(() => {
+                isLongPressed = true;
+                document.getElementById('game-exit-btn').style.transform = 'translateY(-150px)';
+                document.getElementById('game-show-btn').style.transform = 'translateY(0)';
+            }, 600);
+        }
+
+        function handleExitTouchEnd(e) {
+            clearTimeout(exitPressTimer);
+        }
+
+        function handleExitClick(e) {
+            if (isLongPressed) {
+                e.preventDefault();
+                return;
+            }
+            closeGameSheet();
+        }
+
+        function showExitBtn() {
+            document.getElementById('game-exit-btn').style.transform = 'translateY(0)';
+            document.getElementById('game-show-btn').style.transform = 'translateY(-150%)';
+        }
+
         function openGameSheet(url) {
             document.getElementById('game-sheet').classList.add('active');
             document.getElementById('game-sheet-overlay').classList.add('active');
             document.getElementById('game-iframe').src = url;
+            showExitBtn();
         }
         function closeGameSheet() { document.getElementById('exit-confirm-modal').classList.add('active'); }
         function confirmExit(confirm) {
@@ -1360,11 +1399,7 @@
             const textEl = document.getElementById('category-cycle-text');
             if (textEl) textEl.textContent = current.text;
 
-            const btn = document.getElementById('category-cycle-btn');
-            if (btn) {
-                btn.style.transform = 'translateY(-50%) scale(0.9)';
-                setTimeout(() => btn.style.transform = 'translateY(-50%) scale(1)', 150);
-            }
+            // التأثير الحركي يتم الآن عن طريق CSS الخاص بـ btn-3d
         }
 
         // --- عرض Toast Notification بأسلوب أنيق ---
