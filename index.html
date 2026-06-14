@@ -64,6 +64,10 @@
 
     <style>
         body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
             background-color: var(--bgBase, #FFF6E5);
             background-image:
@@ -73,6 +77,13 @@
             color: #1E293B;
             font-family: 'Cairo', sans-serif;
             transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        
+        input, textarea {
+            -webkit-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+            user-select: auto;
         }
 
         /* شريط التمرير */
@@ -363,14 +374,23 @@
             pointer-events: auto;
         }
 
-        /* تأثير السكرول للهيدر */
+        /* تأثير السكرول للهيدر - محسن جداً (60 FPS) */
+        #main-header {
+            will-change: height, background-color;
+        }
+
         #main-header.scrolled {
             height: 3.5rem;
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
             z-index: 40;
+        }
+
+        #header-floating-title {
+            will-change: transform, right;
         }
 
         #main-header.scrolled #header-floating-title {
@@ -378,30 +398,48 @@
             transform: translate(50%, -50%);
         }
 
+        #header-logo {
+            transform-origin: right center;
+            will-change: transform, opacity, width, margin;
+        }
+
         #main-header.scrolled #header-logo {
-            width: 0;
-            opacity: 0;
-            border-width: 0;
             transform: scale(0);
-            margin: 0;
+            opacity: 0;
+            width: 0;
+            border-width: 0;
+            margin-left: 0;
+        }
+
+        #header-welcome-text {
+            transform-origin: top;
+            will-change: transform, opacity, height, margin;
         }
 
         #main-header.scrolled #header-welcome-text {
-            height: 0;
             opacity: 0;
-            overflow: hidden;
+            height: 0;
             margin: 0;
             transform: scaleY(0);
         }
 
+        #header-title {
+            transform-origin: right center;
+            will-change: transform;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
         #main-header.scrolled #header-title {
-            font-size: 1.25rem;
-            line-height: 1.75rem;
+            transform: scale(0.75); /* أنميشن الحجم عن طريق transform وليس font-size لمنع التقطيع */
+        }
+
+        #header-right-group {
+            will-change: transform, opacity;
         }
 
         #main-header.scrolled #header-right-group {
             opacity: 0;
-            transform: translateX(-10px) scale(0.9);
+            transform: translateX(-15px) scale(0.9);
             pointer-events: none;
         }
     </style>
@@ -1069,6 +1107,15 @@
     </div>
 
     <script>
+        // --- منع النسخ والتحديد في التطبيق بأكمله ---
+        document.addEventListener('contextmenu', e => {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+            }
+        });
+        document.addEventListener('copy', e => e.preventDefault());
+        document.addEventListener('dragstart', e => e.preventDefault());
+
         // --- الأساسيات والملاحة ---
         let isAnimating = false;
 
@@ -1373,7 +1420,25 @@
         function openGameSheet(url) {
             document.getElementById('game-sheet').classList.add('active');
             document.getElementById('game-sheet-overlay').classList.add('active');
-            document.getElementById('game-iframe').src = url;
+            const iframe = document.getElementById('game-iframe');
+            
+            iframe.onload = function() {
+                try {
+                    const iframeDoc = iframe.contentWindow.document;
+                    // منع التحديد
+                    iframeDoc.body.style.userSelect = 'none';
+                    iframeDoc.body.style.webkitUserSelect = 'none';
+                    iframeDoc.body.style.msUserSelect = 'none';
+                    iframeDoc.body.style.mozUserSelect = 'none';
+                    
+                    // منع القائمة السياقية والنسخ والسحب
+                    iframeDoc.addEventListener('contextmenu', e => e.preventDefault());
+                    iframeDoc.addEventListener('copy', e => e.preventDefault());
+                    iframeDoc.addEventListener('dragstart', e => e.preventDefault());
+                } catch(e) {}
+            };
+            
+            iframe.src = url;
             showExitBtn();
         }
         function closeGameSheet() { document.getElementById('exit-confirm-modal').classList.add('active'); }
@@ -1439,17 +1504,30 @@
         document.addEventListener('DOMContentLoaded', () => {
             switchPage('home');
 
-            // إضافة تأثير السكرول للهيدر
+            // إضافة تأثير السكرول للهيدر بسلاسة تامة (60 FPS)
             const scrollArea = document.getElementById('main-scroll-area');
             const mainHeader = document.getElementById('main-header');
+            let isScrolled = false;
+            let ticking = false;
+
             if (scrollArea && mainHeader) {
                 scrollArea.addEventListener('scroll', () => {
-                    if (scrollArea.scrollTop > 30) {
-                        mainHeader.classList.add('scrolled');
-                    } else {
-                        mainHeader.classList.remove('scrolled');
+                    if (!ticking) {
+                        window.requestAnimationFrame(() => {
+                            const shouldBeScrolled = scrollArea.scrollTop > 30;
+                            if (shouldBeScrolled !== isScrolled) {
+                                isScrolled = shouldBeScrolled;
+                                if (isScrolled) {
+                                    mainHeader.classList.add('scrolled');
+                                } else {
+                                    mainHeader.classList.remove('scrolled');
+                                }
+                            }
+                            ticking = false;
+                        });
+                        ticking = true;
                     }
-                });
+                }, { passive: true });
             }
             // Mock matches data
             document.getElementById('matches-container').innerHTML = `
