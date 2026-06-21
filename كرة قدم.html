@@ -589,7 +589,7 @@
             const stick = document.getElementById(stickId);
             let isActive = false;
             let center = { x: 0, y: 0 };
-            let maxRadius = base.offsetWidth / 2;
+            let maxRadius = 55;
 
             function updateStickPos(clientX, clientY) {
                 let dx = clientX - center.x;
@@ -602,14 +602,17 @@
                 }
 
                 stick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-                vectorObj.x = dx / maxRadius;
-                vectorObj.y = dy / maxRadius;
+                if (maxRadius > 0) {
+                    vectorObj.x = dx / maxRadius;
+                    vectorObj.y = dy / maxRadius;
+                }
             }
 
             base.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 isActive = true;
                 const rect = base.getBoundingClientRect();
+                maxRadius = rect.width / 2 || 55;
                 center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
                 updateStickPos(e.touches[0].clientX, e.touches[0].clientY);
             });
