@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة كرة قدم 2D - بالطول</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- إضافة مكتبة Lucide للأيقونات -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #000;
+            color: white;
+            overflow: hidden;
+            touch-action: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #game-area {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0f172a;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            background-color: #16a34a;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* شاشة البداية */
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            color: white;
+        }
+
+        .start-logo {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            background: -webkit-linear-gradient(#60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .start-logo span.red {
+            background: -webkit-linear-gradient(#f87171, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .start-subtitle {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        #start-btn {
+            background: linear-gradient(to right, #22c55e, #16a34a);
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            padding: 15px 40px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(22, 163, 74, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #start-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 5px 10px rgba(22, 163, 74, 0.4);
+        }
+
+        /* حاويات التحكم العلوية والسفلية */
+        .controls-container {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            pointer-events: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 20;
+        }
+
+        #controls-bottom {
+            bottom: 0;
+        }
+
+        /* الحاوية العلوية للاعب الثاني (مقلوبة للمستخدم المقابل) */
+        #controls-top {
+            top: 0;
+            align-items: flex-start;
+            /* الأزرار تكون في أعلى الشاشة */
+        }
+
+        .control-element {
+            pointer-events: auto;
+        }
+
+        /* عصا التحكم (Joystick) */
+        .joystick-base {
+            width: 110px;
+            height: 110px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: relative;
+            touch-action: none;
+            backdrop-filter: blur(8px);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3), 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* إضافة أيقونة اتجاهات خلفية للعصا */
+        .joystick-base::before {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.2)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2v20M17 5l-5-3-5 3M17 19l-5 3-5-3M2 12h20M5 7l-3 5 3 5M19 7l3 5-3 5'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .joystick-stick {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(200, 200, 200, 0.8) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            transition: background 0.2s;
+        }
+
+        .joystick-base:active .joystick-stick {
+            background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(220, 220, 220, 0.9) 100%);
+        }
+
+        /* زر التسديد */
+        .kick-btn {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.3);
+            user-select: none;
+            touch-action: none;
+            transition: transform 0.1s, opacity 0.1s, box-shadow 0.1s;
+            opacity: 0.85;
+            backdrop-filter: blur(8px);
+            color: white;
+            /* لون الأيقونة */
+        }
+
+        .kick-btn:active,
+        .kick-btn.active {
+            transform: scale(0.9);
+            opacity: 1;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .kick-btn i {
+            pointer-events: none;
+        }
+
+        /* تدوير محتوى زر اللاعب العلوي ليراه بشكل صحيح */
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+
+        .blue-kick {
+            background-color: rgba(37, 99, 235, 0.5);
+        }
+
+        .red-kick {
+            background-color: rgba(220, 38, 38, 0.5);
+        }
+
+        #game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 30;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px 40px;
+            border-radius: 20px;
+            text-align: center;
+            pointer-events: none;
+            border: 2px solid #fff;
+            display: none;
+        }
+
+        #restart-btn {
+            pointer-events: auto;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="game-area">
+        <!-- شاشة البداية -->
+        <div id="start-screen">
+            <h1 class="start-logo">ديربي <span class="red">الأبطال</span></h1>
+            <p class="start-subtitle">تحدَّ صديقك على نفس الشاشة!</p>
+            <div class="flex gap-4 mb-8">
+                <div class="flex flex-col items-center">
+                    <div
+                        class="w-12 h-12 rounded-full bg-red-600 border-4 border-white shadow-lg mb-2 flex justify-center items-center">
+                        <i data-lucide="user" class="text-white w-6 h-6"></i></div>
+                    <span class="text-sm font-bold text-red-400">لاعب أعلى</span>
+                </div>
+                <div class="flex items-center justify-center font-black text-2xl text-gray-400">VS</div>
+                <div class="flex flex-col items-center">
+                    <div
+                        class="w-12 h-12 rounded-full bg-blue-600 border-4 border-white shadow-lg mb-2 flex justify-center items-center">
+                        <i data-lucide="user" class="text-white w-6 h-6"></i></div>
+                    <span class="text-sm font-bold text-blue-400">لاعب أسفل</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center mb-8">
+                <label class="text-gray-300 font-bold mb-3 text-lg">عدد الأهداف للفوز:</label>
+                <div class="flex gap-4" id="score-selector">
+                    <button class="score-btn w-12 h-12 rounded-full bg-slate-800 text-white font-bold border-2 border-transparent hover:border-yellow-400 transition-all" data-score="3">3</button>
+                    <button class="score-btn w-14 h-14 rounded-full bg-yellow-500 text-black font-black border-4 border-yellow-300 shadow-lg scale-110 transition-all" data-score="5">5</button>
+                    <button class="score-btn w-12 h-12 rounded-full bg-slate-800 text-white font-bold border-2 border-transparent hover:border-yellow-400 transition-all" data-score="10">10</button>
+                </div>
+            </div>
+
+            <button id="start-btn">
+                <i data-lucide="play" class="w-6 h-6 fill-current"></i> ابدأ اللعب
+            </button>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="game-message">
+            <h2 class="text-3xl font-black mb-2" id="win-text">هدف!</h2>
+            <p class="text-gray-300">الهدف: 5</p>
+            <button id="restart-btn"
+                class="hidden bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded-full shadow-lg text-lg w-full">
+                إعادة اللعب
+            </button>
+        </div>
+
+        <!-- تحكم اللاعب الأحمر (أعلى الشاشة - يتم قراءته بالعكس للطرف الآخر) -->
+        <div id="controls-top" class="controls-container hidden">
+            <div class="flex gap-4 rotate-180">
+                <div class="control-element kick-btn red-kick" id="kick2-btn">
+                    <i data-lucide="target" class="w-8 h-8 fill-current"></i>
+                </div>
+                <div class="control-element kick-btn" style="background-color: rgba(234, 179, 8, 0.5); border-color: #eab308; position: relative; overflow: hidden;" id="sprint2-btn">
+                    <i data-lucide="zap" class="w-8 h-8 fill-current text-yellow-300"></i>
+                    <div id="sprint2-cooldown" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: rgba(0,0,0,0.6); transition: height 0.1s;"></div>
+                </div>
+            </div>
+            <div class="control-element joystick-base" id="joy2-base">
+                <div class="joystick-stick" id="joy2-stick"></div>
+            </div>
+        </div>
+
+        <!-- تحكم اللاعب الأزرق (أسفل الشاشة) -->
+        <div id="controls-bottom" class="controls-container hidden">
+            <div class="control-element joystick-base" id="joy1-base">
+                <div class="joystick-stick" id="joy1-stick"></div>
+            </div>
+            <div class="flex gap-4">
+                <div class="control-element kick-btn" style="background-color: rgba(234, 179, 8, 0.5); border-color: #eab308; position: relative; overflow: hidden;" id="sprint1-btn">
+                    <i data-lucide="zap" class="w-8 h-8 fill-current text-yellow-300"></i>
+                    <div id="sprint1-cooldown" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: rgba(0,0,0,0.6); transition: height 0.1s;"></div>
+                </div>
+                <div class="control-element kick-btn blue-kick" id="kick1-btn">
+                    <i data-lucide="target" class="w-8 h-8 fill-current"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // تهيئة أيقونات Lucide
+        lucide.createIcons();
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const messageBox = document.getElementById('game-message');
+        const winText = document.getElementById('win-text');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // أبعاد الملعب بالطول (Portrait)
+        const GAME_WIDTH = 600;
+        const GAME_HEIGHT = 1000;
+
+        // إعدادات الفيزياء
+        const FRICTION = 0.94;
+        const PLAYER_ACCELERATION = 0.8;
+        const MAX_PLAYER_SPEED = 6;
+        const BALL_FRICTION = 0.985;
+        const KICK_POWER = 13;
+        const KICK_RADIUS = 40;
+
+        // أبعاد المرمى (أصبح في الأعلى والأسفل، فالعرض هو X)
+        const GOAL_WIDTH = 180;
+        const GOAL_X = (GAME_WIDTH - GOAL_WIDTH) / 2;
+        const GOAL_DEPTH = 50;
+
+        let score1 = 0; // الأزرق (أسفل)
+        let score2 = 0; // الأحمر (أعلى)
+        let MAX_SCORE = 5;
+        let isGameOver = false;
+        let isGameStarted = false; // حالة بدء اللعبة
+
+        let joy1Vector = { x: 0, y: 0 };
+        let joy2Vector = { x: 0, y: 0 };
+        let isKick1 = false;
+        let isKick2 = false;
+
+        function resizeCanvas() {
+            const container = document.getElementById('game-area');
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+
+            const aspect = GAME_WIDTH / GAME_HEIGHT;
+
+            let finalWidth, finalHeight;
+
+            if (containerWidth / containerHeight > aspect) {
+                finalHeight = containerHeight;
+                finalWidth = containerHeight * aspect;
+            } else {
+                finalWidth = containerWidth;
+                finalHeight = containerWidth / aspect;
+            }
+
+            canvas.style.width = `${finalWidth}px`;
+            canvas.style.height = `${finalHeight}px`;
+            canvas.width = GAME_WIDTH;
+            canvas.height = GAME_HEIGHT;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Entity {
+            constructor(x, y, radius, mass, color, isBall = false) {
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+                this.radius = radius;
+                this.mass = mass;
+                this.color = color;
+                this.isBall = isBall;
+                this.isKicking = false;
+                this.kickTimer = 0;
+                this.isSprinting = false;
+                this.sprintEnergy = 100;
+                this.sprintCooldown = false;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+
+                if (this.isBall) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fill();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#000000';
+                    ctx.stroke();
+
+                    // نمط بسيط للكرة
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius * 0.4, 0, Math.PI * 2);
+                    ctx.fillStyle = '#333';
+                    ctx.fill();
+                } else {
+                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowOffsetY = 4;
+
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.shadowColor = 'transparent';
+
+                    // تأثير التسديد
+                    if (this.isKicking && this.kickTimer > 0) {
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius + 8, 0, Math.PI * 2);
+                        ctx.lineWidth = 4;
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                        ctx.stroke();
+                        this.kickTimer--;
+                        if (this.kickTimer <= 0) this.isKicking = false;
+                    }
+
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.stroke();
+
+                    // رسم ملامح الوجه (شخصية بدل دائرة بسيطة)
+                    // بما أن اللاعب 1 (أسفل) ينظر لأعلى، واللاعب 2 (أعلى) ينظر لأسفل
+                    let dirY = (this.color === '#2563eb') ? -1 : 1; 
+
+                    let eyeOffsetX = this.radius * 0.4;
+                    let eyeOffsetY = this.radius * 0.2;
+                    
+                    // بياض العين
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath(); ctx.arc(this.x - eyeOffsetX, this.y + eyeOffsetY * dirY, this.radius * 0.25, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(this.x + eyeOffsetX, this.y + eyeOffsetY * dirY, this.radius * 0.25, 0, Math.PI * 2); ctx.fill();
+
+                    // بؤبؤ العين
+                    ctx.fillStyle = 'black';
+                    ctx.beginPath(); ctx.arc(this.x - eyeOffsetX, this.y + (eyeOffsetY + 2) * dirY, this.radius * 0.1, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(this.x + eyeOffsetX, this.y + (eyeOffsetY + 2) * dirY, this.radius * 0.1, 0, Math.PI * 2); ctx.fill();
+
+                    // الفم
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y - (eyeOffsetY * 0.5 * dirY), this.radius * 0.3, (dirY === 1 ? 0 : Math.PI), (dirY === 1 ? Math.PI : Math.PI*2));
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    // عصابة الرأس (Headband)
+                    ctx.beginPath();
+                    ctx.moveTo(this.x - this.radius + 2, this.y - (this.radius * 0.5 * dirY));
+                    ctx.lineTo(this.x + this.radius - 2, this.y - (this.radius * 0.5 * dirY));
+                    ctx.strokeStyle = (this.color === '#2563eb') ? '#ef4444' : '#3b82f6'; // عصابة بلون الخصم
+                    ctx.lineWidth = 6;
+                    ctx.stroke();
+                }
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                let currentFriction = this.isBall ? BALL_FRICTION : FRICTION;
+                this.vx *= currentFriction;
+                this.vy *= currentFriction;
+
+                if (!this.isBall) {
+                    let currentMaxSpeed = MAX_PLAYER_SPEED;
+                    if (this.isSprinting && !this.sprintCooldown && this.sprintEnergy > 0) {
+                        currentMaxSpeed = MAX_PLAYER_SPEED * 1.6;
+                        this.sprintEnergy -= 1.5;
+                        if (this.sprintEnergy <= 0) {
+                            this.sprintCooldown = true;
+                            this.isSprinting = false;
+                        }
+                    } else {
+                        if (this.sprintEnergy < 100) {
+                            this.sprintEnergy += 0.4;
+                        }
+                        if (this.sprintEnergy >= 100) {
+                            this.sprintEnergy = 100;
+                            this.sprintCooldown = false;
+                        }
+                    }
+
+                    let speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                    if (speed > currentMaxSpeed) {
+                        this.vx = (this.vx / speed) * currentMaxSpeed;
+                        this.vy = (this.vy / speed) * currentMaxSpeed;
+                    }
+                }
+            }
+
+            kick(ballTarget) {
+                this.isKicking = true;
+                this.kickTimer = 15;
+
+                let dx = ballTarget.x - this.x;
+                let dy = ballTarget.y - this.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < this.radius + ballTarget.radius + KICK_RADIUS) {
+                    let dirX = dx / dist;
+                    let dirY = dy / dist;
+                    ballTarget.vx += dirX * KICK_POWER;
+                    ballTarget.vy += dirY * KICK_POWER;
+                }
+            }
+        }
+
+        // تأثير فقاعة الهدف
+        let goalBubble = {
+            active: false,
+            x: GAME_WIDTH / 2,
+            y: GAME_HEIGHT / 2,
+            radius: 0,
+            maxRadius: GAME_WIDTH * 0.8,
+            color: 'rgba(255,255,255,0)',
+            alpha: 1
+        };
+
+        function triggerGoalBubble(colorStr) {
+            goalBubble.active = true;
+            goalBubble.radius = 10;
+            goalBubble.alpha = 0.8;
+            goalBubble.color = colorStr;
+        }
+
+        function drawGoalBubble() {
+            if (!goalBubble.active) return;
+
+            goalBubble.radius += 25; // سرعة تمدد الفقاعة
+            goalBubble.alpha -= 0.02; // سرعة التلاشي
+
+            if (goalBubble.alpha <= 0) {
+                goalBubble.active = false;
+                return;
+            }
+
+            ctx.save();
+            ctx.globalAlpha = goalBubble.alpha;
+            ctx.beginPath();
+            ctx.arc(goalBubble.x, goalBubble.y, goalBubble.radius, 0, Math.PI * 2);
+            ctx.fillStyle = goalBubble.color;
+            ctx.fill();
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // إعداد اللاعبين والكرة
+        let player1 = new Entity(GAME_WIDTH / 2, GAME_HEIGHT - 200, 28, 2, '#2563eb'); // أزرق (أسفل)
+        let player2 = new Entity(GAME_WIDTH / 2, 200, 28, 2, '#dc2626'); // أحمر (أعلى)
+        let ball = new Entity(GAME_WIDTH / 2, GAME_HEIGHT / 2, 16, 0.8, '#ffffff', true);
+
+        function setupJoystick(baseId, stickId, vectorObj) {
+            const base = document.getElementById(baseId);
+            const stick = document.getElementById(stickId);
+            let isActive = false;
+            let center = { x: 0, y: 0 };
+            let maxRadius = base.offsetWidth / 2;
+
+            function updateStickPos(clientX, clientY) {
+                let dx = clientX - center.x;
+                let dy = clientY - center.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist > maxRadius) {
+                    dx = (dx / dist) * maxRadius;
+                    dy = (dy / dist) * maxRadius;
+                }
+
+                stick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+                vectorObj.x = dx / maxRadius;
+                vectorObj.y = dy / maxRadius;
+            }
+
+            base.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isActive = true;
+                const rect = base.getBoundingClientRect();
+                center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+                updateStickPos(e.touches[0].clientX, e.touches[0].clientY);
+            });
+
+            base.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (!isActive) return;
+                updateStickPos(e.touches[0].clientX, e.touches[0].clientY);
+            });
+
+            function resetStick() {
+                isActive = false;
+                stick.style.transform = `translate(-50%, -50%)`;
+                vectorObj.x = 0;
+                vectorObj.y = 0;
+            }
+
+            base.addEventListener('touchend', resetStick);
+            base.addEventListener('touchcancel', resetStick);
+        }
+
+        function setupKickButton(btnId, triggerFlagCallback) {
+            const btn = document.getElementById(btnId);
+            function activate(e) { e.preventDefault(); btn.classList.add('active'); triggerFlagCallback(true); }
+            function deactivate(e) { e.preventDefault(); btn.classList.remove('active'); triggerFlagCallback(false); }
+            btn.addEventListener('touchstart', activate);
+            btn.addEventListener('touchend', deactivate);
+            btn.addEventListener('touchcancel', deactivate);
+        }
+
+        setupJoystick('joy1-base', 'joy1-stick', joy1Vector);
+        setupJoystick('joy2-base', 'joy2-stick', joy2Vector);
+        setupKickButton('kick1-btn', (val) => { if (val && !isKick1) player1.kick(ball); isKick1 = val; });
+        setupKickButton('kick2-btn', (val) => { if (val && !isKick2) player2.kick(ball); isKick2 = val; });
+        setupKickButton('sprint1-btn', (val) => { player1.isSprinting = val; });
+        setupKickButton('sprint2-btn', (val) => { player2.isSprinting = val; });
+
+        // دعم الكيبورد للكمبيوتر
+        const keys = {};
+        window.addEventListener('keydown', (e) => { 
+            keys[e.code] = true; 
+            if (e.code === 'ShiftLeft') player1.isSprinting = true;
+            if (e.code === 'ShiftRight') player2.isSprinting = true;
+        });
+        window.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+            if (e.code === 'Space') isKick1 = false;
+            if (e.code === 'Enter') isKick2 = false;
+            if (e.code === 'ShiftLeft') player1.isSprinting = false;
+            if (e.code === 'ShiftRight') player2.isSprinting = false;
+        });
+
+        function drawField() {
+            // العشب الأساسي
+            ctx.fillStyle = '#16a34a';
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            // خطوط العشب العرضية (أفقية)
+            ctx.fillStyle = '#15803d';
+            for (let i = 0; i < GAME_HEIGHT; i += 100) {
+                if ((i / 100) % 2 === 0) ctx.fillRect(0, i, GAME_WIDTH, 100);
+            }
+
+            // --- رسم النتيجة على العشب ---
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // نتيجة الأزرق (الأسفل)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.font = '900 250px Arial';
+            ctx.fillText(score1, GAME_WIDTH / 2, GAME_HEIGHT * 0.75);
+
+            // كلمة VS
+            ctx.font = '900 60px Arial';
+            ctx.fillText('VS', GAME_WIDTH / 2, GAME_HEIGHT / 2);
+
+            // نتيجة الأحمر (الأعلى) - مقلوبة لتكون قابلة للقراءة للاعب العلوي
+            ctx.translate(GAME_WIDTH / 2, GAME_HEIGHT * 0.25);
+            ctx.rotate(Math.PI); // تدوير 180 درجة
+            ctx.font = '900 250px Arial';
+            ctx.fillText(score2, 0, 0);
+            ctx.restore();
+
+            // رسم فقاعة الهدف إذا كانت نشطة
+            drawGoalBubble();
+
+            // --- خطوط الملعب البيضاء ---
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 5;
+
+            // الخط الخارجي
+            ctx.strokeRect(10, 10, GAME_WIDTH - 20, GAME_HEIGHT - 20);
+
+            // خط المنتصف (أفقي)
+            ctx.beginPath();
+            ctx.moveTo(10, GAME_HEIGHT / 2);
+            ctx.lineTo(GAME_WIDTH - 10, GAME_HEIGHT / 2);
+            ctx.stroke();
+
+            // دائرة المنتصف
+            ctx.beginPath();
+            ctx.arc(GAME_WIDTH / 2, GAME_HEIGHT / 2, 70, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(GAME_WIDTH / 2, GAME_HEIGHT / 2, 8, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fill();
+
+            // منطقة الجزاء العليا (الأحمر)
+            ctx.strokeRect(GAME_WIDTH / 2 - 120, 10, 240, 150);
+            ctx.strokeRect(GAME_WIDTH / 2 - 60, 10, 120, 50); // 6 ياردة
+
+            // منطقة الجزاء السفلى (الأزرق)
+            ctx.strokeRect(GAME_WIDTH / 2 - 120, GAME_HEIGHT - 160, 240, 150);
+            ctx.strokeRect(GAME_WIDTH / 2 - 60, GAME_HEIGHT - 60, 120, 50);
+
+            // رسم المرمى العلوي (أحمر)
+            ctx.fillStyle = 'rgba(220, 38, 38, 0.2)'; // شبكة حمراء
+            ctx.fillRect(GOAL_X, 0, GOAL_WIDTH, GOAL_DEPTH + 10);
+
+            // أعمدة المرمى العلوي
+            ctx.fillStyle = 'white';
+            ctx.beginPath(); ctx.arc(GOAL_X, 10, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(GOAL_X + GOAL_WIDTH, 10, 6, 0, Math.PI * 2); ctx.fill();
+
+            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 6;
+            ctx.beginPath(); ctx.moveTo(GOAL_X, 10); ctx.lineTo(GOAL_X + GOAL_WIDTH, 10); ctx.stroke(); // العارضة
+
+            // رسم المرمى السفلي (أزرق)
+            ctx.fillStyle = 'rgba(37, 99, 235, 0.2)'; // شبكة زرقاء
+            ctx.fillRect(GOAL_X, GAME_HEIGHT - GOAL_DEPTH - 10, GOAL_WIDTH, GOAL_DEPTH + 10);
+
+            // أعمدة المرمى السفلي
+            ctx.fillStyle = 'white';
+            ctx.beginPath(); ctx.arc(GOAL_X, GAME_HEIGHT - 10, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(GOAL_X + GOAL_WIDTH, GAME_HEIGHT - 10, 6, 0, Math.PI * 2); ctx.fill();
+
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.beginPath(); ctx.moveTo(GOAL_X, GAME_HEIGHT - 10); ctx.lineTo(GOAL_X + GOAL_WIDTH, GAME_HEIGHT - 10); ctx.stroke();
+        }
+
+        function checkCollision(e1, e2) {
+            let dx = e2.x - e1.x;
+            let dy = e2.y - e1.y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
+            let minDist = e1.radius + e2.radius;
+
+            if (dist < minDist) {
+                let overlap = minDist - dist;
+                let normalX = dx / dist;
+                let normalY = dy / dist;
+
+                let totalMass = e1.mass + e2.mass;
+                let ratio1 = e2.mass / totalMass;
+                let ratio2 = e1.mass / totalMass;
+
+                e1.x -= normalX * (overlap * ratio1);
+                e1.y -= normalY * (overlap * ratio1);
+                e2.x += normalX * (overlap * ratio2);
+                e2.y += normalY * (overlap * ratio2);
+
+                let relVx = e1.vx - e2.vx;
+                let relVy = e1.vy - e2.vy;
+                let speed = relVx * normalX + relVy * normalY;
+
+                if (speed < 0) return;
+
+                let restitution = 0.7;
+                let impulse = (1 + restitution) * speed / (1 / e1.mass + 1 / e2.mass);
+
+                e1.vx -= (impulse * normalX) / e1.mass;
+                e1.vy -= (impulse * normalY) / e1.mass;
+                e2.vx += (impulse * normalX) / e2.mass;
+                e2.vy += (impulse * normalY) / e2.mass;
+            }
+        }
+
+        function handleBoundaries(entity) {
+            let bounce = -0.6;
+            let wallThick = 10;
+
+            // فحص دخول منطقة المرمى بالسينات X
+            let inGoalX = (entity.x > GOAL_X && entity.x < GOAL_X + GOAL_WIDTH);
+
+            // الاصطدام بأعمدة المرمى الأربعة
+            const checkPostCollision = (postX, postY) => {
+                let dx = entity.x - postX;
+                let dy = entity.y - postY;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < entity.radius + 6) {
+                    let nx = dx / dist; let ny = dy / dist;
+                    let overlap = (entity.radius + 6) - dist;
+                    entity.x += nx * overlap;
+                    entity.y += ny * overlap;
+
+                    let speed = entity.vx * nx + entity.vy * ny;
+                    if (speed < 0) {
+                        entity.vx -= speed * nx * 1.5;
+                        entity.vy -= speed * ny * 1.5;
+                    }
+                }
+            };
+
+            checkPostCollision(GOAL_X, wallThick);
+            checkPostCollision(GOAL_X + GOAL_WIDTH, wallThick);
+            checkPostCollision(GOAL_X, GAME_HEIGHT - wallThick);
+            checkPostCollision(GOAL_X + GOAL_WIDTH, GAME_HEIGHT - wallThick);
+
+            // الجدران العلوية والسفلية (تمتلك المرمى)
+            if (entity.y - entity.radius < wallThick) {
+                if (inGoalX && entity.isBall) {
+                    // الكرة في المرمى العلوي
+                } else if (inGoalX && !entity.isBall) {
+                    // منع اللاعب من دخول المرمى بالكامل
+                    if (entity.y - entity.radius < -GOAL_DEPTH) {
+                        entity.y = entity.radius - GOAL_DEPTH;
+                        entity.vy *= bounce;
+                    }
+                } else {
+                    entity.y = entity.radius + wallThick;
+                    entity.vy *= bounce;
+                }
+            } else if (entity.y + entity.radius > GAME_HEIGHT - wallThick) {
+                if (inGoalX && entity.isBall) {
+                    // الكرة في المرمى السفلي
+                } else if (inGoalX && !entity.isBall) {
+                    if (entity.y + entity.radius > GAME_HEIGHT + GOAL_DEPTH) {
+                        entity.y = GAME_HEIGHT + GOAL_DEPTH - entity.radius;
+                        entity.vy *= bounce;
+                    }
+                } else {
+                    entity.y = GAME_HEIGHT - entity.radius - wallThick;
+                    entity.vy *= bounce;
+                }
+            }
+
+            // الجدران الجانبية (يمين ويسار) مغلقة بالكامل
+            if (entity.x - entity.radius < wallThick) {
+                entity.x = entity.radius + wallThick;
+                entity.vx *= bounce;
+            } else if (entity.x + entity.radius > GAME_WIDTH - wallThick) {
+                entity.x = GAME_WIDTH - entity.radius - wallThick;
+                entity.vx *= bounce;
+            }
+        }
+
+        let particles = [];
+        function createGoalEffect(x, y, color) {
+            for (let i = 0; i < 40; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.5) * 12,
+                    life: 1.0,
+                    color: color
+                });
+            }
+        }
+
+        function drawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.life -= 0.02;
+                if (p.life <= 0) { particles.splice(i, 1); continue; }
+
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.globalAlpha = 1.0;
+        }
+
+        function checkGoal() {
+            if (isGameOver || !isGameStarted) return; // لا تسجل أهداف قبل بدء اللعب
+
+            // المرمى العلوي (سجل الأزرق)
+            if (ball.y + ball.radius < 0) {
+                score1++;
+                triggerGoalBubble('rgba(59, 130, 246, 0.6)'); // لون أزرق
+                handleGoalScored();
+            }
+            // المرمى السفلي (سجل الأحمر)
+            else if (ball.y - ball.radius > GAME_HEIGHT) {
+                score2++;
+                triggerGoalBubble('rgba(239, 68, 68, 0.6)'); // لون أحمر
+                handleGoalScored();
+            }
+        }
+
+        function handleGoalScored() {
+            ball.x = GAME_WIDTH / 2; ball.y = GAME_HEIGHT / 2; ball.vx = 0; ball.vy = 0;
+            if (score1 >= MAX_SCORE || score2 >= MAX_SCORE) {
+                checkWin();
+            } else {
+                showMessage("هدف!");
+                setTimeout(() => {
+                    if (!isGameOver) { hideMessage(); resetPositions(); }
+                }, 1500);
+            }
+        }
+
+        function resetPositions() {
+            if (isGameOver) return;
+            player1.x = GAME_WIDTH / 2; player1.y = GAME_HEIGHT - 200;
+            player1.vx = 0; player1.vy = 0;
+
+            player2.x = GAME_WIDTH / 2; player2.y = 200;
+            player2.vx = 0; player2.vy = 0;
+
+            ball.x = GAME_WIDTH / 2; ball.y = GAME_HEIGHT / 2;
+            ball.vx = 0; ball.vy = 0;
+        }
+
+        function showMessage(text, showBtn = false) {
+            messageBox.style.display = 'block';
+            winText.innerHTML = text;
+            restartBtn.style.display = showBtn ? 'block' : 'none';
+            restartBtn.classList.toggle('hidden', !showBtn);
+        }
+        function hideMessage() { messageBox.style.display = 'none'; }
+
+        function checkWin() {
+            isGameOver = true;
+            if (score1 >= MAX_SCORE) {
+                showMessage('<span class="text-blue-400">الأزرق</span> يفوز!', true);
+            } else if (score2 >= MAX_SCORE) {
+                showMessage('<span class="text-red-400">الأحمر</span> يفوز!', true);
+            }
+        }
+
+        restartBtn.addEventListener('click', () => {
+            score1 = 0; score2 = 0;
+            isGameOver = false;
+            hideMessage();
+            resetPositions();
+        });
+
+        function updateInputs() {
+            if (joy1Vector.x !== 0 || joy1Vector.y !== 0) {
+                player1.vx += joy1Vector.x * PLAYER_ACCELERATION;
+                player1.vy += joy1Vector.y * PLAYER_ACCELERATION;
+            } else {
+                if (keys['KeyW']) player1.vy -= PLAYER_ACCELERATION;
+                if (keys['KeyS']) player1.vy += PLAYER_ACCELERATION;
+                if (keys['KeyA']) player1.vx -= PLAYER_ACCELERATION;
+                if (keys['KeyD']) player1.vx += PLAYER_ACCELERATION;
+                if (keys['Space']) { if (!isKick1) player1.kick(ball); isKick1 = true; }
+            }
+
+            if (joy2Vector.x !== 0 || joy2Vector.y !== 0) {
+                player2.vx += joy2Vector.x * PLAYER_ACCELERATION;
+                player2.vy += joy2Vector.y * PLAYER_ACCELERATION;
+            } else {
+                if (keys['ArrowUp']) player2.vy -= PLAYER_ACCELERATION;
+                if (keys['ArrowDown']) player2.vy += PLAYER_ACCELERATION;
+                if (keys['ArrowLeft']) player2.vx -= PLAYER_ACCELERATION;
+                if (keys['ArrowRight']) player2.vx += PLAYER_ACCELERATION;
+                if (keys['Enter']) { if (!isKick2) player2.kick(ball); isKick2 = true; }
+            }
+        }
+
+        function update() {
+            if (!isGameStarted) return; // توقف التحديث قبل بدء اللعبة
+
+            if (isGameOver) {
+                player1.vx *= FRICTION; player1.vy *= FRICTION;
+                player2.vx *= FRICTION; player2.vy *= FRICTION;
+                ball.vx *= BALL_FRICTION; ball.vy *= BALL_FRICTION;
+                player1.x += player1.vx; player1.y += player1.vy;
+                player2.x += player2.vx; player2.y += player2.vy;
+                ball.x += ball.vx; ball.y += ball.vy;
+                return;
+            }
+
+            updateInputs();
+
+            player1.update();
+            player2.update();
+            ball.update();
+
+            checkCollision(player1, player2);
+            checkCollision(player1, ball);
+            checkCollision(player2, ball);
+
+            handleBoundaries(player1);
+            handleBoundaries(player2);
+            handleBoundaries(ball);
+
+            checkGoal();
+        }
+
+        function gameLoop() {
+            update();
+
+            // تحديث واجهة زر الركض
+            if (isGameStarted && !isGameOver) {
+                document.getElementById('sprint1-cooldown').style.height = (100 - player1.sprintEnergy) + '%';
+                document.getElementById('sprint2-cooldown').style.height = (100 - player2.sprintEnergy) + '%';
+            }
+
+            ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            drawField();
+            player1.draw();
+            player2.draw();
+            ball.draw();
+            drawParticles();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // إعدادات شاشة البداية
+        const startScreen = document.getElementById('start-screen');
+        const startBtn = document.getElementById('start-btn');
+        const controlsTop = document.getElementById('controls-top');
+        const controlsBottom = document.getElementById('controls-bottom');
+
+        const scoreBtns = document.querySelectorAll('.score-btn');
+        scoreBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Reset all
+                scoreBtns.forEach(b => {
+                    b.className = 'score-btn w-12 h-12 rounded-full bg-slate-800 text-white font-bold border-2 border-transparent hover:border-yellow-400 transition-all';
+                });
+                // Highlight selected
+                e.target.className = 'score-btn w-14 h-14 rounded-full bg-yellow-500 text-black font-black border-4 border-yellow-300 shadow-lg scale-110 transition-all';
+                MAX_SCORE = parseInt(e.target.getAttribute('data-score'));
+                document.querySelector('#game-message p').textContent = 'الهدف: ' + MAX_SCORE;
+            });
+        });
+
+        startBtn.addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            controlsTop.classList.remove('hidden');
+            controlsBottom.classList.remove('hidden');
+            isGameStarted = true;
+            resetPositions();
+        });
+
+        // منع القائمة السياقية في الهاتف عند اللمس المطول
+        window.oncontextmenu = function (event) {
+            event.preventDefault(); event.stopPropagation(); return false;
+        };
+
+        window.onload = () => {
+            gameLoop();
+        };
+    </script>
+</body>
+
+</html>
