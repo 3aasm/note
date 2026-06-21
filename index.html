@@ -78,8 +78,9 @@
             font-family: 'Cairo', sans-serif;
             transition: background-color 0.4s ease, color 0.4s ease;
         }
-        
-        input, textarea {
+
+        input,
+        textarea {
             -webkit-user-select: auto;
             -moz-user-select: auto;
             -ms-user-select: auto;
@@ -430,7 +431,8 @@
         }
 
         #main-header.scrolled #header-title {
-            transform: scale(0.75); /* أنميشن الحجم عن طريق transform وليس font-size لمنع التقطيع */
+            transform: scale(0.75);
+            /* أنميشن الحجم عن طريق transform وليس font-size لمنع التقطيع */
         }
 
         #header-right-group {
@@ -441,6 +443,158 @@
             opacity: 0;
             transform: translateX(-15px) scale(0.9);
             pointer-events: none;
+        }
+
+        html.dark body {
+            background-color: #0F172A;
+            background-image: none;
+            color: #F8FAFC;
+        }
+
+        html.dark .bg-white {
+            background-color: #1E293B !important;
+        }
+
+        html.dark .text-primary {
+            color: #F8FAFC !important;
+        }
+
+        html.dark .text-secondary {
+            color: #94A3B8 !important;
+        }
+
+        html.dark .text-gray-400 {
+            color: #94A3B8 !important;
+        }
+
+        html.dark .bg-gray-50,
+        html.dark .bg-gray-100,
+        html.dark .bg-gray-200 {
+            background-color: #334155 !important;
+        }
+
+        html.dark .border-gray-100,
+        html.dark .border-gray-200 {
+            border-color: #334155 !important;
+        }
+
+        html.dark .card-ui,
+        html.dark .modal-panel,
+        html.dark .input-ui,
+        html.dark #chat-view {
+            background-color: #1E293B;
+            border-color: #334155;
+            color: #F8FAFC;
+        }
+
+        html.dark input,
+        html.dark textarea {
+            background-color: #334155;
+            color: #F8FAFC;
+            border-color: #475569;
+        }
+
+        html.dark .nav-item-mobile.active,
+        html.dark .nav-item.active {
+            background-color: rgba(255, 152, 0, 0.2);
+        }
+
+        html.dark #header-points {
+            color: #FFB74D;
+        }
+
+        html.dark #game-sheet {
+            background-color: #0F172A;
+        }
+
+        html.dark aside {
+            background-color: #1E293B;
+            border-color: #334155;
+        }
+
+        html.dark header {
+            background-color: transparent !important;
+        }
+
+        html.dark .bg-blue-50 {
+            background-color: rgba(59, 130, 246, 0.2) !important;
+            color: #93C5FD !important;
+        }
+
+        html.dark .text-blue-500 {
+            color: #60A5FA !important;
+        }
+
+        html.dark .bg-yellow-50 {
+            background-color: rgba(234, 179, 8, 0.2) !important;
+            color: #FDE047 !important;
+        }
+
+        html.dark .text-yellow-500 {
+            color: #FACC15 !important;
+        }
+
+        html.dark .bg-red-50 {
+            background-color: rgba(239, 68, 68, 0.2) !important;
+            color: #FCA5A5 !important;
+        }
+
+        html.dark .text-red-500 {
+            color: #F87171 !important;
+        }
+
+        html.dark .bg-indigo-50 {
+            background-color: rgba(99, 102, 241, 0.2) !important;
+            color: #818CF8 !important;
+        }
+
+        html.dark .text-indigo-500 {
+            color: #818CF8 !important;
+        }
+
+        html.dark #games-hero-banner {
+            background: linear-gradient(135deg, #334155 0%, #1E293B 100%) !important;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), inset 0 -3px 0 rgba(0, 0, 0, 0.1) !important;
+        }
+
+        html.dark #games-hero-banner input {
+            background-color: #0F172A !important;
+            border-color: #1E293B !important;
+            color: #F8FAFC !important;
+        }
+
+        html.dark #games-hero-banner .bg-white\/20 {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+        }
+
+        html.dark #games-hero-banner .bg-white\/30 {
+            background-color: rgba(0, 0, 0, 0.3) !important;
+            color: #F8FAFC !important;
+        }
+
+        html.dark .game-icon-bg {
+            background: linear-gradient(135deg, #1E293B 0%, #334155 100%) !important;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.05), 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        html.dark .bg-orange-100 {
+            background-color: rgba(255, 152, 0, 0.2) !important;
+            color: #FFB74D !important;
+        }
+
+        html.dark .hover\:bg-gray-50:hover,
+        html.dark .hover\:bg-gray-100:hover,
+        html.dark .hover\:bg-gray-200:hover {
+            background-color: #334155 !important;
+        }
+
+        html.dark .hover\:bg-red-50:hover {
+            background-color: rgba(239, 68, 68, 0.2) !important;
+        }
+
+        html.dark .peer:checked~.peer-checked\:bg-brand {
+            background-color: #FF9800 !important;
+            border-color: #FF9800 !important;
         }
     </style>
 </head>
@@ -461,47 +615,18 @@
         </div>
 
         <nav class="flex-1 px-4 space-y-2 mt-4">
-            <button onclick="switchPage('home')"
-                class="nav-item active w-full flex items-center gap-4 px-6 py-4 text-secondary hover:text-brand transition-all duration-300 rounded-2xl"
-                data-target="home">
-                <div
-                    class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center nav-icon-container transition-colors">
-                    <i class="fa-solid fa-house text-lg transition-transform duration-300"></i>
-                </div>
-                <span class="font-bold text-lg">الرئيسية</span>
-            </button>
             <button onclick="switchPage('games')"
-                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-secondary hover:text-brand transition-all duration-300 rounded-2xl"
+                class="nav-item active w-full flex items-center gap-4 px-6 py-4 text-brand transition-all duration-300 rounded-2xl"
                 data-target="games">
                 <div
-                    class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center nav-icon-container transition-colors">
+                    class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center nav-icon-container transition-colors">
                     <i class="fa-solid fa-dice text-lg transition-transform duration-300"></i>
                 </div>
                 <span class="font-bold text-lg">الألعاب</span>
             </button>
-            <button onclick="switchPage('messages')"
-                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-secondary hover:text-brand transition-all duration-300 rounded-2xl"
-                data-target="messages">
-                <div
-                    class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center nav-icon-container transition-colors relative">
-                    <i class="fa-solid fa-comment-dots text-lg transition-transform duration-300"></i>
-                    <span
-                        class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-                </div>
-                <span class="font-bold text-lg">الأصدقاء</span>
-            </button>
-            <button onclick="switchPage('settings')"
-                class="nav-item w-full flex items-center gap-4 px-6 py-4 text-secondary hover:text-brand transition-all duration-300 rounded-2xl"
-                data-target="settings">
-                <div
-                    class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center nav-icon-container transition-colors">
-                    <i class="fa-solid fa-gear text-lg transition-transform duration-300"></i>
-                </div>
-                <span class="font-bold text-lg">الإعدادات</span>
-            </button>
         </nav>
 
-        <div class="p-6 bg-blue-50/50 rounded-b-[40px] cursor-pointer" onclick="switchPage('edit-profile')">
+        <div class="p-6 bg-blue-50/50 rounded-b-[40px] cursor-pointer" onclick="toggleEditProfileModal()">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-[18px] bg-white shadow-sm overflow-hidden border-2 border-brand p-0.5">
                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sniper&backgroundColor=FF9800" alt="User"
@@ -532,7 +657,7 @@
                         مرحباً بك</p>
                     <h2 id="header-title"
                         class="text-2xl lg:text-3xl font-black text-primary tracking-tight transition-all duration-300">
-                        الرئيسية</h2>
+                        الألعاب</h2>
                 </div>
             </div>
 
@@ -542,115 +667,53 @@
             <div id="header-right-group"
                 class="flex items-center gap-3 transition-all duration-500 transform origin-left">
                 <!-- Points Pill -->
-                <div
-                    class="bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100 flex items-center gap-2 font-black text-brand">
+                <div onclick="toggleLeaderboardModal()"
+                    class="bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100 flex items-center gap-2 font-black text-brand cursor-pointer hover:bg-gray-50 transition-colors">
                     <i class="fa-solid fa-coins text-yellow-400 text-lg drop-shadow-sm"></i>
                     <span id="header-points" class="text-lg pt-1">0</span>
                 </div>
 
-                <button onclick="switchPage('notifications')"
+                <button onclick="toggleSettingsModal()"
                     class="w-12 h-12 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-secondary hover:text-brand transition-all relative">
-                    <i class="fa-solid fa-bell text-xl"></i>
-                    <span id="notification-badge"
-                        class="hidden absolute top-3 right-3 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
+                    <i class="fa-solid fa-gear text-xl"></i>
                 </button>
             </div>
         </header>
 
         <div id="main-scroll-area" class="flex-1 overflow-y-auto px-4 lg:px-10 pb-32 lg:pb-10 scroll-smooth">
 
-            <!-- صفحة الرئيسية -->
-            <div id="home-page" class="page-section max-w-5xl mx-auto space-y-8">
-
-                <!-- Hero Card -->
-                <div
-                    class="stagger-item card-ui bg-gradient-to-br from-brand-gradientStart to-brand-gradientEnd p-8 relative overflow-hidden text-white flex flex-col justify-center min-h-[220px]">
-                    <div class="absolute right-0 top-0 opacity-20 pointer-events-none">
-                        <i class="fa-solid fa-cloud text-8xl absolute top-4 -right-4"></i>
-                        <i class="fa-solid fa-cloud text-6xl absolute top-16 right-32"></i>
-                    </div>
-                    <div class="relative z-10 w-2/3">
-                        <span
-                            class="bg-white/30 text-white text-xs font-bold px-3 py-1 rounded-full uppercase mb-4 inline-block">تحدي
-                            جديد</span>
-                        <h1 class="text-4xl font-black mb-2 drop-shadow-md">هيا نلعب!</h1>
-                        <p class="text-white/90 font-medium mb-6 text-sm">استكشف الألعاب واجمع النقاط لتتصدر القائمة.
-                        </p>
-                        <button onclick="switchPage('games')" class="btn-white-3d text-lg mt-2">ابدأ اللعب الآن</button>
-                    </div>
-                    <div
-                        class="absolute left-4 bottom-0 w-1/3 h-full flex items-end justify-center pointer-events-none">
-                        <!-- 3D Illustration placeholder via Icon -->
-                        <div class="w-32 h-32 bg-white/20 rounded-full blur-2xl absolute bottom-0"></div>
-                        <i
-                            class="fa-solid fa-trophy text-9xl text-yellow-300 drop-shadow-2xl transform -rotate-12 translate-y-4"></i>
-                    </div>
-                </div>
-
-                <!-- Stats & Leaderboard Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Quick Stats -->
-                    <div class="space-y-6">
-                        <div class="stagger-item card-ui p-6 flex justify-around items-center">
-                            <div class="text-center">
-                                <div
-                                    class="w-12 h-12 bg-orange-100 text-brand rounded-2xl flex items-center justify-center mx-auto mb-2 text-2xl">
-                                    <i class="fa-solid fa-ranking-star"></i>
-                                </div>
-                                <p class="text-xs text-secondary font-bold">الترتيب</p>
-                                <h4 class="text-xl font-black">---</h4>
-                            </div>
-                            <div class="w-px h-12 bg-gray-200"></div>
-                            <div class="text-center">
-                                <div
-                                    class="w-12 h-12 bg-yellow-100 text-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-2 text-2xl">
-                                    <i class="fa-solid fa-coins"></i>
-                                </div>
-                                <p class="text-xs text-secondary font-bold">النقاط</p>
-                                <h4 class="text-xl font-black" id="home-points-display">0</h4>
-                            </div>
-                        </div>
-
-                        <!-- Featured Matches -->
-                        <div>
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-xl font-black text-primary">المباريات البارزة</h3>
-                                <div class="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                    <div id="matches-progress" class="h-full bg-brand w-0"></div>
-                                </div>
-                            </div>
-                            <div id="matches-container" class="space-y-4">
-                                <!-- سيتم ملؤه بالجافاسكربت -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Leaderboard -->
-                    <div class="stagger-item card-ui p-6 flex flex-col">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-xl font-black text-primary">المتصدرين</h3>
-                            <div class="bg-blue-50 text-nav font-bold text-xs px-3 py-1.5 rounded-xl">أفضل 5</div>
-                        </div>
-                        <div id="leaderboard-items" class="flex-1 space-y-4">
-                            <div class="py-10 text-center"><i class="fas fa-spinner fa-spin text-brand text-2xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- صفحة الألعاب -->
             <div id="games-page" class="page-section max-w-5xl mx-auto space-y-6">
-                <!-- Filters -->
-                <div class="stagger-item">
-                    <div class="relative w-full">
+                <!-- Hero Bar & Filters -->
+                <div id="games-hero-banner"
+                    class="stagger-item flex flex-col md:flex-row gap-4 items-center justify-between card-ui bg-gradient-to-br from-brand-gradientStart to-brand-gradientEnd p-4 md:p-5 relative overflow-hidden text-white shadow-3d border-0">
+                    <div class="absolute right-0 top-0 opacity-20 pointer-events-none">
+                        <i class="fa-solid fa-cloud text-6xl absolute -top-4 -right-4"></i>
+                    </div>
+                    <div class="relative z-10 flex items-center gap-4 w-full md:w-auto">
+                        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                            <i
+                                class="fa-solid fa-trophy text-2xl text-yellow-300 drop-shadow-lg transform -rotate-12"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span
+                                    class="bg-white/30 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">تحدي
+                                    جديد</span>
+                                <h1 class="text-xl font-black drop-shadow-md">هيا نلعب!</h1>
+                            </div>
+                            <p class="text-white/90 font-medium text-xs">استكشف الألعاب واجمع النقاط.</p>
+                        </div>
+                    </div>
+
+                    <div class="relative w-full md:w-[350px] lg:w-[400px] z-10 mt-1 md:mt-0">
                         <i
-                            class="fa-solid fa-magnifying-glass absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                            class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
                         <input type="text" oninput="handleGameSearch(this.value)" placeholder="ابحث عن لعبة..."
-                            class="input-ui w-full pl-[110px] pr-14 py-4 font-bold text-sm shadow-sm relative !rounded-full border-gray-200">
-                        <div class="absolute left-2 top-1/2 -translate-y-1/2 z-10">
+                            class="w-full pl-[100px] pr-12 py-3.5 font-bold text-sm shadow-sm relative rounded-full border-0 text-primary focus:ring-4 focus:ring-white/30 focus:outline-none bg-white">
+                        <div class="absolute left-1.5 top-1/2 -translate-y-1/2 z-10">
                             <button id="category-cycle-btn" onclick="cycleCategory()"
-                                class="btn-3d px-4 py-2 min-w-[85px] flex justify-center items-center gap-2 select-none text-sm !rounded-full">
+                                class="btn-3d px-3 py-2 min-w-[80px] flex justify-center items-center gap-2 select-none text-xs !rounded-full shadow-sm">
                                 <i class="fa-solid fa-layer-group opacity-90"></i>
                                 <span id="category-cycle-text">الكل</span>
                             </button>
@@ -722,6 +785,20 @@
                         <p class="text-[10px] text-secondary">كلاسيكيات الزمن الجميل</p>
                     </div>
 
+                    <!-- Game Card: Football -->
+                    <div onclick="openGameSheet('كرة قدم.html')"
+                        class="stagger-item game-card-hover card-ui p-5 cursor-pointer flex flex-col items-center text-center group hover:-translate-y-2 transition-transform duration-300">
+                        <div class="w-24 h-24 game-icon-bg mb-4 relative">
+                            <i
+                                class="fa-solid fa-futbol text-5xl text-blue-500 drop-shadow-md group-hover:scale-110 transition-transform"></i>
+                            <div
+                                class="absolute -bottom-2 bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full border-2 border-white shadow-sm">
+                                1v1</div>
+                        </div>
+                        <h3 class="font-black text-lg mb-1">كرة القدم</h3>
+                        <p class="text-[10px] text-secondary">ديربي الأبطال</p>
+                    </div>
+
                     <!-- Coming Soon -->
                     <div class="stagger-item card-ui p-5 flex flex-col items-center text-center opacity-70">
                         <div class="w-24 h-24 bg-gray-100 rounded-2xl mb-4 flex items-center justify-center">
@@ -735,234 +812,37 @@
                 </div>
             </div>
 
-            <!-- صفحة الأصدقاء / المراسلات -->
-            <div id="messages-page" class="page-section max-w-4xl mx-auto space-y-6">
-                <div class="stagger-item card-ui p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <h3 class="text-xl font-black">قائمة الأصدقاء</h3>
-                    <div class="flex gap-2 w-full sm:w-auto">
-                        <button onclick="toggleFriendRequestsModal()"
-                            class="flex-1 sm:flex-none bg-blue-50 text-nav font-bold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 relative">
-                            <i class="fa-solid fa-user-clock"></i> الطلبات
-                            <span id="friend-requests-count"
-                                class="hidden absolute -top-1 -left-1 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">0</span>
-                        </button>
-                        <button onclick="toggleAddFriendModal()"
-                            class="flex-1 sm:flex-none btn-3d px-6 py-2.5 text-sm flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-user-plus"></i> إضافة صديق
-                        </button>
-                    </div>
-                </div>
 
-                <div class="card-ui p-4 min-h-[50vh]">
-                    <div id="friends-list-container" class="space-y-2">
-                        <div class="flex flex-col items-center justify-center py-20 text-secondary">
-                            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                <i class="fa-solid fa-user-group text-3xl text-gray-300"></i>
-                            </div>
-                            <p class="font-black text-lg">لا يوجد أصدقاء بعد</p>
-                            <p class="text-sm">ابدأ بإضافة الأبطال باستخدام الـ ID</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- صفحة الإشعارات -->
-            <div id="notifications-page" class="page-section max-w-3xl mx-auto space-y-6">
-                <div class="stagger-item flex justify-between items-center mb-4">
-                    <h3 class="text-2xl font-black">الإشعارات</h3>
-                    <button onclick="clearAllNotifications()"
-                        class="text-sm font-bold text-red-500 bg-red-50 px-4 py-2 rounded-xl">مسح الكل</button>
-                </div>
-                <div id="notifications-list" class="space-y-4">
-                    <div class="card-ui p-12 text-center stagger-item">
-                        <i class="fa-solid fa-bell-slash text-4xl text-gray-300 mb-4"></i>
-                        <p class="font-bold text-secondary">لا توجد إشعارات جديدة</p>
-                    </div>
-                </div>
-            </div>
 
-            <!-- صفحة الإعدادات -->
-            <div id="settings-page" class="page-section max-w-4xl mx-auto space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div id="auth-container"
-                        class="stagger-item card-ui p-8 min-h-[250px] flex flex-col justify-center border-2 border-brand/20">
-                        <div class="flex items-center justify-center"><i
-                                class="fas fa-circle-notch fa-spin text-brand text-3xl"></i></div>
-                    </div>
 
-                    <div class="stagger-item card-ui p-6 space-y-2">
-                        <h3 class="font-black text-gray-400 text-xs uppercase mb-4">تفضيلات النظام</h3>
+            <!-- تم نقل صفحة تعديل الملف الشخصي إلى مودال -->
 
-                        <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center">
-                                    <i class="fa-solid fa-music"></i>
-                                </div>
-                                <span class="font-bold">المؤثرات الصوتية</span>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer" checked>
-                                <div
-                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand">
-                                </div>
-                            </label>
-                        </div>
 
-                        <div class="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 rounded-xl px-2 -mx-2 transition"
-                            onclick="switchPage('instructions')">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="w-8 h-8 bg-yellow-50 text-yellow-500 rounded-lg flex items-center justify-center">
-                                    <i class="fa-solid fa-circle-info"></i>
-                                </div>
-                                <span class="font-bold">كيف أجمع النقاط؟</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-left text-gray-400 text-sm"></i>
-                        </div>
-
-                        <div class="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer hover:bg-red-50 rounded-xl px-2 -mx-2 transition"
-                            onclick="toggleReportUserModal(true)">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-red-50 text-red-500 rounded-lg flex items-center justify-center">
-                                    <i class="fa-solid fa-flag"></i>
-                                </div>
-                                <span class="font-bold text-red-500">إبلاغ عن لاعب</span>
-                            </div>
-                        </div>
-
-                        <div id="delete-account-list-item" class="hidden">
-                            <div class="flex justify-between items-center py-3 cursor-pointer hover:bg-red-50 rounded-xl px-2 -mx-2 transition mt-2"
-                                onclick="toggleDeleteAccountModal()">
-                                <div class="flex items-center gap-3">
-                                    <span class="font-bold text-gray-400 text-sm">حذف الحساب نهائياً</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="logout-button-box" class="stagger-item hidden mt-6">
-                    <button onclick="logout()"
-                        class="w-full bg-white text-red-500 font-black py-4 rounded-[20px] shadow-sm border border-red-100 flex items-center justify-center gap-2 hover:bg-red-50 transition">
-                        <i class="fa-solid fa-power-off"></i> تسجيل الخروج
-                    </button>
-                </div>
-            </div>
-
-            <!-- صفحة تعديل الملف الشخصي -->
-            <div id="edit-profile-page" class="page-section max-w-2xl mx-auto space-y-6">
-                <div class="flex items-center gap-4 mb-2">
-                    <button onclick="switchPage('settings')"
-                        class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-primary"><i
-                            class="fa-solid fa-arrow-right"></i></button>
-                    <h3 class="text-2xl font-black">تعديل الملف</h3>
-                </div>
-                <div class="stagger-item card-ui p-8 text-center">
-                    <div class="relative inline-block mb-8">
-                        <div class="w-32 h-32 border-4 border-brand rounded-[30px] p-1 bg-white shadow-3d">
-                            <img id="edit-avatar-img"
-                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sniper&backgroundColor=FF9800"
-                                class="w-full h-full rounded-[24px]">
-                        </div>
-                        <button onclick="generateRandomAvatar()"
-                            class="absolute -bottom-3 -left-3 w-12 h-12 btn-3d flex items-center justify-center rounded-full text-xl"><i
-                                class="fa-solid fa-dice"></i></button>
-                    </div>
-
-                    <div class="space-y-4 text-right mb-8">
-                        <div>
-                            <label class="block text-sm font-bold text-secondary mb-2 pl-2">اسم المحارب</label>
-                            <input type="text" id="edit-username"
-                                class="input-ui w-full px-4 py-4 font-black text-lg text-center">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-secondary mb-2 pl-2">المنطقة</label>
-                            <select id="edit-region"
-                                class="input-ui w-full px-4 py-4 font-black text-lg text-center appearance-none cursor-pointer">
-                                <option value="الشرق الأوسط">الشرق الأوسط</option>
-                                <option value="أوروبا">أوروبا</option>
-                                <option value="أمريكا">أمريكا</option>
-                                <option value="آسيا">آسيا</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button onclick="saveProfile()" class="btn-3d w-full py-4 text-lg">حفظ التغييرات</button>
-                </div>
-            </div>
-
-            <!-- صفحة التعليمات -->
-            <div id="instructions-page" class="page-section max-w-3xl mx-auto space-y-6">
-                <div class="flex items-center gap-4 mb-2">
-                    <button onclick="switchPage('settings')"
-                        class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center"><i
-                            class="fa-solid fa-arrow-right"></i></button>
-                    <h3 class="text-2xl font-black">كيف يعمل النظام؟</h3>
-                </div>
-                <div class="stagger-item card-ui p-8 text-center space-y-8">
-                    <div
-                        class="w-24 h-24 bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center mx-auto text-5xl mb-4">
-                        <i class="fa-solid fa-coins"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-black text-primary mb-2">العب واجمع النقاط!</h2>
-                        <p class="text-secondary font-medium">نظام برو أرينا يكافئك على وقتك الذي تقضيه في الاستمتاع
-                            بالألعاب.</p>
-                    </div>
-                    <div class="bg-orange-50 p-6 rounded-[25px] border-2 border-brand border-dashed">
-                        <h3 class="text-xl font-black text-brand mb-2">1 دقيقة لعب = 1 نقطة</h3>
-                        <p class="text-sm text-gray-600">افتح أي لعبة، العب واستمتع، وسيتم إضافة النقاط لرصيدك تلقائياً
-                            كل دقيقة.</p>
-                    </div>
-                    <button onclick="switchPage('games')" class="btn-3d px-10 py-4 text-lg">العب الآن</button>
-                </div>
-            </div>
         </div>
     </main>
 
-    <!-- شريط التنقل السفلي (موبايل) -->
-    <nav id="bottom-nav"
-        class="lg:hidden fixed bottom-0 w-full z-40 mobile-nav flex justify-around items-center h-[80px] px-2 text-white">
-        <button onclick="switchPage('home')"
-            class="nav-item-mobile active flex-1 h-full flex flex-col items-center justify-center gap-1"
-            data-target="home">
-            <div class="nav-icon-bg"><i class="fa-solid fa-house text-xl"></i></div>
-            <span class="text-[10px] font-black">الرئيسية</span>
-        </button>
-        <button onclick="switchPage('games')"
-            class="nav-item-mobile flex-1 h-full flex flex-col items-center justify-center gap-1" data-target="games">
-            <div class="nav-icon-bg"><i class="fa-solid fa-dice text-xl"></i></div>
-            <span class="text-[10px] font-black">الألعاب</span>
-        </button>
-        <button onclick="switchPage('messages')"
-            class="nav-item-mobile flex-1 h-full flex flex-col items-center justify-center gap-1 relative"
-            data-target="messages">
-            <div class="nav-icon-bg relative">
-                <i class="fa-solid fa-comment-dots text-xl"></i>
-                <span id="nav-messages-badge"
-                    class="hidden absolute -top-1 -right-2 bg-red-500 text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-full border border-nav">0</span>
-            </div>
-            <span class="text-[10px] font-black">الأصدقاء</span>
-        </button>
-        <button onclick="switchPage('settings')"
-            class="nav-item-mobile flex-1 h-full flex flex-col items-center justify-center gap-1"
-            data-target="settings">
-            <div class="nav-icon-bg"><i class="fa-solid fa-gear text-xl"></i></div>
-            <span class="text-[10px] font-black">الإعدادات</span>
-        </button>
-    </nav>
+
 
     <!-- Game Sheet -->
     <div id="game-sheet-overlay" onclick="closeGameSheet()"></div>
     <div id="game-sheet">
         <div class="h-full w-full relative overflow-hidden">
-            <!-- زر الخروج المبسط -->
+            <!-- زر الخروج المتمدد -->
             <div class="absolute top-0 left-0 w-full p-4 z-50 pointer-events-none flex justify-start">
-                <button id="game-exit-btn" onclick="handleExitClick(event)" onpointerdown="handleExitTouchStart(event)"
-                    onpointerup="handleExitTouchEnd(event)" onpointerleave="handleExitTouchEnd(event)"
-                    class="pointer-events-auto w-[46px] h-[46px] bg-[#EF4444] hover:bg-red-600 rounded-2xl shadow-[0_4px_0_#B91C1C] text-white flex items-center justify-center text-xl transition-transform duration-300 active:translate-y-[4px] active:shadow-none absolute top-4 left-4 z-10">
-                    <i class="fa-solid fa-door-open pointer-events-none"></i>
-                </button>
+                <div id="game-exit-container" class="pointer-events-auto absolute top-4 left-4 z-20 flex items-center bg-[#EF4444] rounded-2xl shadow-[0_4px_0_#B91C1C] overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] w-[46px] h-[46px]">
+                    <button id="game-exit-btn" onclick="handleExitClick(event)" onpointerdown="handleExitTouchStart(event)" onpointerup="handleExitTouchEnd(event)" onpointerleave="handleExitTouchEnd(event)" class="w-[46px] h-[46px] shrink-0 text-white flex items-center justify-center text-xl hover:bg-red-600 transition-colors pointer-events-auto outline-none">
+                        <i id="game-exit-icon" class="fa-solid fa-door-open transition-transform duration-300"></i>
+                    </button>
+                    <div id="game-exit-confirm-content" class="flex items-center justify-between pr-1 pl-3 opacity-0 pointer-events-none transition-all duration-300 w-0">
+                        <span class="text-white font-black text-[13px] whitespace-nowrap ml-2">خروج؟</span>
+                        <div class="flex gap-1 shrink-0">
+                            <button onclick="confirmExit(true)" class="bg-white text-red-500 w-[42px] h-[34px] rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors shadow-sm font-black text-xs shrink-0 pointer-events-auto outline-none">
+                                نعم
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <button id="game-show-btn" onclick="showExitBtn()"
                     class="pointer-events-auto w-[46px] h-[36px] bg-black/50 backdrop-blur-md border border-white/10 rounded-b-2xl text-white flex items-center justify-center transition-transform duration-300 absolute top-0 left-4 z-0"
                     style="transform: translateY(-150%);">
@@ -975,6 +855,23 @@
     </div>
 
     <!-- المودالات الأساسية (نفس الهيكلة مع تحديث الكلاسات) -->
+
+    <!-- مودال المتصدرين -->
+    <div id="leaderboard-modal" class="modal-base">
+        <div class="modal-panel flex flex-col max-h-[80vh] w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-2">
+                    <h4 class="text-xl font-black">المتصدرين</h4>
+                    <div class="bg-blue-50 text-nav font-bold text-xs px-3 py-1.5 rounded-xl">أفضل 5</div>
+                </div>
+                <button onclick="toggleLeaderboardModal()" class="w-8 h-8 bg-gray-100 rounded-full"><i
+                        class="fa-solid fa-times text-secondary"></i></button>
+            </div>
+            <div id="leaderboard-items" class="flex-1 overflow-y-auto space-y-4 pr-1">
+                <div class="py-10 text-center"><i class="fas fa-spinner fa-spin text-brand text-2xl"></i></div>
+            </div>
+        </div>
+    </div>
 
     <!-- مودال إضافة صديق -->
     <div id="add-friend-modal" class="modal-base">
@@ -1091,6 +988,172 @@
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- مودال الإعدادات -->
+    <div id="settings-modal" class="modal-base">
+        <div class="modal-panel flex flex-col max-h-[90vh] w-full max-w-4xl p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h4 class="text-2xl font-black">الإعدادات</h4>
+                <button onclick="toggleSettingsModal()" class="w-8 h-8 bg-gray-100 rounded-full"><i
+                        class="fa-solid fa-times text-secondary"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto space-y-6 pr-1">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div id="auth-container"
+                        class="card-ui p-8 min-h-[250px] flex flex-col justify-center border-2 border-brand/20">
+                        <div class="flex items-center justify-center"><i
+                                class="fas fa-circle-notch fa-spin text-brand text-3xl"></i></div>
+                    </div>
+
+                    <div class="card-ui p-6 space-y-2">
+                        <h3 class="font-black text-gray-400 text-xs uppercase mb-4">تفضيلات النظام</h3>
+
+                        <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-music"></i>
+                                </div>
+                                <span class="font-bold">المؤثرات الصوتية</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div
+                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand">
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 bg-indigo-50 text-indigo-500 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-moon"></i>
+                                </div>
+                                <span class="font-bold">الوضع الداكن</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="dark-mode-toggle" class="sr-only peer"
+                                    onchange="toggleDarkMode(this.checked)">
+                                <div
+                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand">
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 rounded-xl px-2 -mx-2 transition"
+                            onclick="toggleInstructionsModal()">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 bg-yellow-50 text-yellow-500 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                </div>
+                                <span class="font-bold">كيف أجمع النقاط؟</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-left text-gray-400 text-sm"></i>
+                        </div>
+
+                        <div class="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer hover:bg-red-50 rounded-xl px-2 -mx-2 transition"
+                            onclick="toggleReportUserModal(true)">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-red-50 text-red-500 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-flag"></i>
+                                </div>
+                                <span class="font-bold text-red-500">إبلاغ عن لاعب</span>
+                            </div>
+                        </div>
+
+                        <div id="delete-account-list-item" class="hidden">
+                            <div class="flex justify-between items-center py-3 cursor-pointer hover:bg-red-50 rounded-xl px-2 -mx-2 transition mt-2"
+                                onclick="toggleDeleteAccountModal()">
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-gray-400 text-sm">حذف الحساب نهائياً</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="logout-button-box" class="hidden mt-2">
+                    <button onclick="logout()"
+                        class="w-full bg-white text-red-500 font-black py-4 rounded-[20px] shadow-sm border border-red-100 flex items-center justify-center gap-2 hover:bg-red-50 transition">
+                        <i class="fa-solid fa-power-off"></i> تسجيل الخروج
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال تعديل الملف الشخصي -->
+    <div id="edit-profile-modal" class="modal-base">
+        <div class="modal-panel flex flex-col max-h-[90vh] w-full max-w-xl p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h4 class="text-2xl font-black">تعديل الملف الشخصي</h4>
+                <button onclick="toggleEditProfileModal()" class="w-8 h-8 bg-gray-100 rounded-full"><i class="fa-solid fa-times text-secondary"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto pr-1">
+                <div class="text-center">
+                    <div class="relative inline-block mb-8">
+                        <div class="w-32 h-32 border-4 border-brand rounded-[30px] p-1 bg-white shadow-3d">
+                            <img id="edit-avatar-img"
+                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sniper&backgroundColor=FF9800"
+                                class="w-full h-full rounded-[24px]">
+                        </div>
+                        <button onclick="generateRandomAvatar()"
+                            class="absolute -bottom-3 -left-3 w-12 h-12 btn-3d flex items-center justify-center rounded-full text-xl"><i
+                                class="fa-solid fa-dice"></i></button>
+                    </div>
+
+                    <div class="space-y-4 text-right mb-8">
+                        <div>
+                            <label class="block text-sm font-bold text-secondary mb-2 pl-2">اسم المحارب</label>
+                            <input type="text" id="edit-username"
+                                class="input-ui w-full px-4 py-4 font-black text-lg text-center">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-secondary mb-2 pl-2">المنطقة</label>
+                            <select id="edit-region"
+                                class="input-ui w-full px-4 py-4 font-black text-lg text-center appearance-none cursor-pointer">
+                                <option value="الشرق الأوسط">الشرق الأوسط</option>
+                                <option value="أوروبا">أوروبا</option>
+                                <option value="أمريكا">أمريكا</option>
+                                <option value="آسيا">آسيا</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="saveProfile()" class="btn-3d w-full py-4 text-lg">حفظ التغييرات</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال التعليمات -->
+    <div id="instructions-modal" class="modal-base">
+        <div class="modal-panel text-center max-w-md p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h4 class="text-xl font-black">كيف أجمع النقاط؟</h4>
+                <button onclick="toggleInstructionsModal()"
+                    class="w-8 h-8 bg-gray-100 rounded-full flex justify-center items-center"><i
+                        class="fa-solid fa-times text-secondary"></i></button>
+            </div>
+            <div
+                class="w-24 h-24 bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center mx-auto text-5xl mb-4">
+                <i class="fa-solid fa-coins"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-primary mb-2">العب واجمع النقاط!</h2>
+                <p class="text-secondary font-medium text-sm">نظام برو أرينا يكافئك على وقتك الذي تقضيه في الاستمتاع
+                    بالألعاب.</p>
+            </div>
+            <div class="bg-orange-50 p-6 rounded-[25px] border-2 border-brand border-dashed mt-6 mb-6 text-right">
+                <h3 class="text-xl font-black text-brand mb-2 text-center">1 دقيقة لعب = 1 نقطة</h3>
+                <p class="text-xs font-bold text-gray-500 text-center">افتح أي لعبة، العب واستمتع، وسيتم إضافة النقاط
+                    لرصيدك تلقائياً كل دقيقة.</p>
+            </div>
+            <button onclick="toggleInstructionsModal(); toggleSettingsModal()" class="btn-3d w-full py-4 text-lg">العودة
+                للإعدادات</button>
         </div>
     </div>
 
@@ -1226,8 +1289,10 @@
                     if (doc.exists) {
                         currentUserData = doc.data();
                         if (currentUserData.isBanned) { alert("تم حظر حسابك."); auth.signOut(); location.reload(); return; }
-                        document.getElementById('header-points').textContent = (currentUserData.points || 0).toLocaleString();
-                        document.getElementById('home-points-display').textContent = (currentUserData.points || 0).toLocaleString();
+                        const headerPoints = document.getElementById('header-points');
+                        if (headerPoints) headerPoints.textContent = (currentUserData.points || 0).toLocaleString();
+                        const homePoints = document.getElementById('home-points-display');
+                        if (homePoints) homePoints.textContent = (currentUserData.points || 0).toLocaleString();
                         if (!currentUserData.customId) {
                             currentUserData.customId = generateCustomId();
                             await db.collection('users').doc(user.uid).update({ customId: currentUserData.customId });
@@ -1303,8 +1368,8 @@
                     <h4 class="font-black text-2xl text-primary">${data.username}</h4>
                     <p class="text-sm text-secondary font-bold mb-4 bg-gray-100 px-3 py-1 rounded-full mt-2">ID: #${displayId}</p>
                     <div class="w-full flex gap-3 mt-4">
-                        <button onclick="switchPage('edit-profile')" class="flex-1 py-3 btn-outline-3d">تعديل الملف</button>
-                        ${isAnon ? `<button onclick="showLoginForm()" class="flex-1 py-3 btn-3d">دخول لحفظ التقدم</button>` : ''}
+                        <button onclick="toggleSettingsModal(); toggleEditProfileModal()" class="flex-1 py-3 btn-outline-3d">تعديل الملف</button>
+                        ${isAnon ? `<button onclick="toggleSettingsModal(); showLoginForm()" class="flex-1 py-3 btn-3d">دخول لحفظ التقدم</button>` : ''}
                     </div>
                 </div>`;
         }
@@ -1395,7 +1460,7 @@
             isLongPressed = false;
             exitPressTimer = setTimeout(() => {
                 isLongPressed = true;
-                document.getElementById('game-exit-btn').style.transform = 'translateY(-150px)';
+                document.getElementById('game-exit-container').style.transform = 'translateY(-150px)';
                 document.getElementById('game-show-btn').style.transform = 'translateY(0)';
             }, 600);
         }
@@ -1404,16 +1469,36 @@
             clearTimeout(exitPressTimer);
         }
 
+        let isGameExitMenuOpen = false;
+        function toggleGameExitMenu() {
+            const container = document.getElementById('game-exit-container');
+            const content = document.getElementById('game-exit-confirm-content');
+            const icon = document.getElementById('game-exit-icon');
+            
+            isGameExitMenuOpen = !isGameExitMenuOpen;
+            if (isGameExitMenuOpen) {
+                container.classList.replace('w-[46px]', 'w-[160px]');
+                content.classList.remove('w-0', 'opacity-0', 'pointer-events-none');
+                content.classList.add('flex-1', 'opacity-100', 'pointer-events-auto');
+                icon.classList.replace('fa-door-open', 'fa-times');
+            } else {
+                container.classList.replace('w-[160px]', 'w-[46px]');
+                content.classList.add('w-0', 'opacity-0', 'pointer-events-none');
+                content.classList.remove('flex-1', 'opacity-100', 'pointer-events-auto');
+                icon.classList.replace('fa-times', 'fa-door-open');
+            }
+        }
+
         function handleExitClick(e) {
             if (isLongPressed) {
                 e.preventDefault();
                 return;
             }
-            closeGameSheet();
+            toggleGameExitMenu();
         }
 
         function showExitBtn() {
-            document.getElementById('game-exit-btn').style.transform = 'translateY(0)';
+            document.getElementById('game-exit-container').style.transform = 'translateY(0)';
             document.getElementById('game-show-btn').style.transform = 'translateY(-150%)';
         }
 
@@ -1421,8 +1506,8 @@
             document.getElementById('game-sheet').classList.add('active');
             document.getElementById('game-sheet-overlay').classList.add('active');
             const iframe = document.getElementById('game-iframe');
-            
-            iframe.onload = function() {
+
+            iframe.onload = function () {
                 try {
                     const iframeDoc = iframe.contentWindow.document;
                     // منع التحديد
@@ -1430,24 +1515,29 @@
                     iframeDoc.body.style.webkitUserSelect = 'none';
                     iframeDoc.body.style.msUserSelect = 'none';
                     iframeDoc.body.style.mozUserSelect = 'none';
-                    
+
                     // منع القائمة السياقية والنسخ والسحب
                     iframeDoc.addEventListener('contextmenu', e => e.preventDefault());
                     iframeDoc.addEventListener('copy', e => e.preventDefault());
                     iframeDoc.addEventListener('dragstart', e => e.preventDefault());
-                } catch(e) {}
+                } catch (e) { }
             };
-            
+
             iframe.src = url;
             showExitBtn();
         }
-        function closeGameSheet() { document.getElementById('exit-confirm-modal').classList.add('active'); }
+        function closeGameSheet() { 
+            const modal = document.getElementById('exit-confirm-modal');
+            if (modal) modal.classList.add('active'); 
+        }
         function confirmExit(confirm) {
-            document.getElementById('exit-confirm-modal').classList.remove('active');
+            const modal = document.getElementById('exit-confirm-modal');
+            if (modal) modal.classList.remove('active');
             if (confirm) {
                 document.getElementById('game-sheet').classList.remove('active');
                 document.getElementById('game-sheet-overlay').classList.remove('active');
                 setTimeout(() => document.getElementById('game-iframe').src = "", 400);
+                if(isGameExitMenuOpen) toggleGameExitMenu();
             }
         }
         let currentCategoryIndex = 0;
@@ -1500,9 +1590,135 @@
             setTimeout(() => chatView.classList.add('hidden'), 300);
         }
 
+        function toggleSettingsModal() {
+            document.getElementById('settings-modal').classList.toggle('active');
+        }
+
+        function toggleInstructionsModal() {
+            const settingsModal = document.getElementById('settings-modal');
+            if (settingsModal.classList.contains('active')) {
+                settingsModal.classList.remove('active');
+            }
+            document.getElementById('instructions-modal').classList.toggle('active');
+        }
+
+        function toggleReportUserModal(show) {
+            const modal = document.getElementById('report-user-modal');
+            if (show) {
+                const settingsModal = document.getElementById('settings-modal');
+                if (settingsModal) settingsModal.classList.remove('active');
+                modal.classList.add('active');
+            } else {
+                modal.classList.remove('active');
+            }
+        }
+
+        function submitReport() {
+            const targetName = document.getElementById('report-target-name').value;
+            const reason = document.getElementById('report-reason').value;
+            if (!targetName || !reason) {
+                showToastNotification('خطأ', 'يرجى تعبئة جميع الحقول', 'error');
+                return;
+            }
+            showToastNotification('نجاح', 'تم إرسال البلاغ بنجاح وسنقوم بمراجعته قريباً', 'success');
+            document.getElementById('report-target-name').value = '';
+            document.getElementById('report-reason').value = '';
+            toggleReportUserModal(false);
+        }
+
+        function toggleLeaderboardModal() {
+            const modal = document.getElementById('leaderboard-modal');
+            if (!modal.classList.contains('active')) {
+                fetchLeaderboard();
+            }
+            modal.classList.toggle('active');
+        }
+
+        function toggleEditProfileModal() {
+            const modal = document.getElementById('edit-profile-modal');
+            if (!modal.classList.contains('active')) {
+                if (currentUserData) {
+                    document.getElementById('edit-username').value = currentUserData.username || '';
+                    document.getElementById('edit-region').value = currentUserData.region || 'الشرق الأوسط';
+                    document.getElementById('edit-avatar-img').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUserData.avatarSeed || '1'}&backgroundColor=FF9800`;
+                }
+            }
+            modal.classList.toggle('active');
+        }
+
+        async function saveProfile() {
+            const btn = document.querySelector('#edit-profile-modal .btn-3d');
+            const originalText = btn.textContent;
+            
+            const newName = document.getElementById('edit-username').value;
+            const newRegion = document.getElementById('edit-region').value;
+            const avatarUrl = document.getElementById('edit-avatar-img').src;
+            const avatarSeedMatch = avatarUrl.match(/seed=([^&]+)/);
+            const newAvatarSeed = avatarSeedMatch ? avatarSeedMatch[1] : (currentUserData ? currentUserData.avatarSeed : '1');
+
+            if (!newName) return showToastNotification('خطأ', 'يرجى إدخال اسم المحارب', 'error');
+            
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جاري الحفظ...';
+            btn.disabled = true;
+
+            try {
+                if (auth.currentUser && currentUserData) {
+                    await db.collection('users').doc(auth.currentUser.uid).update({
+                        username: newName,
+                        region: newRegion,
+                        avatarSeed: newAvatarSeed
+                    });
+                    if (auth.currentUser.displayName !== newName) {
+                        await auth.currentUser.updateProfile({ displayName: newName });
+                    }
+                }
+                
+                if (currentUserData) {
+                    currentUserData.username = newName;
+                    currentUserData.region = newRegion;
+                    currentUserData.avatarSeed = newAvatarSeed;
+                    localStorage.setItem('pro-arena-profile', JSON.stringify(currentUserData));
+                    updateSidebarUser(currentUserData);
+                    showProfileCard(currentUserData, auth.currentUser ? auth.currentUser.uid : null);
+                }
+
+                showToastNotification('نجاح', 'تم حفظ التغييرات بنجاح', 'success');
+                toggleEditProfileModal();
+            } catch (err) {
+                showToastNotification('خطأ', 'حدث خطأ أثناء الحفظ', 'error');
+                console.error(err);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function generateRandomAvatar() {
+            const seeds = ['Sniper', 'Ghost', 'Shadow', 'Viper', 'Titan', 'Apex', 'Falcon', 'Wolf', 'Dragon', 'Cyborg', 'Ninja', 'Samurai', 'King', 'Queen', 'Joker'];
+            const randomSeed = seeds[Math.floor(Math.random() * seeds.length)] + Math.floor(Math.random() * 100);
+            document.getElementById('edit-avatar-img').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${randomSeed}&backgroundColor=FF9800`;
+        }
+
+        function toggleDarkMode(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('pro-arena-darkmode', 'true');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('pro-arena-darkmode', 'false');
+            }
+        }
+
         // --- بدء التطبيق ---
         document.addEventListener('DOMContentLoaded', () => {
-            switchPage('home');
+            const isDark = localStorage.getItem('pro-arena-darkmode') === 'true';
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                if (darkModeToggle) darkModeToggle.checked = true;
+            }
+
+            switchPage('games');
 
             // إضافة تأثير السكرول للهيدر بسلاسة تامة (60 FPS)
             const scrollArea = document.getElementById('main-scroll-area');
@@ -1529,23 +1745,6 @@
                     }
                 }, { passive: true });
             }
-            // Mock matches data
-            document.getElementById('matches-container').innerHTML = `
-                <div class="p-4 bg-white rounded-[20px] border border-gray-100 flex items-center justify-between mb-3 shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center"><i class="fa-solid fa-fire"></i></div>
-                        <div><h4 class="font-black text-sm">نهائي المافيا</h4><p class="text-[10px] text-secondary">24.5K مشاهد</p></div>
-                    </div>
-                    <span class="bg-red-500 text-white text-[10px] font-black px-3 py-1 rounded-full animate-pulse">مباشر</span>
-                </div>
-                <div class="p-4 bg-white rounded-[20px] border border-gray-100 flex items-center justify-between shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center"><i class="fa-solid fa-hashtag"></i></div>
-                        <div><h4 class="font-black text-sm">تحدي XO الأكبر</h4><p class="text-[10px] text-secondary">8.2K مشاهد</p></div>
-                    </div>
-                    <span class="bg-blue-500 text-white text-[10px] font-black px-3 py-1 rounded-full">إعادة</span>
-                </div>
-            `;
         });
     </script>
 </body>
