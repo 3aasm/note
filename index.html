@@ -375,75 +375,93 @@
             pointer-events: auto;
         }
 
-        /* تأثير السكرول للهيدر - محسن جداً (60 FPS) */
+        /* تأثير السكرول للهيدر - أنميشن سلس جداً وبدون تقطيع نهائياً */
         #main-header {
-            will-change: height, background-color;
+            will-change: background-color, box-shadow;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         #main-header.scrolled {
-            height: 3.5rem;
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             z-index: 40;
         }
 
         #header-floating-title {
-            will-change: transform, right;
+            will-change: opacity, transform;
+            transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
         }
 
         #main-header.scrolled #header-floating-title {
-            right: 50%;
-            transform: translate(50%, -50%);
-        }
-
-        #header-logo {
-            transform-origin: right center;
-            will-change: transform, opacity, width, margin;
-        }
-
-        #main-header.scrolled #header-logo {
-            transform: scale(0);
             opacity: 0;
-            width: 0;
-            border-width: 0;
-            margin-left: 0;
-        }
-
-        #header-welcome-text {
-            transform-origin: top;
-            will-change: transform, opacity, height, margin;
-        }
-
-        #main-header.scrolled #header-welcome-text {
-            opacity: 0;
-            height: 0;
-            margin: 0;
-            transform: scaleY(0);
-        }
-
-        #header-title {
-            transform-origin: right center;
-            will-change: transform;
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        #main-header.scrolled #header-title {
-            transform: scale(0.75);
-            /* أنميشن الحجم عن طريق transform وليس font-size لمنع التقطيع */
+            transform: translateY(-15px) scale(0.9) !important;
+            pointer-events: none;
         }
 
         #header-right-group {
             will-change: transform, opacity;
+            transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
         }
 
         #main-header.scrolled #header-right-group {
             opacity: 0;
-            transform: translateX(-15px) scale(0.9);
+            transform: translateX(-15px) scale(0.9) !important;
             pointer-events: none;
         }
+
+        #header-centered-title {
+            will-change: opacity, transform;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: translate(50%, -50%) scale(0.5);
+            opacity: 0;
+        }
+
+        #main-header.scrolled #header-centered-title {
+            opacity: 1;
+            transform: translate(50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+
+        /* Header Floating Background Icons */
+        .header-bg-icons {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 0;
+        }
+
+        #main-header.scrolled .header-bg-icons {
+            opacity: 1;
+        }
+
+        .header-bg-icon {
+            position: absolute;
+            color: rgba(255, 152, 0, 0.08);
+            font-size: 2.5rem;
+            animation: headerFloat 12s linear infinite alternate;
+        }
+
+        html.dark .header-bg-icon {
+            color: rgba(255, 255, 255, 0.03);
+        }
+
+        @keyframes headerFloat {
+            0% { transform: translateY(0px) rotate(-15deg); }
+            100% { transform: translateY(-15px) rotate(15deg); }
+        }
+
+        .header-bg-icon:nth-child(1) { left: 5%; top: 20%; animation-delay: 0s; font-size: 1.8rem; }
+        .header-bg-icon:nth-child(2) { left: 20%; top: 50%; animation-delay: -2s; font-size: 2.5rem; }
+        .header-bg-icon:nth-child(3) { left: 35%; top: 10%; animation-delay: -4s; font-size: 2rem; }
+        .header-bg-icon:nth-child(4) { left: 50%; top: 60%; animation-delay: -1s; font-size: 2.2rem; }
+        .header-bg-icon:nth-child(5) { left: 65%; top: 30%; animation-delay: -3s; font-size: 1.7rem; }
+        .header-bg-icon:nth-child(6) { left: 80%; top: 70%; animation-delay: -5s; font-size: 2.3rem; }
+        .header-bg-icon:nth-child(7) { left: 95%; top: 15%; animation-delay: -2s; font-size: 1.9rem; }
 
         html.dark body {
             background-color: #0F172A;
@@ -600,7 +618,6 @@
 </head>
 
 <body class="h-screen flex overflow-hidden selection:bg-brand/30 selection:text-primary overscroll-none text-primary">
-
     <!-- شريط جانبي للشاشات الكبيرة -->
     <aside
         class="hidden lg:flex flex-col w-72 bg-white shadow-card z-20 relative transition-all duration-300 rounded-l-[40px] m-4 mr-0">
@@ -644,7 +661,18 @@
     <main class="flex-1 flex flex-col h-full relative overflow-hidden lg:pl-4">
         <!-- Header -->
         <header id="main-header"
-            class="h-20 lg:h-24 shrink-0 flex items-center justify-between px-6 lg:px-10 z-30 sticky top-0 transition-all duration-300">
+            class="h-20 lg:h-24 shrink-0 flex items-center justify-between px-6 lg:px-10 z-30 sticky top-0 transition-all duration-300 overflow-hidden relative">
+
+            <!-- Header Background Icons -->
+            <div class="header-bg-icons">
+                <i class="fa-solid fa-gamepad header-bg-icon"></i>
+                <i class="fa-solid fa-futbol header-bg-icon"></i>
+                <i class="fa-solid fa-dice header-bg-icon"></i>
+                <i class="fa-solid fa-masks-theater header-bg-icon"></i>
+                <i class="fa-solid fa-ghost header-bg-icon"></i>
+                <i class="fa-solid fa-hashtag header-bg-icon"></i>
+                <i class="fa-solid fa-chess-knight header-bg-icon"></i>
+            </div>
 
             <!-- Floating Title Container -->
             <div id="header-floating-title"
@@ -659,6 +687,11 @@
                         class="text-2xl lg:text-3xl font-black text-primary tracking-tight transition-all duration-300">
                         الألعاب</h2>
                 </div>
+            </div>
+
+            <!-- Centered Title for Scrolled State -->
+            <div id="header-centered-title" class="absolute right-1/2 top-1/2 opacity-0 pointer-events-none z-10 w-max text-center">
+                <h2 class="text-xl lg:text-2xl font-black text-primary tracking-tight">الألعاب</h2>
             </div>
 
             <!-- Left Placeholder for Flex -->
@@ -830,14 +863,20 @@
         <div class="h-full w-full relative overflow-hidden">
             <!-- زر الخروج المتمدد -->
             <div class="absolute top-0 left-0 w-full p-4 z-50 pointer-events-none flex justify-start">
-                <div id="game-exit-container" class="pointer-events-auto absolute top-4 left-4 z-20 flex items-center bg-[#EF4444] rounded-2xl shadow-[0_4px_0_#B91C1C] overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] w-[46px] h-[46px]">
-                    <button id="game-exit-btn" onclick="handleExitClick(event)" onpointerdown="handleExitTouchStart(event)" onpointerup="handleExitTouchEnd(event)" onpointerleave="handleExitTouchEnd(event)" class="w-[46px] h-[46px] shrink-0 text-white flex items-center justify-center text-xl hover:bg-red-600 transition-colors pointer-events-auto outline-none">
+                <div id="game-exit-container"
+                    class="pointer-events-auto absolute top-4 left-4 z-20 flex items-center bg-[#EF4444] rounded-2xl shadow-[0_4px_0_#B91C1C] overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] w-[46px] h-[46px]">
+                    <button id="game-exit-btn" onclick="handleExitClick(event)"
+                        onpointerdown="handleExitTouchStart(event)" onpointerup="handleExitTouchEnd(event)"
+                        onpointerleave="handleExitTouchEnd(event)"
+                        class="w-[46px] h-[46px] shrink-0 text-white flex items-center justify-center text-xl hover:bg-red-600 transition-colors pointer-events-auto outline-none">
                         <i id="game-exit-icon" class="fa-solid fa-door-open transition-transform duration-300"></i>
                     </button>
-                    <div id="game-exit-confirm-content" class="flex items-center justify-between pr-1 pl-3 opacity-0 pointer-events-none transition-all duration-300 w-0">
+                    <div id="game-exit-confirm-content"
+                        class="flex items-center justify-between pr-1 pl-3 opacity-0 pointer-events-none transition-all duration-300 w-0">
                         <span class="text-white font-black text-[13px] whitespace-nowrap ml-2">خروج؟</span>
                         <div class="flex gap-1 shrink-0">
-                            <button onclick="confirmExit(true)" class="bg-white text-red-500 w-[42px] h-[34px] rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors shadow-sm font-black text-xs shrink-0 pointer-events-auto outline-none">
+                            <button onclick="confirmExit(true)"
+                                class="bg-white text-red-500 w-[42px] h-[34px] rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors shadow-sm font-black text-xs shrink-0 pointer-events-auto outline-none">
                                 نعم
                             </button>
                         </div>
@@ -1091,7 +1130,8 @@
         <div class="modal-panel flex flex-col max-h-[90vh] w-full max-w-xl p-6">
             <div class="flex justify-between items-center mb-6">
                 <h4 class="text-2xl font-black">تعديل الملف الشخصي</h4>
-                <button onclick="toggleEditProfileModal()" class="w-8 h-8 bg-gray-100 rounded-full"><i class="fa-solid fa-times text-secondary"></i></button>
+                <button onclick="toggleEditProfileModal()" class="w-8 h-8 bg-gray-100 rounded-full"><i
+                        class="fa-solid fa-times text-secondary"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto pr-1">
                 <div class="text-center">
@@ -1474,7 +1514,7 @@
             const container = document.getElementById('game-exit-container');
             const content = document.getElementById('game-exit-confirm-content');
             const icon = document.getElementById('game-exit-icon');
-            
+
             isGameExitMenuOpen = !isGameExitMenuOpen;
             if (isGameExitMenuOpen) {
                 container.classList.replace('w-[46px]', 'w-[160px]');
@@ -1526,9 +1566,9 @@
             iframe.src = url;
             showExitBtn();
         }
-        function closeGameSheet() { 
+        function closeGameSheet() {
             const modal = document.getElementById('exit-confirm-modal');
-            if (modal) modal.classList.add('active'); 
+            if (modal) modal.classList.add('active');
         }
         function confirmExit(confirm) {
             const modal = document.getElementById('exit-confirm-modal');
@@ -1537,7 +1577,7 @@
                 document.getElementById('game-sheet').classList.remove('active');
                 document.getElementById('game-sheet-overlay').classList.remove('active');
                 setTimeout(() => document.getElementById('game-iframe').src = "", 400);
-                if(isGameExitMenuOpen) toggleGameExitMenu();
+                if (isGameExitMenuOpen) toggleGameExitMenu();
             }
         }
         let currentCategoryIndex = 0;
@@ -1649,7 +1689,7 @@
         async function saveProfile() {
             const btn = document.querySelector('#edit-profile-modal .btn-3d');
             const originalText = btn.textContent;
-            
+
             const newName = document.getElementById('edit-username').value;
             const newRegion = document.getElementById('edit-region').value;
             const avatarUrl = document.getElementById('edit-avatar-img').src;
@@ -1657,7 +1697,7 @@
             const newAvatarSeed = avatarSeedMatch ? avatarSeedMatch[1] : (currentUserData ? currentUserData.avatarSeed : '1');
 
             if (!newName) return showToastNotification('خطأ', 'يرجى إدخال اسم المحارب', 'error');
-            
+
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جاري الحفظ...';
             btn.disabled = true;
 
@@ -1672,7 +1712,7 @@
                         await auth.currentUser.updateProfile({ displayName: newName });
                     }
                 }
-                
+
                 if (currentUserData) {
                     currentUserData.username = newName;
                     currentUserData.region = newRegion;
