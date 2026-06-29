@@ -1,0 +1,928 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#050505">
+    <title>لعبة المافيا - بروتوكول التحقيق</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#ef4444', /* Red-500 */
+                            light: '#f87171',   /* Red-400 */
+                            dark: '#dc2626',    /* Red-600 */
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- React & ReactDOM -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.3/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #050505;
+            color: #f4f4f5;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Custom Glass & Glow Utilities */
+        .glass-panel {
+            background: rgba(20, 20, 25, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .neon-border-brand {
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .neon-border-blue {
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .neon-border-emerald {
+            border: 1px solid rgba(52, 211, 153, 0.5);
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.2);
+        }
+
+        /* Animations */
+        @keyframes floatUpFade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); }
+        }
+        .animate-float-up {
+            animation: floatUpFade 0.6s ease-out forwards;
+        }
+
+        @keyframes floatDownFade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            100% { opacity: 0; transform: translate(-50%, 50%) scale(1.5); }
+        }
+        .animate-float-down {
+            animation: floatDownFade 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeDown {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-down {
+            animation: fadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-fade-up {
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-pop {
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Scanner Effect */
+        .scanner-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scanner-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #ef4444;
+            box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.6);
+            z-index: 20;
+            animation: scanSweeper 2s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes scanSweeper {
+            0% {
+                top: -10%;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 110%;
+                opacity: 0;
+            }
+        }
+
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(239, 68, 68, 0.15) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(239, 68, 68, 0.15) 1px, transparent 1px);
+        }
+    </style>
+</head>
+
+<body class="m-0 h-[100dvh] overflow-hidden">
+    <div id="root" class="h-full"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const shuffleArray = (array) => {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        };
+
+        const ROLES = {
+            MAFIA: { id: 'mafia', name: 'المافيا', icon: 'fa-user-secret', color: 'text-brand', style: 'neon-border-brand bg-brand/10' },
+            DETECTIVE: { id: 'detective', name: 'المحقق', icon: 'fa-shield-halved', color: 'text-sky-400', style: 'neon-border-blue bg-sky-500/10' },
+            DOCTOR: { id: 'doctor', name: 'الطبيب', icon: 'fa-heart-pulse', color: 'text-emerald-400', style: 'neon-border-emerald bg-emerald-500/10' },
+            CITIZEN: { id: 'citizen', name: 'مواطن عادي', icon: 'fa-user', color: 'text-zinc-400', style: 'border border-zinc-700 bg-zinc-800/30' }
+        };
+
+        function App() {
+            const [isGlassMode, setIsGlassMode] = useState(true);
+            const [gameState, setGameState] = useState('setup');
+            const [players, setPlayers] = useState([
+                { id: 1, name: '', role: null, isAlive: true, isMarked: false },
+                { id: 2, name: '', role: null, isAlive: true, isMarked: false },
+                { id: 3, name: '', role: null, isAlive: true, isMarked: false },
+                { id: 4, name: '', role: null, isAlive: true, isMarked: false }
+            ]);
+            const [roleCounts, setRoleCounts] = useState({ mafia: 1, detective: 1, doctor: 1 });
+            const [errorMsg, setErrorMsg] = useState('');
+
+            const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+            const [eliminatedPlayer, setEliminatedPlayer] = useState(null);
+            const [gameWinner, setGameWinner] = useState(null);
+
+            useEffect(() => {
+                if (gameState === 'moderator') {
+                    const alive = players.filter(p => p.isAlive);
+                    if (alive.length > 0) {
+                        const mafiaCount = alive.filter(p => p.role?.id === 'mafia').length;
+                        const othersCount = alive.length - mafiaCount;
+                        if (mafiaCount === 0) {
+                            setGameWinner('citizens');
+                            setTimeout(() => setGameState('game-over'), 800);
+                        } else if (mafiaCount >= othersCount) {
+                            setGameWinner('mafia');
+                            setTimeout(() => setGameState('game-over'), 800);
+                        }
+                    }
+                }
+            }, [gameState, players]);
+
+            useEffect(() => {
+                if (errorMsg) {
+                    const timer = setTimeout(() => setErrorMsg(''), 3000);
+                    return () => clearTimeout(timer);
+                }
+            }, [errorMsg]);
+
+            const handleAddPlayer = () => {
+                setPlayers([...players, { id: Date.now(), name: '', role: null, isAlive: true, isMarked: false }]);
+            };
+
+            const handleRemovePlayer = (id) => {
+                if (players.length <= 3) return;
+                setPlayers(players.filter(p => p.id !== id));
+            };
+
+            const handleNameChange = (id, newName) => {
+                setPlayers(players.map(p => p.id === id ? { ...p, name: newName } : p));
+            };
+
+            const startGame = () => {
+                const emptyNames = players.some(p => p.name.trim() === '');
+                if (emptyNames) {
+                    setErrorMsg('النظام يرفض الهويات المجهولة. أدخل جميع الأسماء.');
+                    return;
+                }
+
+                const specialRolesCount = roleCounts.mafia + roleCounts.detective + roleCounts.doctor;
+                if (players.length < specialRolesCount) {
+                    setErrorMsg(`عدد الأدوار (${specialRolesCount}) أكبر من عدد الأفراد (${players.length}).`);
+                    return;
+                }
+
+                let rolePool = [];
+                for (let i = 0; i < roleCounts.mafia; i++) rolePool.push(ROLES.MAFIA);
+                for (let i = 0; i < roleCounts.detective; i++) rolePool.push(ROLES.DETECTIVE);
+                for (let i = 0; i < roleCounts.doctor; i++) rolePool.push(ROLES.DOCTOR);
+
+                const citizensCount = players.length - specialRolesCount;
+                for (let i = 0; i < citizensCount; i++) rolePool.push(ROLES.CITIZEN);
+
+                rolePool = shuffleArray(rolePool);
+
+                const assignedPlayers = players.map((p, index) => ({
+                    ...p,
+                    role: rolePool[index]
+                }));
+
+                setPlayers(assignedPlayers);
+                setCurrentPlayerIndex(0);
+                setErrorMsg('');
+                setGameState('assignment');
+            };
+
+            const resetGame = () => {
+                if (window.confirm('إلغاء العملية والعودة للمربع الأول؟')) {
+                    setGameState('setup');
+                    setPlayers(players.map(p => ({ ...p, role: null, isAlive: true, isMarked: false })));
+                    setCurrentPlayerIndex(0);
+                }
+            };
+
+            return (
+                <div className={`h-full w-full flex justify-center relative overflow-hidden transition-colors duration-700 ${isGlassMode ? 'bg-[#140a05]' : 'bg-[#050505]'}`}>
+                    {isGlassMode && (
+                        <div className="absolute inset-0 z-0 opacity-60 pointer-events-none" style={{ backgroundImage: 'radial-gradient(at 20% 20%, rgba(239, 68, 68, 0.15) 0px, transparent 50%), radial-gradient(at 80% 80%, rgba(14, 165, 233, 0.15) 0px, transparent 50%)' }}></div>
+                    )}
+                    <div className="absolute inset-0 bg-grid opacity-80 z-0 pointer-events-none" style={{ backgroundPosition: 'center' }}></div>
+                    <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[50%] bg-blue-900/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
+                    <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[50%] bg-brand/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
+
+                    <div className={`w-full max-w-md md:max-w-xl h-full relative z-10 flex flex-col border-x shadow-2xl transition-all duration-700 ${isGlassMode ? 'bg-black/20 backdrop-blur-xl border-white/10' : 'bg-black/40 backdrop-blur-sm border-white/5'}`}>
+
+                        {(gameState === 'setup' || gameState === 'moderator') && (
+                            <header className="px-6 py-8 shrink-0 w-full flex justify-center relative min-h-[120px] items-center">
+                                {errorMsg && gameState === 'setup' ? (
+                                    <div className="absolute inset-0 flex items-center justify-center px-6 animate-pop z-20">
+                                        <div className="glass-panel border border-brand/50 bg-[#050505]/90 text-brand py-3 px-4 rounded-2xl text-sm flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(239,68,68,0.3)] w-full">
+                                            <i className="fa-solid fa-circle-exclamation text-lg animate-pulse"></i>
+                                            <p className="font-bold tracking-wide">{errorMsg}</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <h1 className="text-5xl md:text-6xl font-black text-brand drop-shadow-[0_0_20px_rgba(239,68,68,0.8)] w-full text-center animate-fade-up">
+                                        الــــمــــافــــيــــا
+                                    </h1>
+                                )}
+                            </header>
+                        )}
+
+                        <main className="flex-1 overflow-y-auto scrollbar-hide relative pb-6">
+                            {gameState === 'setup' && (
+                                <SetupPhase
+                                    players={players}
+                                    roleCounts={roleCounts}
+                                    setRoleCounts={setRoleCounts}
+                                    handleAddPlayer={handleAddPlayer}
+                                    handleRemovePlayer={handleRemovePlayer}
+                                    handleNameChange={handleNameChange}
+                                    startGame={startGame}
+                                    errorMsg={errorMsg}
+                                    isGlassMode={isGlassMode}
+                                    setIsGlassMode={setIsGlassMode}
+                                />
+                            )}
+
+                            {gameState === 'assignment' && (
+                                <AssignmentPhase
+                                    player={players[currentPlayerIndex]}
+                                    onNext={() => {
+                                        if (currentPlayerIndex < players.length - 1) {
+                                            setCurrentPlayerIndex(prev => prev + 1);
+                                        } else {
+                                            setGameState('moderator');
+                                        }
+                                    }}
+                                    onCancel={resetGame}
+                                    isLast={currentPlayerIndex === players.length - 1}
+                                    totalPlayers={players.length}
+                                    currentIndex={currentPlayerIndex}
+                                />
+                            )}
+
+                            {gameState === 'moderator' && (
+                                <ModeratorPhase
+                                    players={players}
+                                    onGoToElimination={() => setGameState('elimination')}
+                                    onReset={resetGame}
+                                    onManualEnd={(winner) => {
+                                        setGameWinner(winner);
+                                        setGameState('game-over');
+                                    }}
+                                    onRevive={(id) => {
+                                        if (window.confirm('تصريح بالإنعاش؟')) {
+                                            setPlayers(players.map(p => p.id === id ? { ...p, isAlive: true, isMarked: false } : p));
+                                        }
+                                    }}
+                                    onToggleMark={(id) => {
+                                        setPlayers(players.map(p => p.id === id ? { ...p, isMarked: !p.isMarked } : p));
+                                    }}
+                                    isGlassMode={isGlassMode}
+                                    setIsGlassMode={setIsGlassMode}
+                                />
+                            )}
+
+                            {gameState === 'elimination' && (
+                                <EliminationPhase
+                                    players={players}
+                                    onEliminate={(id) => {
+                                        const p = players.find(p => p.id === id);
+                                        setEliminatedPlayer(p);
+                                        setPlayers(players.map(p => p.id === id ? { ...p, isAlive: false } : p));
+                                        setGameState('animation');
+                                    }}
+                                    onCancel={() => setGameState('moderator')}
+                                />
+                            )}
+                        </main>
+
+                        {gameState === 'animation' && eliminatedPlayer && (
+                            <div className="absolute inset-0 z-50 bg-[#050505]/95 backdrop-blur-xl flex flex-col items-center justify-center p-6">
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.15)_0%,transparent_70%)]"></div>
+
+                                <div className="relative z-10 flex flex-col items-center text-center animate-pop">
+                                    <div className="w-32 h-32 mb-8 rounded-full neon-border-brand bg-brand/10 flex items-center justify-center relative overflow-hidden shadow-2xl">
+                                        <div className="absolute inset-0 border-4 border-brand rounded-full animate-[spin_4s_linear_infinite] border-t-transparent border-l-transparent opacity-50"></div>
+                                        <i className="fa-solid fa-skull text-6xl text-brand z-10 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]"></i>
+                                    </div>
+
+                                    <div className="bg-brand/20 text-brand px-4 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-4 border border-brand/30">Target Eliminated</div>
+                                    <h2 className="text-4xl font-black text-white mb-8">{eliminatedPlayer.name}</h2>
+
+                                    <div className="glass-panel px-6 py-4 rounded-2xl flex flex-col items-center gap-2 min-w-[250px]">
+                                        <span className="text-zinc-400 text-xs uppercase tracking-wider">الهوية المكتشفة</span>
+                                        <span className={`font-black text-2xl ${eliminatedPlayer.role.color} flex items-center gap-3`}>
+                                            <i className={`fa-solid ${eliminatedPlayer.role.icon}`}></i>
+                                            {eliminatedPlayer.role.name}
+                                        </span>
+                                    </div>
+
+                                    <button
+                                        onClick={() => {
+                                            setGameState('moderator');
+                                            setEliminatedPlayer(null);
+                                        }}
+                                        className="mt-12 glass-panel hover:bg-white/10 text-white font-bold py-4 px-10 rounded-2xl flex items-center gap-3 text-lg opacity-0 transition-colors"
+                                        style={{ animation: 'fadeUp 0.5s ease-out 1.5s forwards' }}
+                                    >
+                                        إغلاق الملف <i className="fa-solid fa-check"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {gameState === 'game-over' && (
+                            <GameOverPhase winner={gameWinner} onReset={resetGame} />
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        function SetupPhase({ players, roleCounts, setRoleCounts, handleAddPlayer, handleRemovePlayer, handleNameChange, startGame, errorMsg, isGlassMode, setIsGlassMode }) {
+            const [showMenu, setShowMenu] = useState(false);
+            const [clickAnims, setClickAnims] = useState([]);
+
+            const triggerAnim = (roleId, type) => {
+                const id = Date.now() + Math.random();
+                setClickAnims(prev => [...prev, { id, roleId, type }]);
+                setTimeout(() => {
+                    setClickAnims(prev => prev.filter(anim => anim.id !== id));
+                }, 600);
+            };
+
+            return (
+                <div className="px-6 min-h-full flex flex-col animate-fade-up">
+                    <div className="space-y-8 flex-1 mt-4">
+                        <section>
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-sm font-bold text-zinc-400 flex items-center gap-2 uppercase tracking-wider">
+                                    <i className="fa-solid fa-users text-sky-500"></i> المشتبه بهم
+                                </h2>
+                                <span className="bg-sky-500/20 border border-sky-500/30 text-sky-400 text-[10px] px-2 py-1 rounded-md font-mono font-bold">
+                                    {players.length} TOTAL
+                                </span>
+                            </div>
+
+                            <div className="space-y-3">
+                                {players.map((player, index) => (
+                                    <div key={player.id} className="glass-panel flex items-center rounded-2xl overflow-hidden focus-within:border-sky-500/50 focus-within:bg-sky-950/20 transition-all border border-white/10">
+                                        <div className="w-12 h-14 flex items-center justify-center bg-black/40 text-zinc-500 font-mono text-sm border-l border-white/5">
+                                            {(index + 1).toString().padStart(2, '0')}
+                                        </div>
+                                        <div className="flex-1 flex items-center px-3">
+                                            <i className="fa-solid fa-id-card text-zinc-600 mr-3 text-sm"></i>
+                                            <input
+                                                type="text"
+                                                placeholder="أدخل الاسم الرمزي..."
+                                                value={player.name}
+                                                onChange={(e) => handleNameChange(player.id, e.target.value)}
+                                                className="w-full bg-transparent py-3 text-white focus:outline-none placeholder-zinc-600 font-bold text-sm"
+                                            />
+                                        </div>
+                                        {players.length > 3 && (
+                                            <button onClick={() => handleRemovePlayer(player.id)} className="w-12 h-14 flex items-center justify-center text-zinc-600 hover:text-brand hover:bg-brand/10 transition-colors border-r border-white/5">
+                                                <i className="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+
+                                <button onClick={handleAddPlayer} className="w-full py-4 rounded-2xl border-2 border-dashed border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 hover:bg-white/5 transition-all flex items-center justify-center gap-2 text-sm font-bold mt-2">
+                                    <i className="fa-solid fa-plus"></i> إضافة عنصر جديد
+                                </button>
+                            </div>
+                        </section>
+
+                    </div>
+
+                    <div className="mt-8 flex justify-center w-full shrink-0 pb-6 z-30">
+                        <div className="w-full glass-panel p-2 rounded-3xl flex items-center gap-2 shadow-2xl border-white/10">
+                            <button onClick={() => setShowMenu(true)} className="w-14 h-14 shrink-0 rounded-2xl flex items-center justify-center text-zinc-400 hover:bg-white/10 hover:text-white transition-colors bg-black/50">
+                                <i className="fa-solid fa-gear text-xl"></i>
+                            </button>
+                            <button
+                                onClick={startGame}
+                                className="flex-1 h-14 bg-brand hover:bg-brand-light text-white font-black rounded-2xl shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all flex items-center justify-center gap-3 text-lg"
+                            >
+                                <i className="fa-solid fa-power-off text-xl"></i> ابدا اللعب 
+                            </button>
+                        </div>
+                    </div>
+
+                    {showMenu && (
+                        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end justify-center sm:items-center p-4 animate-fade-up">
+                            <div className="bg-[#0a0a0a] border border-white/10 w-full max-w-sm rounded-3xl p-6 shadow-2xl mb-8 sm:mb-0 max-h-[90vh] overflow-y-auto">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-lg font-bold text-white">إعدادات النظام</h3>
+                                    <button onClick={() => setShowMenu(false)} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white"><i className="fa-solid fa-xmark"></i></button>
+                                </div>
+                                <div className="space-y-6">
+                                    <div>
+                                        <h4 className="text-xs font-bold text-zinc-400 mb-3 flex items-center gap-2 uppercase tracking-wider">
+                                            <i className="fa-solid fa-sliders text-brand"></i> الكوادر النشطة
+                                        </h4>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {[
+                                                { id: 'mafia', label: 'مافيا', icon: 'fa-user-secret', color: 'text-brand', bg: 'bg-brand/10', border: 'border-brand/30' },
+                                                { id: 'detective', label: 'محقق', icon: 'fa-shield-halved', color: 'text-sky-400', bg: 'bg-sky-500/10', border: 'border-sky-500/30' },
+                                                { id: 'doctor', label: 'طبيب', icon: 'fa-heart-pulse', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' }
+                                            ].map((role) => (
+                                                <div 
+                                                    key={role.id} 
+                                                    className={`glass-panel rounded-2xl p-3 flex flex-col items-center border relative cursor-pointer transition-colors ${role.border} ${role.bg} hover:bg-white/5`}
+                                                    onClick={() => {
+                                                        setRoleCounts(p => ({ ...p, [role.id]: p[role.id] + 1 }));
+                                                        triggerAnim(role.id, 'plus');
+                                                    }}
+                                                >
+                                                    <button 
+                                                        className="absolute top-1.5 right-1.5 w-5 h-5 rounded-md bg-black/60 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-red-500/50 z-20 transition-colors"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (roleCounts[role.id] > 0) {
+                                                                setRoleCounts(p => ({ ...p, [role.id]: p[role.id] - 1 }));
+                                                                triggerAnim(role.id, 'minus');
+                                                            }
+                                                        }}
+                                                    >
+                                                        <i className="fa-solid fa-minus text-[10px]"></i>
+                                                    </button>
+                                                    <i className={`fa-solid ${role.icon} text-2xl mb-2 mt-3 ${role.color} drop-shadow-[0_0_8px_currentColor]`}></i>
+                                                    <span className="text-[10px] font-bold text-zinc-300 mb-1">{role.label}</span>
+                                                    <div 
+                                                        className="text-lg font-black text-white hover:text-brand z-10 px-2 py-0.5 rounded transition-colors hover:bg-black/40"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            const val = prompt(`أدخل العدد لـ ${role.label}:`, roleCounts[role.id]);
+                                                            if (val !== null && !isNaN(val) && parseInt(val) >= 0) {
+                                                                setRoleCounts(p => ({ ...p, [role.id]: parseInt(val) }));
+                                                            }
+                                                        }}
+                                                    >
+                                                        {roleCounts[role.id]}
+                                                    </div>
+
+                                                    {clickAnims.filter(a => a.roleId === role.id).map(anim => (
+                                                        <div key={anim.id} className={`absolute top-1/2 left-1/2 pointer-events-none z-30 font-black text-2xl drop-shadow-xl ${anim.type === 'plus' ? 'text-emerald-400 animate-float-up' : 'text-red-500 animate-float-down'}`}>
+                                                            {anim.type === 'plus' ? <i className="fa-solid fa-plus"></i> : <i className="fa-solid fa-minus"></i>}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="h-px bg-white/10 w-full"></div>
+                                    <button onClick={() => setIsGlassMode(!isGlassMode)} className="w-full bg-white/5 text-brand font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-white/10 transition-colors">
+                                        <i className="fa-solid fa-wand-magic-sparkles"></i> {isGlassMode ? 'إلغاء الوضع الزجاجي' : 'تفعيل الوضع الزجاجي'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function AssignmentPhase({ player, onNext, onCancel, isLast, totalPlayers, currentIndex }) {
+            const [isScanning, setIsScanning] = useState(false);
+            const [hasScanned, setHasScanned] = useState(false);
+            const [displayRole, setDisplayRole] = useState(null);
+
+            useEffect(() => {
+                if (isScanning) {
+                    const roleKeys = Object.keys(ROLES);
+                    let i = 0;
+                    let speed = 40;
+
+                    const cycleRole = () => {
+                        setDisplayRole(ROLES[roleKeys[i % roleKeys.length]]);
+                        i++;
+                        if (i < 30) {
+                            setTimeout(cycleRole, speed);
+                            if (i > 20) speed += 30;
+                        } else {
+                            setDisplayRole(player.role);
+                            setIsScanning(false);
+                            setHasScanned(true);
+                        }
+                    };
+
+                    cycleRole();
+                }
+            }, [isScanning, player.role]);
+
+            useEffect(() => {
+                setIsScanning(false);
+                setHasScanned(false);
+                setDisplayRole(null);
+            }, [player.id]);
+
+            return (
+                <div className="min-h-full flex flex-col px-6 py-4 animate-fade-up">
+                    <div className="flex items-center justify-between mb-8 glass-panel p-2 rounded-2xl">
+                        <button onClick={onCancel} className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 flex items-center justify-center transition-colors">
+                            <i className="fa-solid fa-xmark"></i>
+                        </button>
+                        <div className="flex-1 px-4 flex justify-center gap-1.5">
+                            {Array.from({ length: totalPlayers }).map((_, idx) => (
+                                <div key={idx} className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentIndex ? 'w-8 bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.8)]' : idx < currentIndex ? 'w-2 bg-sky-900' : 'w-2 bg-zinc-800'}`} />
+                            ))}
+                        </div>
+                        <div className="w-10 h-10 flex items-center justify-center text-zinc-500 font-mono text-xs">
+                            {currentIndex + 1}/{totalPlayers}
+                        </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm mx-auto">
+                        <div className={`w-full aspect-[3/4] rounded-3xl transition-all duration-500 scanner-container flex flex-col items-center p-6 border border-white/10 ${!hasScanned && !isScanning ? 'glass-panel' :
+                            isScanning ? 'bg-black border-brand/50 shadow-[0_0_30px_rgba(239,68,68,0.2)]' :
+                                `glass-panel ${displayRole?.style}`
+                            }`}>
+
+                            <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-white/20 rounded-tl-lg"></div>
+                            <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-white/20 rounded-br-lg"></div>
+                            <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-white/20 rounded-tr-lg"></div>
+                            <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-white/20 rounded-bl-lg"></div>
+
+                            <div className="text-center mt-2 z-10 w-full animate-fade-up">
+                                <p className="text-sky-500 text-[10px] font-bold tracking-[0.3em] uppercase mb-2 font-mono">
+                                    <i className="fa-solid fa-satellite-dish mr-1"></i> فحص بيومتري لـ
+                                </p>
+                                <h2 className="text-4xl font-black text-white">{player.name}</h2>
+                            </div>
+
+                            {isScanning && <div className="scanner-line"></div>}
+
+                            <div className="flex-1 flex flex-col items-center justify-center w-full z-10 pb-10">
+                                {!isScanning && !hasScanned ? (
+                                    <div className="flex flex-col items-center text-zinc-600 animate-pulse mt-4">
+                                        <i className="fa-solid fa-fingerprint text-[5rem] mb-6"></i>
+                                        <p className="text-sm font-bold tracking-wide">النظام بانتظار البصمة</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center text-center z-10 w-full mt-4">
+                                        {displayRole && (
+                                            <i className={`fa-solid ${displayRole.icon} text-[5rem] mb-6 ${displayRole.color} ${isScanning ? 'opacity-30 blur-sm' : 'opacity-100 animate-pop drop-shadow-[0_0_15px_currentColor]'}`}></i>
+                                        )}
+                                        <div className="w-full">
+                                            <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 mb-2 font-mono">CONFIRMED IDENTITY</p>
+                                            <h3 className={`text-4xl font-black ${displayRole?.color} ${isScanning ? 'blur-md opacity-50' : 'animate-pop'}`}>
+                                                {displayRole?.name}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-auto pt-8 flex justify-center w-full shrink-0">
+                        <div className="w-full">
+                            {!isScanning && !hasScanned ? (
+                                <button
+                                    onClick={() => setIsScanning(true)}
+                                    className="w-full glass-panel border border-brand/50 text-brand hover:bg-brand/10 font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(239,68,68,0.15)] flex items-center justify-center gap-3 text-lg transition-colors"
+                                >
+                                    <i className="fa-solid fa-fingerprint text-xl"></i> كشف الهوية
+                                </button>
+                            ) : hasScanned ? (
+                                <button
+                                    onClick={onNext}
+                                    className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 text-lg transition-colors"
+                                >
+                                    {isLast ? 'تشفير وتسليم للحاكم' : 'إخفاء وتمرير الجهاز'}
+                                    {isLast ? <i className="fa-solid fa-lock text-sky-400"></i> : <i className="fa-solid fa-arrow-left text-zinc-400"></i>}
+                                </button>
+                            ) : (
+                                <div className="w-full py-4 text-center glass-panel rounded-2xl border-brand/30">
+                                    <span className="text-brand font-mono text-sm tracking-[0.2em] animate-pulse">ANALYZING DNA...</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function ModeratorPhase({ players, onGoToElimination, onReset, onManualEnd, onRevive, onToggleMark, isGlassMode, setIsGlassMode }) {
+            const [showRoles, setShowRoles] = useState(true);
+            const [showMenu, setShowMenu] = useState(false);
+
+            const aliveCount = players.filter(p => p.isAlive).length;
+            const mafiaAlive = players.filter(p => p.isAlive && p.role.id === 'mafia').length;
+            const othersAlive = aliveCount - mafiaAlive;
+
+            return (
+                <div className="px-4 animate-fade-up min-h-full flex flex-col pt-4">
+                    <div className="glass-panel rounded-3xl p-5 mb-6 relative overflow-hidden">
+                        <div className="flex justify-between items-center mb-5">
+                            <div>
+                                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <i className="fa-solid fa-satellite-dish text-sky-500"></i> مركز القيادة
+                                </h2>
+                            </div>
+                            <button onClick={() => setShowRoles(!showRoles)} className="bg-black/50 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-300 flex items-center gap-2 hover:bg-white/10 transition-colors">
+                                {showRoles ? <i className="fa-solid fa-eye-slash"></i> : <i className="fa-solid fa-eye text-sky-400"></i>}
+                                {showRoles ? 'إخفاء' : 'إظهار'}
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-black/60 rounded-2xl p-4 border border-brand/20 flex flex-col items-center relative">
+                                <span className="text-3xl font-black text-brand mb-1 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]">{mafiaAlive}</span>
+                                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">المافيا</span>
+                            </div>
+                            <div className="bg-black/60 rounded-2xl p-4 border border-sky-500/20 flex flex-col items-center relative">
+                                <span className="text-3xl font-black text-sky-400 mb-1 drop-shadow-[0_0_8px_rgba(56,189,248,0.5)]">{othersAlive}</span>
+                                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">المواطنين</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 space-y-2.5">
+                        <h3 className="px-2 mb-3 text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
+                            <i className="fa-regular fa-folder-open"></i> ملفات الأفراد ({players.length})
+                        </h3>
+
+                        {players.map((player) => (
+                            <div key={player.id} className={`glass-panel p-3 rounded-2xl flex items-center justify-between transition-all duration-300 ${!player.isAlive ? 'opacity-50 grayscale' : (player.isMarked ? 'neon-border-brand bg-brand/10' : 'border-white/5')}`}>
+
+                                <div className="flex items-center gap-3 overflow-hidden flex-1">
+                                    <div className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center border ${player.isAlive ? (player.isMarked ? 'bg-brand/20 text-brand border-brand/30' : 'bg-black/50 text-zinc-400 border-white/10') : 'bg-black text-zinc-600 border-black'}`}>
+                                        {!player.isAlive ? <i className="fa-solid fa-skull"></i> : (player.isMarked ? <i className="fa-solid fa-crosshairs animate-pulse"></i> : <i className="fa-solid fa-user"></i>)}
+                                    </div>
+
+                                    <div className="min-w-0 flex-1">
+                                        <p className={`font-bold text-sm mb-0.5 truncate ${!player.isAlive ? 'line-through text-zinc-500' : (player.isMarked ? 'text-brand' : 'text-white')}`}>
+                                            {player.name}
+                                        </p>
+                                        <div className="h-4 flex items-center">
+                                            {showRoles ? (
+                                                <p className={`text-[11px] font-bold ${player.role.color} flex items-center gap-1.5`}>
+                                                    <i className={`fa-solid ${player.role.icon}`}></i> {player.role.name}
+                                                </p>
+                                            ) : (
+                                                <div className="text-[10px] text-zinc-500 font-mono tracking-widest flex items-center gap-1">
+                                                    <i className="fa-solid fa-lock text-[8px]"></i> ENCRYPTED
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {!player.isAlive && (
+                                    <div className="flex items-center gap-2 pl-2 border-r border-white/10 ml-2">
+                                        <button onClick={() => onRevive(player.id)} className="px-3 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1.5 hover:bg-emerald-500/20 transition-colors">
+                                            <i className="fa-solid fa-heart-pulse"></i> إنعاش
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-auto pt-6 flex justify-center w-full z-30 shrink-0">
+                        <div className="w-full glass-panel p-2 rounded-3xl flex items-center gap-2 shadow-2xl border-white/10">
+
+                            <button onClick={() => setShowMenu(true)} className="w-14 h-14 shrink-0 rounded-2xl flex items-center justify-center text-zinc-400 hover:bg-white/10 hover:text-white transition-colors bg-black/50">
+                                <i className="fa-solid fa-gear text-xl"></i>
+                            </button>
+
+                            <button onClick={onGoToElimination} className="flex-1 h-14 bg-brand hover:bg-brand-light rounded-2xl text-white font-black flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-colors">
+                                <i className="fa-solid fa-gavel text-xl"></i> تنفيذ إقصاء
+                            </button>
+
+                        </div>
+                    </div>
+
+                    {showMenu && (
+                        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end justify-center sm:items-center p-4 animate-fade-up">
+                            <div className="bg-[#0a0a0a] border border-white/10 w-full max-w-sm rounded-3xl p-6 shadow-2xl mb-8 sm:mb-0">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-lg font-bold text-white">خيارات النظام</h3>
+                                    <button onClick={() => setShowMenu(false)} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white"><i className="fa-solid fa-xmark"></i></button>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <button onClick={() => { setShowMenu(false); onManualEnd('mafia'); }} className="w-full bg-brand/10 border border-brand/30 text-brand font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-brand/20 transition-colors">
+                                        <i className="fa-solid fa-user-secret"></i> إعلان فوز المافيا
+                                    </button>
+                                    <button onClick={() => { setShowMenu(false); onManualEnd('citizens'); }} className="w-full bg-sky-500/10 border border-sky-500/30 text-sky-400 font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-sky-500/20 transition-colors">
+                                        <i className="fa-solid fa-users"></i> إعلان فوز المواطنين
+                                    </button>
+                                    <div className="h-px bg-white/10 my-4 w-full"></div>
+                                    <button onClick={onReset} className="w-full bg-white/5 text-zinc-300 font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-white/10 transition-colors">
+                                        <i className="fa-solid fa-rotate-right"></i> إنهاء اللعبة (إعادة ضبط)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function EliminationPhase({ players, onEliminate, onCancel }) {
+            const alivePlayers = players.filter(p => p.isAlive);
+
+            return (
+                <div className="px-6 py-6 min-h-full flex flex-col animate-fade-up relative">
+                    <div className="text-center mb-8 mt-4">
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand/10 text-brand mb-4 border border-brand/30 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+                            <i className="fa-solid fa-crosshairs text-3xl"></i>
+                        </div>
+                        <h2 className="text-2xl font-black text-white mb-2 tracking-wide">تحديد الهدف</h2>
+                        <p className="text-zinc-400 text-xs">اضغط على بطاقة المشتبه به لتنفيذ الإقصاء فوراً.</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 flex-1 content-start">
+                        {alivePlayers.map((player) => (
+                            <button
+                                key={player.id}
+                                onClick={() => {
+                                    if (window.confirm(`تصريح بتصفية الهدف: (${player.name})؟`)) {
+                                        onEliminate(player.id);
+                                    }
+                                }}
+                                className="glass-panel p-5 rounded-3xl flex flex-col items-center justify-center gap-3 hover:border-brand hover:bg-brand/10 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all group"
+                            >
+                                <div className="w-14 h-14 rounded-full bg-black/50 border border-white/10 group-hover:border-brand/50 group-hover:bg-brand/20 flex items-center justify-center transition-colors relative">
+                                    <i className="fa-solid fa-user text-2xl text-zinc-500 group-hover:text-brand"></i>
+                                    {player.isMarked && (
+                                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-brand rounded-full border-2 border-[#0a0a0a] animate-pulse"></div>
+                                    )}
+                                </div>
+                                <span className="font-bold text-zinc-200 group-hover:text-brand text-sm line-clamp-1">{player.name}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="mt-auto pt-6 flex justify-center w-full z-20 shrink-0">
+                        <button
+                            onClick={onCancel}
+                            className="w-full max-w-sm glass-panel bg-black/80 text-zinc-300 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 text-lg hover:text-white transition-colors"
+                        >
+                            إلغاء الأمر <i className="fa-solid fa-arrow-left text-sm mt-1"></i>
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        function GameOverPhase({ winner, onReset }) {
+            const [showButton, setShowButton] = useState(false);
+
+            useEffect(() => {
+                const timer = setTimeout(() => setShowButton(true), 1500);
+                return () => clearTimeout(timer);
+            }, []);
+
+            const isMafia = winner === 'mafia';
+
+            return (
+                <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center p-6 bg-[#050505]">
+                    <div className={`absolute inset-0 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] ${isMafia ? 'from-brand/20' : 'from-sky-900/40'} to-[#050505]`}></div>
+                    <div className="absolute inset-0 bg-grid opacity-20"></div>
+
+                    <div className="relative z-10 flex flex-col items-center text-center animate-fade-up">
+                        <div className={`text-[10px] font-bold tracking-[0.3em] uppercase mb-8 font-mono px-4 py-1.5 rounded-full border ${isMafia ? 'text-brand border-brand/30 bg-brand/10' : 'text-sky-400 border-sky-500/30 bg-sky-500/10'}`}>
+                            PROTOCOL TERMINATED
+                        </div>
+
+                        <div className="relative mb-8">
+                            <div className={`absolute inset-0 blur-2xl opacity-50 rounded-full ${isMafia ? 'bg-brand' : 'bg-sky-500'}`}></div>
+                            <div className={`w-40 h-40 rounded-full glass-panel flex items-center justify-center relative z-10 border-4 ${isMafia ? 'border-brand' : 'border-sky-400'} shadow-2xl`}>
+                                <i className={`fa-solid ${isMafia ? 'fa-user-secret text-brand' : 'fa-users text-sky-400'} text-7xl`}></i>
+                            </div>
+                        </div>
+
+                        <h2 className="text-4xl md:text-5xl font-black text-white mb-3 drop-shadow-xl">
+                            {isMafia ? 'انتصرت المافيا' : 'انتصر المواطنون'}
+                        </h2>
+                        <p className="text-zinc-400 mb-12 text-sm max-w-xs leading-relaxed">
+                            {isMafia ? 'تمت السيطرة الكاملة على النظام وإسقاط المواطنين.' : 'تم القضاء على التهديد واستعادة أمن المواطنين بنجاح.'}
+                        </p>
+
+                        {showButton && (
+                            <button
+                                onClick={onReset}
+                                className={`animate-pop font-bold py-4 px-10 rounded-2xl flex items-center gap-3 text-lg transition-all ${isMafia ? 'bg-brand hover:bg-brand-light text-white shadow-[0_0_20px_rgba(239,68,68,0.4)]' : 'bg-sky-600 hover:bg-sky-500 text-white shadow-[0_0_20px_rgba(14,165,233,0.4)]'}`}
+                            >
+                                <i className="fa-solid fa-power-off"></i> إعادة تشغيل النظام
+                            </button>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>

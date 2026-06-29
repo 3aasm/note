@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#1e293b">
+    <title>حجرة ورقة مقص - أدواتي</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Cairo', 'sans-serif'] },
+                    colors: { factory: { base: '#0f172a', surface: '#1e293b', panel: '#334155', accent: '#f59e0b', text: '#f8fafc', textMuted: '#94a3b8' } },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Cairo', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .header-bar { background: #1e293b; border-bottom: 4px solid #f59e0b; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .choice-btn { background: #334155; border: 2px solid #475569; border-radius: 20px; transition: all 0.2s; box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 8px 16px rgba(0,0,0,0.4); }
+        .choice-btn:hover, .choice-btn.active { border-color: #f59e0b; transform: translateY(-5px); background: #1e293b; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.2); }
+        .choice-btn:active { transform: translateY(0); }
+        .choice-icon { font-size: 3rem; margin-bottom: 0.5rem; transition: color 0.2s; }
+        .choice-btn:hover .choice-icon, .choice-btn.active .choice-icon { color: #f59e0b; }
+
+        /* حلبة القتال (الكمبيوتر) */
+        .battle-area { height: 200px; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; margin-bottom: 2rem; position: relative; overflow: hidden; }
+        .player-side, .cpu-side { font-size: 5rem; display: flex; align-items: center; justify-content: center; width: 40%; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .vs-text { font-size: 2rem; font-weight: 900; color: #475569; text-shadow: 2px 2px 0px #0f172a; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; }
+        
+        .player-side { transform: translateX(0); }
+        .cpu-side { transform: translateX(0); }
+        .player-side.win { transform: scale(1.2) translateX(-20px); color: #22c55e; }
+        .cpu-side.win { transform: scale(1.2) translateX(20px); color: #22c55e; }
+        .player-side.lose { transform: scale(0.8) translateX(20px); opacity: 0.5; }
+        .cpu-side.lose { transform: scale(0.8) translateX(-20px); opacity: 0.5; }
+        
+        @keyframes shake-hand {
+            0% { transform: translateY(0); }
+            25% { transform: translateY(-20px); }
+            50% { transform: translateY(0); }
+            75% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
+        }
+        .shaking .fa-hand-back-fist { animation: shake-hand 0.4s infinite; }
+        
+        /* وضع الصديق (أزرار تحت اليد) */
+        .local-btn { transition: all 0.2s; border: 2px solid transparent; }
+        .local-btn.selected { border-color: #f59e0b; background: #1e293b; transform: scale(0.95); }
+        .local-btn.selected .fa-solid { color: #f59e0b; }
+        
+        .arena-friend { font-size: 5rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .arena-friend.win { transform: scale(1.3); color: #22c55e; }
+        .arena-friend.lose { transform: scale(0.8); opacity: 0.5; color: #ef4444; }
+        .arena-friend.draw { transform: scale(1.1); color: #eab308; }
+        
+        .friend-shake { animation: shake-hand 0.4s infinite; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden selection:bg-factory-accent/30 relative bg-factory-base">
+
+    <!-- شاشة اختيار الوضع -->
+    <div id="view-mode-select" class="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 bg-factory-base transition-opacity duration-300">
+        <div class="mb-12 text-center">
+            <i class="fa-solid fa-hand-scissors text-6xl text-factory-accent mb-4 drop-shadow-lg transform -rotate-45"></i>
+            <h1 class="text-4xl font-black text-white">حجرة ورقة مقص</h1>
+            <p class="text-factory-textMuted font-bold mt-2">اختر وضع اللعب للبدء</p>
+        </div>
+
+        <div class="w-full max-w-sm flex flex-col gap-5">
+            <button onclick="startMode('cpu')" class="group relative flex items-center bg-factory-surface border-2 border-factory-panel p-4 rounded-2xl hover:border-factory-accent transition-all duration-300 shadow-lg hover:shadow-factory-accent/20 hover:-translate-y-1 text-right w-full">
+                <div class="w-16 h-16 shrink-0 rounded-xl bg-factory-base flex items-center justify-center group-hover:bg-factory-accent/10 transition-colors">
+                    <i class="fa-solid fa-robot text-3xl text-slate-400 group-hover:text-factory-accent transition-colors"></i>
+                </div>
+                <div class="mr-4 flex-1">
+                    <h3 class="text-xl font-black text-white mb-1">لعب ضد الجهاز</h3>
+                    <p class="text-xs text-factory-textMuted font-bold">تحدى الذكاء الاصطناعي</p>
+                </div>
+                <i class="fa-solid fa-chevron-left text-factory-panel group-hover:text-factory-accent transition-colors ml-2"></i>
+            </button>
+
+            <button onclick="startMode('friend')" class="group relative flex items-center bg-factory-surface border-2 border-factory-panel p-4 rounded-2xl hover:border-factory-accent transition-all duration-300 shadow-lg hover:shadow-factory-accent/20 hover:-translate-y-1 text-right w-full mt-2">
+                <div class="w-16 h-16 shrink-0 rounded-xl bg-factory-base flex items-center justify-center group-hover:bg-factory-accent/10 transition-colors">
+                    <i class="fa-solid fa-user-group text-3xl text-slate-400 group-hover:text-factory-accent transition-colors"></i>
+                </div>
+                <div class="mr-4 flex-1">
+                    <h3 class="text-xl font-black text-white mb-1">لعب ضد صديق</h3>
+                    <p class="text-xs text-factory-textMuted font-bold">نفس الهاتف وجهًا لوجه</p>
+                </div>
+                <i class="fa-solid fa-chevron-left text-factory-panel group-hover:text-factory-accent transition-colors ml-2"></i>
+                <span class="text-xs bg-factory-accent text-factory-base px-2 py-1 rounded-full absolute -top-3 right-4 transform rotate-6 font-black shadow-md border-2 border-factory-base">ممتع جداً!</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- شاشة اللعب ضد الجهاز -->
+    <div id="view-game-cpu" class="hidden absolute inset-0 z-40 flex flex-col bg-factory-base transition-opacity duration-300">
+        <header class="header-bar h-20 shrink-0 flex items-center justify-start px-6 z-30 relative">
+            <h1 class="text-2xl font-black text-white flex items-center gap-2">
+                <i class="fa-solid fa-hand-scissors text-factory-accent"></i> ضد الجهاز
+            </h1>
+        </header>
+
+        <!-- زر العودة للمود -->
+        <button onclick="showModeSelect()" class="absolute top-1/2 right-4 -mt-6 w-12 h-12 rounded-full bg-factory-surface border-2 border-factory-panel text-white flex items-center justify-center z-50 shadow-xl hover:border-factory-accent">
+            <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+        <main class="flex-1 overflow-y-auto px-4 py-6 flex flex-col items-center">
+            <div class="w-full max-w-md p-6 flex flex-col items-center relative">
+                
+                <div class="flex justify-between w-full px-4 mb-2">
+                    <span class="font-bold text-factory-textMuted bg-factory-base px-3 py-1 rounded-full text-sm border border-factory-panel">أنت</span>
+                    <span class="font-bold text-factory-textMuted bg-factory-base px-3 py-1 rounded-full text-sm border border-factory-panel">الجهاز</span>
+                </div>
+                
+                <div class="w-full battle-area bg-factory-base rounded-[30px] border border-factory-panel shadow-inner">
+                    <div id="player-hand" class="player-side"><i class="fa-solid fa-hand-back-fist text-slate-400"></i></div>
+                    <div class="vs-text">VS</div>
+                    <div id="cpu-hand" class="cpu-side"><i class="fa-solid fa-hand-back-fist text-slate-400"></i></div>
+                </div>
+                
+                <h2 id="result-msg" class="text-2xl font-black text-white mb-8 h-10 drop-shadow-md transition-colors text-center flex items-center justify-center">اختر سلاحك!</h2>
+
+                <div class="w-full h-px bg-factory-panel mb-8 relative">
+                    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-factory-panel px-4 py-1 rounded-full text-xs font-bold text-factory-textMuted border border-slate-600">لوحة التحكم</div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 w-full">
+                    <button onclick="playCpu('rock')" id="btn-rock" class="choice-btn py-5 flex flex-col items-center">
+                        <i class="fa-solid fa-hand-back-fist choice-icon text-slate-300"></i>
+                        <span class="font-bold text-sm text-white">حجرة</span>
+                    </button>
+                    <button onclick="playCpu('paper')" id="btn-paper" class="choice-btn py-5 flex flex-col items-center">
+                        <i class="fa-solid fa-hand choice-icon text-slate-300"></i>
+                        <span class="font-bold text-sm text-white">ورقة</span>
+                    </button>
+                    <button onclick="playCpu('scissors')" id="btn-scissors" class="choice-btn py-5 flex flex-col items-center">
+                        <i class="fa-solid fa-hand-scissors choice-icon text-slate-300 transform -rotate-90"></i>
+                        <span class="font-bold text-sm text-white">مقص</span>
+                    </button>
+                </div>
+                
+                <div class="flex gap-6 mt-8">
+                    <div class="text-center">
+                        <div class="text-[10px] text-factory-textMuted font-bold mb-1 uppercase">فوز</div>
+                        <div id="score-win" class="text-xl font-black text-green-500 bg-factory-base w-12 h-12 rounded-lg flex items-center justify-center border border-factory-panel shadow-inner">0</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[10px] text-factory-textMuted font-bold mb-1 uppercase">تعادل</div>
+                        <div id="score-draw" class="text-xl font-black text-yellow-500 bg-factory-base w-12 h-12 rounded-lg flex items-center justify-center border border-factory-panel shadow-inner">0</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[10px] text-factory-textMuted font-bold mb-1 uppercase">خسارة</div>
+                        <div id="score-lose" class="text-xl font-black text-red-500 bg-factory-base w-12 h-12 rounded-lg flex items-center justify-center border border-factory-panel shadow-inner">0</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- شاشة اللعب ضد صديق (فوق وتحت) -->
+    <div id="view-game-friend" class="hidden absolute inset-0 z-40 flex flex-col bg-factory-base overflow-hidden">
+        
+        <!-- زر العودة للمود -->
+        <button onclick="showModeSelect()" class="absolute top-1/2 right-4 -mt-6 w-12 h-12 rounded-full bg-factory-surface border-2 border-factory-panel text-white flex items-center justify-center z-50 shadow-xl hover:border-factory-accent">
+            <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+        <!-- لاعب 2 (الأعلى - معكوس) -->
+        <div class="flex-1 flex flex-col justify-between transform rotate-180 bg-factory-surface border-b-4 border-factory-panel relative">
+            <div class="flex flex-col items-center mt-6">
+                <span class="bg-factory-panel text-white font-bold px-4 py-1 rounded-full text-sm shadow-inner border border-slate-600">اللاعب 2</span>
+                <span id="p2-local-score" class="text-4xl font-black text-factory-accent mt-2 drop-shadow-md">0</span>
+            </div>
+            
+            <div id="p2-local-arena" class="arena-friend h-32 text-slate-500">
+                <i class="fa-solid fa-hand-back-fist"></i>
+            </div>
+            
+            <div id="p2-status" class="text-center h-6 text-green-400 font-bold opacity-0 transition-opacity drop-shadow">✅ تم الاختيار</div>
+
+            <!-- أزرار اللاعب 2 (مكان التغطية باليد) -->
+            <div class="w-full bg-factory-panel rounded-t-[40px] shadow-[0_-10px_25px_rgba(0,0,0,0.5)] p-4 pb-6 flex justify-center gap-3 relative border-t border-slate-600">
+                <div class="absolute -top-3 text-xs text-slate-400 bg-factory-surface px-3 py-1 rounded-full border border-slate-600">غطي هذه المنطقة بيدك</div>
+                <button onclick="playLocal(2, 'rock')" id="p2-btn-rock" class="local-btn flex-1 bg-factory-base rounded-2xl py-5 flex flex-col items-center justify-center shadow-inner">
+                    <i class="fa-solid fa-hand-back-fist text-3xl text-slate-400 mb-2"></i>
+                </button>
+                <button onclick="playLocal(2, 'paper')" id="p2-btn-paper" class="local-btn flex-1 bg-factory-base rounded-2xl py-5 flex flex-col items-center justify-center shadow-inner">
+                    <i class="fa-solid fa-hand text-3xl text-slate-400 mb-2"></i>
+                </button>
+                <button onclick="playLocal(2, 'scissors')" id="p2-btn-scissors" class="local-btn flex-1 bg-factory-base rounded-2xl py-5 flex flex-col items-center justify-center shadow-inner">
+                    <i class="fa-solid fa-hand-scissors transform -rotate-90 text-3xl text-slate-400 mb-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- رسالة النتيجة في المنتصف -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none w-full flex justify-center">
+            <div id="friend-result-badge" class="bg-factory-accent text-factory-base font-black px-8 py-3 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.5)] text-xl transform scale-0 transition-transform duration-300 border-4 border-factory-base">
+                استعد!
+            </div>
+        </div>
+
+        <!-- لاعب 1 (الأسفل) -->
+        <div class="flex-1 flex flex-col justify-between bg-factory-surface relative">
+            <div class="flex flex-col items-center mt-6">
+                <span class="bg-factory-panel text-white font-bold px-4 py-1 rounded-full text-sm shadow-inner border border-slate-600">اللاعب 1</span>
+                <span id="p1-local-score" class="text-4xl font-black text-factory-accent mt-2 drop-shadow-md">0</span>
+            </div>
+            
+            <div id="p1-local-arena" class="arena-friend h-32 text-slate-500">
+                <i class="fa-solid fa-hand-back-fist"></i>
+            </div>
+            
+            <div id="p1-status" class="text-center h-6 text-green-400 font-bold opacity-0 transition-opacity drop-shadow">✅ تم الاختيار</div>
+
+            <!-- أزرار اللاعب 1 (مكان التغطية باليد) -->
+            <div class="w-full bg-factory-panel rounded-t-[40px] shadow-[0_-10px_25px_rgba(0,0,0,0.5)] p-4 pb-6 flex justify-center gap-3 relative border-t border-slate-600">
+                <div class="absolute -top-3 text-xs text-slate-400 bg-factory-surface px-3 py-1 rounded-full border border-slate-600">غطي هذه المنطقة بيدك</div>
+                <button onclick="playLocal(1, 'rock')" id="p1-btn-rock" class="local-btn flex-1 bg-factory-base rounded-2xl py-5 flex flex-col items-center justify-center shadow-inner">
+                    <i class="fa-solid fa-hand-back-fist text-3xl text-slate-400 mb-2"></i>
+                </button>
+                <button onclick="playLocal(1, 'paper')" id="p1-btn-paper" class="local-btn flex-1 bg-factory-base rounded-2xl py-5 flex flex-col items-center justify-center shadow-inner">
+                    <i class="fa-solid fa-hand text-3xl text-slate-400 mb-2"></i>
+                </button>
+                <button onclick="playLocal(1, 'scissors')" id="p1-btn-scissors" class="local-btn flex-1 bg-factory-base rounded-2xl py-5 flex flex-col items-center justify-center shadow-inner">
+                    <i class="fa-solid fa-hand-scissors transform -rotate-90 text-3xl text-slate-400 mb-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const choices = ['rock', 'paper', 'scissors'];
+        const icons = {
+            'rock': 'fa-hand-back-fist',
+            'paper': 'fa-hand',
+            'scissors': 'fa-hand-scissors'
+        };
+        
+        // Navigation Logic
+        function startMode(mode) {
+            document.getElementById('view-mode-select').classList.add('hidden');
+            if (mode === 'cpu') {
+                document.getElementById('view-game-cpu').classList.remove('hidden');
+                resetCpuGame();
+            } else {
+                document.getElementById('view-game-friend').classList.remove('hidden');
+                resetLocalGame();
+            }
+        }
+        
+        function showModeSelect() {
+            document.getElementById('view-game-cpu').classList.add('hidden');
+            document.getElementById('view-game-friend').classList.add('hidden');
+            document.getElementById('view-mode-select').classList.remove('hidden');
+        }
+
+        // --- CPU MODE LOGIC ---
+        let cpuScores = { win: 0, lose: 0, draw: 0 };
+        let isCpuPlaying = false;
+
+        function resetCpuGame() {
+            const playerHand = document.getElementById('player-hand');
+            const cpuHand = document.getElementById('cpu-hand');
+            playerHand.className = 'player-side';
+            cpuHand.className = 'cpu-side';
+            playerHand.innerHTML = `<i class="fa-solid fa-hand-back-fist text-slate-400"></i>`;
+            cpuHand.innerHTML = `<i class="fa-solid fa-hand-back-fist text-slate-400"></i>`;
+            document.getElementById('result-msg').innerText = "اختر سلاحك!";
+            document.getElementById('result-msg').className = "text-2xl font-black text-white mb-8 h-10 drop-shadow-md text-center flex items-center justify-center";
+            document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('active'));
+        }
+
+        function playCpu(playerChoice) {
+            if (isCpuPlaying) return;
+            isCpuPlaying = true;
+            
+            const playerHand = document.getElementById('player-hand');
+            const cpuHand = document.getElementById('cpu-hand');
+            const resultMsg = document.getElementById('result-msg');
+            
+            document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${playerChoice}`).classList.add('active');
+            
+            playerHand.className = 'player-side shaking';
+            cpuHand.className = 'cpu-side shaking';
+            playerHand.innerHTML = `<i class="fa-solid fa-hand-back-fist text-slate-300 transform rotate-90"></i>`;
+            cpuHand.innerHTML = `<i class="fa-solid fa-hand-back-fist text-slate-300 transform -rotate-90"></i>`;
+            
+            resultMsg.innerText = "جاري الاختيار...";
+            resultMsg.className = "text-xl font-black text-factory-textMuted mb-8 h-10 flex items-center justify-center";
+
+            setTimeout(() => {
+                const cpuChoice = choices[Math.floor(Math.random() * choices.length)];
+                
+                playerHand.className = 'player-side pop-anim';
+                cpuHand.className = 'cpu-side pop-anim';
+                
+                playerHand.innerHTML = `<i class="fa-solid ${icons[playerChoice]} text-white transform ${playerChoice==='scissors' ? '-rotate-90 scale-x-[-1]' : 'rotate-90'}"></i>`;
+                cpuHand.innerHTML = `<i class="fa-solid ${icons[cpuChoice]} text-white transform ${cpuChoice==='scissors' ? 'rotate-90 scale-x-[-1]' : '-rotate-90'}"></i>`;
+                
+                let result = '';
+                if (playerChoice === cpuChoice) result = 'draw';
+                else if (
+                    (playerChoice === 'rock' && cpuChoice === 'scissors') ||
+                    (playerChoice === 'paper' && cpuChoice === 'rock') ||
+                    (playerChoice === 'scissors' && cpuChoice === 'paper')
+                ) result = 'win';
+                else result = 'lose';
+                
+                if (result === 'win') {
+                    resultMsg.innerText = "لقد فزت! 🎉";
+                    resultMsg.className = "text-3xl font-black text-green-500 mb-8 h-10 drop-shadow-md transition-colors text-center flex items-center justify-center";
+                    playerHand.classList.add('win');
+                    cpuHand.classList.add('lose');
+                    cpuScores.win++;
+                    document.getElementById('score-win').innerText = cpuScores.win;
+                } else if (result === 'lose') {
+                    resultMsg.innerText = "لقد خسرت! 💔";
+                    resultMsg.className = "text-3xl font-black text-red-500 mb-8 h-10 drop-shadow-md transition-colors text-center flex items-center justify-center";
+                    playerHand.classList.add('lose');
+                    cpuHand.classList.add('win');
+                    cpuScores.lose++;
+                    document.getElementById('score-lose').innerText = cpuScores.lose;
+                } else {
+                    resultMsg.innerText = "تعادل! 🤝";
+                    resultMsg.className = "text-3xl font-black text-yellow-500 mb-8 h-10 drop-shadow-md transition-colors text-center flex items-center justify-center";
+                    playerHand.classList.add('draw');
+                    cpuHand.classList.add('draw');
+                    cpuScores.draw++;
+                    document.getElementById('score-draw').innerText = cpuScores.draw;
+                }
+                
+                setTimeout(() => { isCpuPlaying = false; }, 500);
+            }, 1000);
+        }
+
+        // --- LOCAL MULTIPLAYER LOGIC ---
+        let p1Choice = null;
+        let p2Choice = null;
+        let localScores = { p1: 0, p2: 0 };
+        let isLocalResolving = false;
+
+        function resetLocalGame() {
+            p1Choice = null;
+            p2Choice = null;
+            isLocalResolving = false;
+            
+            document.getElementById('p1-local-arena').className = 'arena-friend h-32 text-slate-500';
+            document.getElementById('p2-local-arena').className = 'arena-friend h-32 text-slate-500';
+            document.getElementById('p1-local-arena').innerHTML = `<i class="fa-solid fa-hand-back-fist"></i>`;
+            document.getElementById('p2-local-arena').innerHTML = `<i class="fa-solid fa-hand-back-fist"></i>`;
+            
+            document.getElementById('p1-status').classList.replace('opacity-100', 'opacity-0');
+            document.getElementById('p2-status').classList.replace('opacity-100', 'opacity-0');
+            document.querySelectorAll('.local-btn').forEach(btn => btn.classList.remove('selected'));
+            
+            document.getElementById('friend-result-badge').classList.replace('scale-100', 'scale-0');
+        }
+
+        function playLocal(playerNum, choice) {
+            if (isLocalResolving) return;
+
+            if (playerNum === 1) {
+                p1Choice = choice;
+                document.querySelectorAll('#view-game-friend .local-btn[id^="p1"]').forEach(btn => btn.classList.remove('selected'));
+                document.getElementById(`p1-btn-${choice}`).classList.add('selected');
+                document.getElementById('p1-status').classList.replace('opacity-0', 'opacity-100');
+            } else {
+                p2Choice = choice;
+                document.querySelectorAll('#view-game-friend .local-btn[id^="p2"]').forEach(btn => btn.classList.remove('selected'));
+                document.getElementById(`p2-btn-${choice}`).classList.add('selected');
+                document.getElementById('p2-status').classList.replace('opacity-0', 'opacity-100');
+            }
+
+            if (p1Choice && p2Choice) {
+                isLocalResolving = true;
+                resolveLocalGame();
+            }
+        }
+
+        function resolveLocalGame() {
+            const p1Arena = document.getElementById('p1-local-arena');
+            const p2Arena = document.getElementById('p2-local-arena');
+            const badge = document.getElementById('friend-result-badge');
+
+            document.getElementById('p1-status').classList.replace('opacity-100', 'opacity-0');
+            document.getElementById('p2-status').classList.replace('opacity-100', 'opacity-0');
+
+            p1Arena.className = 'arena-friend h-32 text-slate-300 friend-shake';
+            p2Arena.className = 'arena-friend h-32 text-slate-300 friend-shake';
+            p1Arena.innerHTML = `<i class="fa-solid fa-hand-back-fist"></i>`;
+            p2Arena.innerHTML = `<i class="fa-solid fa-hand-back-fist"></i>`;
+
+            badge.innerText = "جاري اللعب...";
+            badge.className = "bg-factory-panel text-white font-black px-8 py-3 rounded-full shadow-lg text-xl transform scale-100 transition-transform duration-300 border-4 border-slate-600";
+
+            setTimeout(() => {
+                let p1IconClass = icons[p1Choice];
+                let p2IconClass = icons[p2Choice];
+                
+                let p1Transform = p1Choice === 'scissors' ? 'transform -rotate-90' : '';
+                let p2Transform = p2Choice === 'scissors' ? 'transform -rotate-90' : '';
+
+                p1Arena.innerHTML = `<i class="fa-solid ${p1IconClass} ${p1Transform}"></i>`;
+                p2Arena.innerHTML = `<i class="fa-solid ${p2IconClass} ${p2Transform}"></i>`;
+
+                let winner = 0;
+                if (p1Choice === p2Choice) winner = 0;
+                else if (
+                    (p1Choice === 'rock' && p2Choice === 'scissors') ||
+                    (p1Choice === 'paper' && p2Choice === 'rock') ||
+                    (p1Choice === 'scissors' && p2Choice === 'paper')
+                ) winner = 1;
+                else winner = 2;
+
+                p1Arena.className = 'arena-friend h-32 transition-all duration-500';
+                p2Arena.className = 'arena-friend h-32 transition-all duration-500';
+
+                if (winner === 1) {
+                    badge.innerText = "فوز اللاعب 1 🎉";
+                    badge.className = "bg-green-500 text-white font-black px-8 py-3 rounded-full shadow-[0_0_20px_rgba(34,197,94,0.5)] text-xl transform scale-100 transition-transform duration-300 border-4 border-green-700";
+                    p1Arena.classList.add('win', 'text-white');
+                    p2Arena.classList.add('lose', 'text-slate-500');
+                    localScores.p1++;
+                    document.getElementById('p1-local-score').innerText = localScores.p1;
+                } else if (winner === 2) {
+                    badge.innerText = "فوز اللاعب 2 🎉";
+                    badge.className = "bg-blue-500 text-white font-black px-8 py-3 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)] text-xl transform scale-100 transition-transform duration-300 border-4 border-blue-700 rotate-180";
+                    p2Arena.classList.add('win', 'text-white');
+                    p1Arena.classList.add('lose', 'text-slate-500');
+                    localScores.p2++;
+                    document.getElementById('p2-local-score').innerText = localScores.p2;
+                } else {
+                    badge.innerText = "تعادل! 🤝";
+                    badge.className = "bg-yellow-500 text-white font-black px-8 py-3 rounded-full shadow-[0_0_20px_rgba(234,179,8,0.5)] text-xl transform scale-100 transition-transform duration-300 border-4 border-yellow-700";
+                    p1Arena.classList.add('draw', 'text-white');
+                    p2Arena.classList.add('draw', 'text-white');
+                }
+
+                setTimeout(() => {
+                    resetLocalGame();
+                }, 3000);
+
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
